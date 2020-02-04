@@ -720,7 +720,7 @@ def trace_slope(starting_point, starting_line, direction, intersections):
     
     perimeter = True
     for line in slope[LINES]:
-        if line[TYPE] != OUTSIDE_EDGE and line[TYPE] != TREE_BOUNDARY:
+        if line[TYPE] != FISH_BOUNDARY:
             perimeter = False
     slope['perimeter'] = perimeter
     

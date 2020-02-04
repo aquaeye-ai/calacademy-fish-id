@@ -407,7 +407,7 @@ def save_images(images=None, prefix="", postfix="", extension=".png"):
 
 def find_boundary_images(directory=None):
     """
-    Finds roof boundary images (generated separately in roof_from_boundaries.py) in given directory.
+    Finds roof boundary images (generated separately in fish_from_boundaries.py) in given directory.
 
     :param directory:   str, directory to search in
     :return:            list, list of image file names
