@@ -1,4 +1,5 @@
 import numpy as np
+import cv2 as cv2
 import os
 import sys
 import tarfile
@@ -52,8 +53,11 @@ def load_image_into_numpy_array(image):
 # image1.jpg
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/test"
+PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
 TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 5)]
+
+# Size, in pixels of input image
+IMAGE_H = IMAGE_W = 600
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
@@ -106,31 +110,55 @@ def run_inference_for_single_image(image, graph):
 
 if __name__ == "__main__":
     for image_path in TEST_IMAGE_PATHS:
-        image = Image.open(image_path)
+        #image = Image.open(image_path)
 
         # The array based representation of the image will be used later in order to prepare the result image with
         # boxes and labels on it.
-        image_np = load_image_into_numpy_array(image)
+        #image_np = load_image_into_numpy_array(image)
+        image_np = cv2.imread(image_path)
 
-        # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-        image_np_expanded = np.expand_dims(image_np, axis=0)
+        # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
+        h_mult = np.ceil(image_np.shape[0] / float(IMAGE_H))
+        w_mult = np.ceil(image_np.shape[1] / float(IMAGE_W))
+        h_new = h_mult * IMAGE_H
+        w_new = w_mult * IMAGE_W
+        h_pad_top = 0
+        h_pad_bottom = h_new - image_np.shape[0]
+        w_pad_right = w_new - image_np.shape[1]
+        w_pad_left = 0
+        cv_img = cv2.imread(image_path)
+        image_pad_np = cv2.copyMakeBorder(image_np, int(h_pad_top), int(h_pad_bottom), int(w_pad_left), int(w_pad_right), borderType=cv2.BORDER_CONSTANT, value=0)
 
-        # Actual detection.
-        output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
+        cv2.imshow('image_pad_np', image_pad_np)
+        cv2.waitKey()
 
-        # Visualization of the results of a detection.
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            image_np,
-            output_dict['detection_boxes'],
-            output_dict['detection_classes'],
-            output_dict['detection_scores'],
-            category_index,
-            instance_masks=output_dict.get('detection_masks'),
-            use_normalized_coordinates=True,
-            line_thickness=8,
-            min_score_thresh=0.1)
-        plt.figure(figsize=(IMAGE_SIZE))
-        plt.imshow(image_np)
-        while True:
-            if plt.waitforbuttonpress():
-                break
+        # Perform inference on tiles of image for better accuracy
+        for i in range(0, int(w_mult)):
+            for j in range(0, int(h_mult)):
+                tile_np = image_pad_np[i*IMAGE_W, j*IMAGE_H, :]
+
+                cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
+                cv2.waitKey()
+
+                # # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                # image_np_expanded = np.expand_dims(tile_np, axis=0)
+                #
+                # # Actual detection.
+                # output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
+                #
+                # # Visualization of the results of a detection.
+                # vis_util.visualize_boxes_and_labels_on_image_array(
+                #     tile_np,
+                #     output_dict['detection_boxes'],
+                #     output_dict['detection_classes'],
+                #     output_dict['detection_scores'],
+                #     category_index,
+                #     instance_masks=output_dict.get('detection_masks'),
+                #     use_normalized_coordinates=True,
+                #     line_thickness=8,
+                #     min_score_thresh=0.1)
+                # plt.figure(figsize=(IMAGE_SIZE))
+                # plt.imshow(tile_np)
+                # while True:
+                #     if plt.waitforbuttonpress():
+                #         break
