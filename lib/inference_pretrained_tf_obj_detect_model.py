@@ -1,5 +1,6 @@
 import numpy as np
 import cv2 as cv2
+import file_utils as fu
 import os
 import sys
 import tarfile
@@ -129,36 +130,43 @@ if __name__ == "__main__":
         cv_img = cv2.imread(image_path)
         image_pad_np = cv2.copyMakeBorder(image_np, int(h_pad_top), int(h_pad_bottom), int(w_pad_left), int(w_pad_right), borderType=cv2.BORDER_CONSTANT, value=0)
 
-        cv2.imshow('image_pad_np', image_pad_np)
-        cv2.waitKey()
+        # cv2.imshow('image_pad_np', image_pad_np)
+        # cv2.waitKey()
+
+        # print("h_mult={}".format(h_mult))
+        # print("w_mult={}".format(w_mult))
 
         # Perform inference on tiles of image for better accuracy
-        for i in range(0, int(w_mult)):
-            for j in range(0, int(h_mult)):
-                tile_np = image_pad_np[i*IMAGE_W, j*IMAGE_H, :]
+        for i in range(0, int(w_mult)-1):
+            for j in range(0, int(h_mult)-1):
+                tile_np = image_pad_np[i*IMAGE_W:(i+1)*IMAGE_W, j*IMAGE_H:(j+1)*IMAGE_H, :]
 
-                cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
-                cv2.waitKey()
+                # print("i={}, j={}".format(i, j))
+                # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
+                # cv2.waitKey()
 
-                # # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-                # image_np_expanded = np.expand_dims(tile_np, axis=0)
-                #
-                # # Actual detection.
-                # output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
-                #
-                # # Visualization of the results of a detection.
-                # vis_util.visualize_boxes_and_labels_on_image_array(
-                #     tile_np,
-                #     output_dict['detection_boxes'],
-                #     output_dict['detection_classes'],
-                #     output_dict['detection_scores'],
-                #     category_index,
-                #     instance_masks=output_dict.get('detection_masks'),
-                #     use_normalized_coordinates=True,
-                #     line_thickness=8,
-                #     min_score_thresh=0.1)
-                # plt.figure(figsize=(IMAGE_SIZE))
-                # plt.imshow(tile_np)
-                # while True:
-                #     if plt.waitforbuttonpress():
-                #         break
+                # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                image_np_expanded = np.expand_dims(tile_np, axis=0)
+
+                # Actual detection.
+                output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
+
+                # Visualization of the results of a detection.
+                vis_util.visualize_boxes_and_labels_on_image_array(
+                    tile_np,
+                    output_dict['detection_boxes'],
+                    output_dict['detection_classes'],
+                    output_dict['detection_scores'],
+                    category_index,
+                    instance_masks=output_dict.get('detection_masks'),
+                    use_normalized_coordinates=True,
+                    line_thickness=8,
+                    min_score_thresh=0.1)
+                plt.figure(figsize=(IMAGE_SIZE))
+                plt.imshow(tile_np)
+                basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
+                tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_detection_classes_{}_detection_scores_{}".format(basename, i, j, output_dict['detection_classes'], output_dict['detection_scores'])
+                fu.save_images(images=[(tile_np_path, tile_np)])
+                while True:
+                    if plt.waitforbuttonpress():
+                        break
