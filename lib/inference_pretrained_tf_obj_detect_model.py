@@ -15,7 +15,8 @@ from object_detection.utils import visualization_utils as vis_util
 
 # What model to download.
 # MODEL_NAME = 'faster_rcnn_resnet101_fgvc_2018_07_19'
-MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
+# MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
+MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -24,7 +25,8 @@ PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
 # PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'fgvc_2854_classes_label_map.pbtxt')
-PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'oid_v4_label_map.pbtxt')
+# PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'oid_v4_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
 opener = urllib.request.URLopener()
 opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
 tar_file = tarfile.open(MODEL_FILE)
@@ -59,7 +61,7 @@ PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stil
 TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 5)]
 
 # Size, in pixels of input image
-IMAGE_H = IMAGE_W = 300
+IMAGE_H = IMAGE_W = 600
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
