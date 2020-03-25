@@ -16,7 +16,7 @@ from object_detection.utils import visualization_utils as vis_util
 # What model to download.
 # MODEL_NAME = 'faster_rcnn_resnet101_fgvc_2018_07_19'
 # MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
-MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
+MODEL_NAME = 'ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -61,7 +61,7 @@ PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stil
 TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 5)]
 
 # Size, in pixels of input image
-IMAGE_H = IMAGE_W = 600
+IMAGE_H = IMAGE_W = 640
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
