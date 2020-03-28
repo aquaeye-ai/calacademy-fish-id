@@ -14,9 +14,7 @@ from object_detection.utils import visualization_utils as vis_util
 
 
 # What model to download.
-# MODEL_NAME = 'faster_rcnn_resnet101_fgvc_2018_07_19'
-# MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
-MODEL_NAME = 'ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
+MODEL_NAME = 'ssd_mobilenet_v2_coco_2018_03_29'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -24,8 +22,6 @@ DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-# PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'fgvc_2854_classes_label_map.pbtxt')
-# PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'oid_v4_label_map.pbtxt')
 PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
 opener = urllib.request.URLopener()
 opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
@@ -61,7 +57,7 @@ PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stil
 TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 5)]
 
 # Size, in pixels of input image
-IMAGE_H = IMAGE_W = 640
+IMAGE_H = IMAGE_W = [300, 500]
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
@@ -114,68 +110,121 @@ def run_inference_for_single_image(image, graph):
 
 if __name__ == "__main__":
     for image_path in TEST_IMAGE_PATHS:
-        #image = Image.open(image_path)
+        for k in range(0, len(IMAGE_H)):
+            #image = Image.open(image_path)
 
-        # The array based representation of the image will be used later in order to prepare the result image with
-        # boxes and labels on it.
-        #image_np = load_image_into_numpy_array(image)
-        image_np = cv2.imread(image_path)
+            # The array based representation of the image will be used later in order to prepare the result image with
+            # boxes and labels on it.
+            #image_np = load_image_into_numpy_array(image)
+            image_np = cv2.imread(image_path)
+            detection_scores = []
+            detection_classes = []
 
-        # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
-        h_mult = np.ceil(image_np.shape[0] / float(IMAGE_H))
-        w_mult = np.ceil(image_np.shape[1] / float(IMAGE_W))
-        h_new = h_mult * IMAGE_H
-        w_new = w_mult * IMAGE_W
-        h_pad_top = 0
-        h_pad_bottom = h_new - image_np.shape[0]
-        w_pad_right = w_new - image_np.shape[1]
-        w_pad_left = 0
-        cv_img = cv2.imread(image_path)
-        image_pad_np = cv2.copyMakeBorder(image_np, int(h_pad_top), int(h_pad_bottom), int(w_pad_left), int(w_pad_right), borderType=cv2.BORDER_CONSTANT, value=0)
+            # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
+            h_mult = np.ceil(image_np.shape[0] / float(IMAGE_H[k]))
+            w_mult = np.ceil(image_np.shape[1] / float(IMAGE_W[k]))
+            h_new = h_mult * IMAGE_H[k]
+            w_new = w_mult * IMAGE_W[k]
+            h_pad_top = 0
+            h_pad_bottom = h_new - image_np.shape[0]
+            w_pad_right = w_new - image_np.shape[1]
+            w_pad_left = 0
+            cv_img = cv2.imread(image_path)
+            image_pad_np = cv2.copyMakeBorder(image_np, int(h_pad_top), int(h_pad_bottom), int(w_pad_left), int(w_pad_right), borderType=cv2.BORDER_CONSTANT, value=0)
 
-        # cv2.imshow('image_pad_np', image_pad_np)
-        # cv2.waitKey()
+            # cv2.imshow('image_pad_np', image_pad_np)
+            # cv2.waitKey()
 
-        print("h_mult={}".format(h_mult))
-        print("w_mult={}".format(w_mult))
+            print("h_mult={}".format(h_mult))
+            print("w_mult={}".format(w_mult))
 
-        # Perform inference on tiles of image for better accuracy
-        for i in range(0, int(h_mult)-1):
-            for j in range(0, int(w_mult)-1):
-                tile_np = image_pad_np[i*IMAGE_W:(i+1)*IMAGE_W, j*IMAGE_H:(j+1)*IMAGE_H, :]
+            # Perform inference on tiles of image for better accuracy
+            for i in range(0, int(h_mult)):
+                for j in range(0, int(w_mult)):
+                    tile_np = image_pad_np[i*IMAGE_H[k]:(i+1)*IMAGE_H[k], j*IMAGE_W[k]:(j+1)*IMAGE_W[k], :]
 
-                print("i={}, j={}".format(i, j))
-                # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
-                # cv2.waitKey()
+                    print("i={}, j={}".format(i, j))
+                    # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
+                    # cv2.waitKey()
 
-                # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-                image_np_expanded = np.expand_dims(tile_np, axis=0)
+                    # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                    image_np_expanded = np.expand_dims(tile_np, axis=0)
 
-                # Actual detection.
-                output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
+                    # Actual detection.
+                    output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
 
-                # Visualization of the results of a detection.
-                vis_util.visualize_boxes_and_labels_on_image_array(
-                    tile_np,
-                    output_dict['detection_boxes'],
-                    output_dict['detection_classes'],
-                    output_dict['detection_scores'],
-                    category_index,
-                    instance_masks=output_dict.get('detection_masks'),
-                    use_normalized_coordinates=True,
-                    line_thickness=8,
-                    min_score_thresh=0.1)
-                # plt.figure(figsize=(IMAGE_SIZE))
-                # plt.imshow(tile_np)
-                basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
-                tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}".format(basename, i, j)
-                print("tile_np_path={}".format(tile_np_path))
-                fu.save_images(images=[(tile_np_path, tile_np)])
+                    # first we grab only valid detection outputs
+                    # non_zero_outputs = output_dict['detection_scores'] > 0
+                    # non_zero_detection_boxes = output_dict['detection_boxes'][non_zero_outputs]
+                    # non_zero_detection_classes = output_dict['detection_classes'][non_zero_outputs]
+                    # non_zero_detection_scores = output_dict['detection_scores'][non_zero_outputs]
 
-                tile_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}".format(basename, i, j)
-                tile_np_text = open(tile_np_text_path, "a+")
-                tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
-                tile_np_text.close()
-                # while True:
-                #     if plt.waitforbuttonpress():
-                #         break
+                    # adjust the bounding box coordinates due to the tiling
+                    # for box in non_zero_detection_boxes:
+                    for idx, box in enumerate(output_dict['detection_boxes']):
+                        h_offset = i*IMAGE_H[k]
+                        w_offset = j*IMAGE_W[k]
+                        ymin, xmin, ymax, xmax = box
+                        tile_h, tile_w, tile_d = tile_np.shape[:]
+
+                        # the box coordinates were normalized so we must get the pixel value of each
+                        ymin *= tile_h
+                        ymax *= tile_h
+                        xmin *= tile_w
+                        xmax *= tile_w
+
+                        # adjust the box coordinates to be relative to the original image instead of tile
+                        ymin += h_offset
+                        ymax += h_offset
+                        xmin += w_offset
+                        xmax += w_offset
+
+                        # update boxes list
+                        output_dict['detection_boxes'][idx][:] = [ymin, xmin, ymax, xmax]
+
+                    detection_classes = np.concatenate((output_dict['detection_classes'], detection_classes))
+                    detection_scores = np.concatenate((output_dict['detection_scores'], detection_scores))
+
+                    # Visualization of the results of a detection.
+                    vis_util.visualize_boxes_and_labels_on_image_array(
+                        # tile_np,
+                        image_np,
+                        output_dict['detection_boxes'],
+                        output_dict['detection_classes'],
+                        output_dict['detection_scores'],
+                        category_index,
+                        instance_masks=output_dict.get('detection_masks'),
+                        use_normalized_coordinates=False, # we've adjusted the tiles' box coordinates
+                        line_thickness=8,
+                        min_score_thresh=0.1)
+
+                    # display bounding boxes
+                    # plt.figure(figsize=(IMAGE_SIZE))
+                    # # plt.imshow(tile_np)
+                    # plt.imshow(image_np)
+                    # while True:
+                    #     if plt.waitforbuttonpress():
+                    #         break
+
+                    # save the tile with boxes
+                    # basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
+                    # tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
+                    # print("tile_np_path={}".format(tile_np_path))
+                    # fu.save_images(images=[(tile_np_path, tile_np)])
+                    #
+                    # tile_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
+                    # tile_np_text = open(tile_np_text_path, "a+")
+                    # tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
+                    # tile_np_text.close()
+
+        # save the original image with boxes
+        basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
+        out_image_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
+        print("tile_np_path={}".format(out_image_np_path))
+        fu.save_images(images=[(out_image_np_path, image_np)])
+
+        # save the detection classes and scores to text file
+        out_image_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
+        out_image_np_text = open(out_image_np_text_path, "a+")
+        out_image_np_text.write("detection_classes_{}_detection_scores_{}".format(detection_classes, detection_scores))
+        out_image_np_text.close()
