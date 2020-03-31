@@ -54,7 +54,7 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
-TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 5)]
+TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2)] #TODO: use lib/file_utils.py
 
 # Size, in pixels of input image
 IMAGE_H = IMAGE_W = [300, 500]
@@ -119,6 +119,7 @@ if __name__ == "__main__":
             image_np = cv2.imread(image_path)
             detection_scores = []
             detection_classes = []
+            detection_boxes = []
 
             # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
             h_mult = np.ceil(image_np.shape[0] / float(IMAGE_H[k]))
@@ -153,12 +154,6 @@ if __name__ == "__main__":
                     # Actual detection.
                     output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
 
-                    # first we grab only valid detection outputs
-                    # non_zero_outputs = output_dict['detection_scores'] > 0
-                    # non_zero_detection_boxes = output_dict['detection_boxes'][non_zero_outputs]
-                    # non_zero_detection_classes = output_dict['detection_classes'][non_zero_outputs]
-                    # non_zero_detection_scores = output_dict['detection_scores'][non_zero_outputs]
-
                     # adjust the bounding box coordinates due to the tiling
                     # for box in non_zero_detection_boxes:
                     for idx, box in enumerate(output_dict['detection_boxes']):
@@ -182,21 +177,9 @@ if __name__ == "__main__":
                         # update boxes list
                         output_dict['detection_boxes'][idx][:] = [ymin, xmin, ymax, xmax]
 
-                    detection_classes = np.concatenate((output_dict['detection_classes'], detection_classes))
-                    detection_scores = np.concatenate((output_dict['detection_scores'], detection_scores))
-
-                    # Visualization of the results of a detection.
-                    vis_util.visualize_boxes_and_labels_on_image_array(
-                        # tile_np,
-                        image_np,
-                        output_dict['detection_boxes'],
-                        output_dict['detection_classes'],
-                        output_dict['detection_scores'],
-                        category_index,
-                        instance_masks=output_dict.get('detection_masks'),
-                        use_normalized_coordinates=False, # we've adjusted the tiles' box coordinates
-                        line_thickness=8,
-                        min_score_thresh=0.1)
+                    detection_classes.extend(output_dict['detection_classes'])
+                    detection_scores.extend(output_dict['detection_scores'])
+                    detection_boxes.extend(output_dict['detection_boxes'])
 
                     # display bounding boxes
                     # plt.figure(figsize=(IMAGE_SIZE))
@@ -217,14 +200,34 @@ if __name__ == "__main__":
                     # tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
                     # tile_np_text.close()
 
+        # Visualization of the results of a detection.
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            # tile_np,
+            image_np,
+            np.asarray(detection_boxes, dtype=np.float32),
+            np.asarray(detection_classes, dtype=np.int64), # np arrays are double by nature, but this function requires ints for its classes
+            np.asarray(detection_scores, dtype=np.float32),
+            category_index,
+            instance_masks=output_dict.get('detection_masks'),
+            use_normalized_coordinates=False,  # we've adjusted the tiles' box coordinates
+            line_thickness=8,
+            min_score_thresh=0.1,
+            max_boxes_to_draw=None) # None will force the function to look at all boxes in list which is what we want since our list of boxes isn't ordered in any way
+
         # save the original image with boxes
         basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
         out_image_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
         print("tile_np_path={}".format(out_image_np_path))
         fu.save_images(images=[(out_image_np_path, image_np)])
 
-        # save the detection classes and scores to text file
+        ## save the detection classes and scores to text file
+
+        # first we grab only valid detection outputs
+        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
+        non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
+        non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
+
         out_image_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
         out_image_np_text = open(out_image_np_text_path, "a+")
-        out_image_np_text.write("detection_classes_{}_detection_scores_{}".format(detection_classes, detection_scores))
+        out_image_np_text.write("detection_classes_{}_detection_scores_{}".format(non_zero_detection_classes, non_zero_detection_scores))
         out_image_np_text.close()
