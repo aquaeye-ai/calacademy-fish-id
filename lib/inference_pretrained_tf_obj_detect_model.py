@@ -201,6 +201,7 @@ if __name__ == "__main__":
                     # tile_np_text.close()
 
         # Visualization of the results of a detection.
+        # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
         vis_util.visualize_boxes_and_labels_on_image_array(
             # tile_np,
             image_np,
@@ -221,7 +222,6 @@ if __name__ == "__main__":
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
-
         # first we grab only valid detection outputs
         non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
         non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
