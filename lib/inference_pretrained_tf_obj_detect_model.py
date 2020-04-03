@@ -14,7 +14,7 @@ from object_detection.utils import visualization_utils as vis_util
 
 
 # What model to download.
-MODEL_NAME = 'ssd_mobilenet_v2_coco_2018_03_29'
+MODEL_NAME = 'ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
