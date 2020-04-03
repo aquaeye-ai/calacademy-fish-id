@@ -1,12 +1,16 @@
-import numpy as np
-import cv2 as cv2
-import file_utils as fu
+
 import os
 import sys
+import tqdm
 import tarfile
-from PIL import Image
+
+import cv2 as cv2
+import numpy as np
+import file_utils as fu
 import tensorflow as tf
 import six.moves.urllib as urllib
+
+from PIL import Image
 from matplotlib import pyplot as plt
 from object_detection.utils import label_map_util
 from object_detection.utils import ops as utils_ops
@@ -14,7 +18,7 @@ from object_detection.utils import visualization_utils as vis_util
 
 
 # What model to download.
-MODEL_NAME = 'ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
+MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -22,7 +26,7 @@ DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'oid_v4_label_map.pbtxt')
 opener = urllib.request.URLopener()
 opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
 tar_file = tarfile.open(MODEL_FILE)
@@ -109,7 +113,7 @@ def run_inference_for_single_image(image, graph):
 
 
 if __name__ == "__main__":
-    for image_path in TEST_IMAGE_PATHS:
+    for image_path in tqdm(TEST_IMAGE_PATHS):
         for k in range(0, len(IMAGE_H)):
             #image = Image.open(image_path)
 
