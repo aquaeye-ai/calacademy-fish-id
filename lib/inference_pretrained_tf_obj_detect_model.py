@@ -226,8 +226,11 @@ if __name__ == "__main__":
         non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
         non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
+        non_zero_detection_boxes = np.asarray(detection_boxes, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
 
-        out_image_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
+        out_image_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}.txt".format(basename)
         out_image_np_text = open(out_image_np_text_path, "a+")
-        out_image_np_text.write("detection_classes_{}_detection_scores_{}".format(non_zero_detection_classes, non_zero_detection_scores))
+        for pr_tuple in zip(non_zero_detection_classes, non_zero_detection_scores, non_zero_detection_boxes):
+            pr_class = category_index[pr_tuple[0]]["name"]
+            out_image_np_text.write("{} {} {}\n".format(pr_class, pr_tuple[1], " ".join(map(str, pr_tuple[2]))))
         out_image_np_text.close()
