@@ -222,7 +222,8 @@ if __name__ == "__main__":
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
-        # first we grab only valid detection outputs
+        # First we grab only non-zero probability detection outputs
+        # Note: we don't remove duplicate boxes as this could affect our evaluation metrics
         non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
         non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
