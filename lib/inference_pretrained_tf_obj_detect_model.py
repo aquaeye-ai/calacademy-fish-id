@@ -101,10 +101,10 @@ def run_inference_for_multiple_images(images, graph):
             output_dict = sess.run(tensor_dict, feed_dict={image_tensor: images})
 
             # all outputs are float32 numpy arrays, so convert types as appropriate
-            output_dict['num_detections'] = int(output_dict['num_detections'][0])
-            output_dict['detection_classes'] = output_dict['detection_classes'][0].astype(np.int64)
-            output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
-            output_dict['detection_scores'] = output_dict['detection_scores'][0]
+            output_dict['num_detections'][:] = map(int, output_dict['num_detections'][:])
+            output_dict['detection_classes'][:] = output_dict['detection_classes'][:].astype(np.int64)
+            output_dict['detection_boxes'][:] = output_dict['detection_boxes'][:]
+            output_dict['detection_scores'][:] = output_dict['detection_scores'][:]
             # if 'detection_masks' in output_dict:
             #     output_dict['detection_masks'] = output_dict['detection_masks'][0]
     return output_dict
@@ -291,7 +291,7 @@ def predict_images_batched():
         for k in range(0, len(IMAGE_H)):
             print("image resolution: {}".format(IMAGE_H[k]))
 
-            tiles_np_expanded = []
+            tiles_np = []
             tile_ins = []
             #image = Image.open(image_path)
 
@@ -330,102 +330,102 @@ def predict_images_batched():
                     # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
                     # cv2.waitKey()
 
-                    # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-                    # image_np_expanded = np.expand_dims(tile_np, axis=0)
-
                     # tiles_np_expanded.append(image_np_expanded)
-                    tiles_np_expanded.append(tile_np)
+                    tiles_np.append(tile_np)
                     tile_ins.append((i, j))
 
-            # tiles_np_expanded = np.expand_dims(tiles_np_expanded, axis=0)
-            tiles_np_expanded = np.asarray(tiles_np_expanded)
+            # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+            tiles_np_expanded = np.asarray(tiles_np)
 
             # Actual detection.
             output_dict = run_inference_for_multiple_images(tiles_np_expanded, detection_graph)
 
-            print(output_dict)
+            # adjust the bounding box coordinates due to the tiling
+            # for box in non_zero_detection_boxes:
+            for tile_idx, tile_ins_tup in enumerate(tile_ins):
+                i, j = tile_ins_tup[:]
+                tile_np = tiles_np[tile_idx]
+                boxes = output_dict['detection_boxes'][tile_idx]
 
-        # # adjust the bounding box coordinates due to the tiling
-        # # for box in non_zero_detection_boxes:
-        # for idx, box in enumerate(output_dict['detection_boxes']):
-        #     h_offset = i * IMAGE_H[k]
-        #     w_offset = j * IMAGE_W[k]
-        #     ymin, xmin, ymax, xmax = box
-        #     tile_h, tile_w, tile_d = tile_np.shape[:]
-        #
-        #     # the box coordinates were normalized so we must get the pixel value of each
-        #     ymin *= tile_h
-        #     ymax *= tile_h
-        #     xmin *= tile_w
-        #     xmax *= tile_w
-        #
-        #     # adjust the box coordinates to be relative to the original image instead of tile
-        #     ymin += h_offset
-        #     ymax += h_offset
-        #     xmin += w_offset
-        #     xmax += w_offset
-        #
-        #     # update boxes list
-        #     output_dict['detection_boxes'][idx][:] = [ymin, xmin, ymax, xmax]
-        #
-        # detection_classes.extend(output_dict['detection_classes'])
-        # detection_scores.extend(output_dict['detection_scores'])
-        # detection_boxes.extend(output_dict['detection_boxes'])
-        #
-        # # display bounding boxes
-        # # plt.figure(figsize=(IMAGE_SIZE))
-        # # # plt.imshow(tile_np)
-        # # plt.imshow(image_np)
-        # # while True:
-        # #     if plt.waitforbuttonpress():
-        # #         break
-        #
-        # # save the tile with boxes
-        # # basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
-        # # tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
-        # # print("tile_np_path={}".format(tile_np_path))
-        # # fu.save_images(images=[(tile_np_path, tile_np)])
-        # #
-        # # tile_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
-        # # tile_np_text = open(tile_np_text_path, "a+")
-        # # tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
-        # # tile_np_text.close()
-        #
-        # # Visualization of the results of a detection.
-        # # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
-        # vis_util.visualize_boxes_and_labels_on_image_array(
-        #     # tile_np,
-        #     image_np,
-        #     np.asarray(detection_boxes, dtype=np.float32),
-        #     np.asarray(detection_classes, dtype=np.int64), # np arrays are double by nature, but this function requires ints for its classes
-        #     np.asarray(detection_scores, dtype=np.float32),
-        #     category_index,
-        #     instance_masks=output_dict.get('detection_masks'),
-        #     use_normalized_coordinates=False,  # we've adjusted the tiles' box coordinates
-        #     line_thickness=8,
-        #     min_score_thresh=0.1,
-        #     max_boxes_to_draw=None) # None will force the function to look at all boxes in list which is what we want since our list of boxes isn't ordered in any way
-        #
-        # # save the original image with boxes
+                for box_idx, box in enumerate(boxes):
+                    h_offset = i * IMAGE_H[k]
+                    w_offset = j * IMAGE_W[k]
+                    ymin, xmin, ymax, xmax = box
+                    tile_h, tile_w, tile_d = tile_np.shape[:]
+
+                    # the box coordinates were normalized so we must get the pixel value of each
+                    ymin *= tile_h
+                    ymax *= tile_h
+                    xmin *= tile_w
+                    xmax *= tile_w
+
+                    # adjust the box coordinates to be relative to the original image instead of tile
+                    ymin += h_offset
+                    ymax += h_offset
+                    xmin += w_offset
+                    xmax += w_offset
+
+                    # update boxes list
+                    output_dict['detection_boxes'][tile_idx][box_idx][:] = [ymin, xmin, ymax, xmax]
+
+                detection_classes.extend(output_dict['detection_classes'][tile_idx])
+                detection_scores.extend(output_dict['detection_scores'][tile_idx])
+                detection_boxes.extend(output_dict['detection_boxes'][tile_idx])
+
+                # display bounding boxes
+                # plt.figure(figsize=(IMAGE_SIZE))
+                # # plt.imshow(tile_np)
+                # plt.imshow(image_np)
+                # while True:
+                #     if plt.waitforbuttonpress():
+                #         break
+
+        # save the tile with boxes
         # basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
-        # out_image_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
-        # print("tile_np_path={}".format(out_image_np_path))
-        # fu.save_images(images=[(out_image_np_path, image_np)])
+        # tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
+        # print("tile_np_path={}".format(tile_np_path))
+        # fu.save_images(images=[(tile_np_path, tile_np)])
         #
-        # ## save the detection classes and scores to text file
-        # # First we grab only non-zero probability detection outputs
-        # # Note: we don't remove duplicate boxes as this could affect our evaluation metrics
-        # non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
-        # non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
-        # non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
-        # non_zero_detection_boxes = np.asarray(detection_boxes, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
-        #
-        # out_image_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}.txt".format(basename)
-        # out_image_np_text = open(out_image_np_text_path, "a+")
-        # for pr_tuple in zip(non_zero_detection_classes, non_zero_detection_scores, non_zero_detection_boxes):
-        #     pr_class = category_index[pr_tuple[0]]["name"]
-        #     out_image_np_text.write("{} {} {}\n".format(pr_class, pr_tuple[1], " ".join(map(str, pr_tuple[2]))))
-        # out_image_np_text.close()
+        # tile_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
+        # tile_np_text = open(tile_np_text_path, "a+")
+        # tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
+        # tile_np_text.close()
+
+        # Visualization of the results of a detection.
+        # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            # tile_np,
+            image_np,
+            np.asarray(detection_boxes, dtype=np.float32),
+            np.asarray(detection_classes, dtype=np.int64), # np arrays are double by nature, but this function requires ints for its classes
+            np.asarray(detection_scores, dtype=np.float32),
+            category_index,
+            instance_masks=output_dict.get('detection_masks'),
+            use_normalized_coordinates=False,  # we've adjusted the tiles' box coordinates
+            line_thickness=8,
+            min_score_thresh=0.1,
+            max_boxes_to_draw=None) # None will force the function to look at all boxes in list which is what we want since our list of boxes isn't ordered in any way
+
+        # save the original image with boxes
+        basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
+        out_image_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
+        print("tile_np_path={}".format(out_image_np_path))
+        fu.save_images(images=[(out_image_np_path, image_np)])
+
+        ## save the detection classes and scores to text file
+        # First we grab only non-zero probability detection outputs
+        # Note: we don't remove duplicate boxes as this could affect our evaluation metrics
+        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
+        non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
+        non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
+        non_zero_detection_boxes = np.asarray(detection_boxes, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
+
+        out_image_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}.txt".format(basename)
+        out_image_np_text = open(out_image_np_text_path, "a+")
+        for pr_tuple in zip(non_zero_detection_classes, non_zero_detection_scores, non_zero_detection_boxes):
+            pr_class = category_index[pr_tuple[0]]["name"]
+            out_image_np_text.write("{} {} {}\n".format(pr_class, pr_tuple[1], " ".join(map(str, pr_tuple[2]))))
+        out_image_np_text.close()
 
 
 if __name__ == "__main__":
