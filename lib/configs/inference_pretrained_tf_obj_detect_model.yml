@@ -1,0 +1,112 @@
+#######################
+# CONFIG for inference_pretrained_tf_obj_detect_model.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+#int, number of epochs used in training, e.g. 50
+epochs: 15
+
+#float, threshold value used to threshold prediction values
+threshold: 0.7
+
+#float, learning rate of model, e.g. 0.01
+learning_rate: 1e-3
+
+#float, decay rate for learning rate of model per update (see Keras docs), e.g. 1e-5
+learning_rate_decay: 0
+
+#parameters for any callbacks using Keras' ReduceLROnPlateau
+#supports multiple callback instances
+#See Keras' docs on ReduceLROnPlateau for explanation of params
+ReduceLROnPlateau:
+- name: reduceLROnPlateau_1
+  monitor: val_dice_coef_loss
+  factor: 0.5
+  patience: 5
+  verbose: 1
+  mode: min
+  min_delta: 0.02
+
+#float, momentum used in model, e.g. 0.9
+momentum: 0.9
+
+#type: string, e.g. 'nesterov'
+momentum_type: nesterov
+
+#float, dropout rate used in model, e.g. 0.2
+dropout: 0.2
+
+#str, optimizer used in model, e.g. 'sgd'
+optimizer: adam
+
+#str, type of loss to use in architecture
+loss: dice
+
+#str, type of accuracy to use in architecture
+accuracy: dice
+
+#float, l2 weight decay factor
+l2_decay: 0
+
+#str, kernel initializer used
+kernel_initializer: glorot_uniform
+
+#float, kernel constraint used
+kernel_constraint: 9e999
+
+#int, > 0 or <= 0, randomly scale during image preprocessing
+randomly_scale: 0
+
+#int, > 0 or <= 0, randomly rotate during image preprocessing
+randomly_rotate: 0
+
+#float, rotation range to apply in random rotations to data during preprocessing
+rotation_range: 360.0
+
+#int, > 0 or <= 0, randomly horizontally flip during image preprocessing
+horizontal_flip: 1
+
+#int, > 0 or <= 0, randomly vertically flip during image preprocessing
+vertical_flip: 1
+
+#str, path to directory holding images used for testing after training
+test_images_dir: datasets/nearmap/test/
+
+#str, path to directory holding images used for training
+train_images_dir: datasets/nearmap_temp/train/
+
+#str, path to directory holding images used for validation
+validation_images_dir: datasets/nearmap/validation/
+
+#int, batch size during training
+batch_size: 1
+
+#int, > 0 or <= 0, whether perform training or just inference
+train: 1
+
+#int, > 0 or <= 0, whether existing weights are to be loaded during training
+load_weights: 0
+
+#str, path to weights file if weights are to be loaded
+weights: outputs/logs/classifiers/roof_segmentation/models/basic_unet/1525730777.45/model.h5
+
+#int, > 0 or <= 0, whether existing model is to be loaded during training
+load_model: 0
+
+#str, path to model file if model are to be loaded
+model: outputs/logs/classifiers/roof_segmentation/models/basic_unet/1525730777.45/model.h5
+
+#int, size of tile to train on
+tile_size: 256
+
+#int, amount of tile-size to use for margin i.e. how much to reflect at the edge
+margin: 32
+
+#whether to crop the images to contain just the houses (for pixel class balancing)
+use_bounding_box_cropping: 1
+
+#int, > 0 or <= 0, whether to remove temporary directories created during the preprocessing, training and inference process or to keep them
+cleanup_temp_dirs: 1

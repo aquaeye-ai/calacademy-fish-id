@@ -1,6 +1,5 @@
-
 import os
-import sys
+import yaml
 import tarfile
 
 import cv2 as cv2
@@ -8,13 +7,14 @@ import numpy as np
 import file_utils as fu
 import tensorflow as tf
 import six.moves.urllib as urllib
+import lib.log_utils as log_utils
 
-from PIL import Image
-from matplotlib import pyplot as plt
 from object_detection.utils import label_map_util
 from object_detection.utils import ops as utils_ops
 from object_detection.utils import visualization_utils as vis_util
 
+# initialize logging
+log_utils.init_logging()
 
 # What model to download.
 MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
@@ -23,6 +23,15 @@ DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
+
+# For the sake of simplicity we will use only 1 image:
+# image1.jpg
+# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
+PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
+TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2)] #TODO: use lib/file_utils.py
+
+# Size, in pixels of input image
+IMAGE_H = IMAGE_W = [600, 1024]
 
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
@@ -51,20 +60,7 @@ def load_image_into_numpy_array(image):
     return np.array(image.getdata()).reshape(
         (im_height, im_width, 3)).astype(np.uint8)
 
-
-# For the sake of simplicity we will use only 2 images:
-# image1.jpg
-# image2.jpg
-# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
-TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2)] #TODO: use lib/file_utils.py
-
-# Size, in pixels of input image
-IMAGE_H = IMAGE_W = [600, 1024]
-
-# Size, in inches, of the output images.
-IMAGE_SIZE = (12, 8)
-
+@log_utils.timeit
 def run_inference_for_multiple_images(images, graph):
     with graph.as_default():
         with tf.Session() as sess:
@@ -79,6 +75,7 @@ def run_inference_for_multiple_images(images, graph):
                 tensor_name = key + ':0'
                 if tensor_name in all_tensor_names:
                     tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
+            # TODO: add this back in
             # if 'detection_masks' in tensor_dict:
             #     # The following processing is only for single image
             #     detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
@@ -105,10 +102,12 @@ def run_inference_for_multiple_images(images, graph):
             output_dict['detection_classes'][:] = output_dict['detection_classes'][:].astype(np.int64)
             output_dict['detection_boxes'][:] = output_dict['detection_boxes'][:]
             output_dict['detection_scores'][:] = output_dict['detection_scores'][:]
+            # TODO: add this back in
             # if 'detection_masks' in output_dict:
             #     output_dict['detection_masks'] = output_dict['detection_masks'][0]
     return output_dict
 
+@log_utils.timeit
 def run_inference_for_single_image(image, graph):
     with graph.as_default():
         with tf.Session() as sess:
@@ -159,11 +158,7 @@ def predict_images_tiled():
 
         for k in range(0, len(IMAGE_H)):
             print("image resolution: {}".format(IMAGE_H[k]))
-            #image = Image.open(image_path)
 
-            # The array based representation of the image will be used later in order to prepare the result image with
-            # boxes and labels on it.
-            #image_np = load_image_into_numpy_array(image)
             image_np = cv2.imread(image_path)
             detection_scores = []
             detection_classes = []
@@ -178,7 +173,6 @@ def predict_images_tiled():
             h_pad_bottom = h_new - image_np.shape[0]
             w_pad_right = w_new - image_np.shape[1]
             w_pad_left = 0
-            cv_img = cv2.imread(image_path)
             image_pad_np = cv2.copyMakeBorder(image_np, int(h_pad_top), int(h_pad_bottom), int(w_pad_left), int(w_pad_right), borderType=cv2.BORDER_CONSTANT, value=0)
 
             # cv2.imshow('image_pad_np', image_pad_np)
@@ -229,25 +223,6 @@ def predict_images_tiled():
                     detection_scores.extend(output_dict['detection_scores'])
                     detection_boxes.extend(output_dict['detection_boxes'])
 
-                    # display bounding boxes
-                    # plt.figure(figsize=(IMAGE_SIZE))
-                    # # plt.imshow(tile_np)
-                    # plt.imshow(image_np)
-                    # while True:
-                    #     if plt.waitforbuttonpress():
-                    #         break
-
-                    # save the tile with boxes
-                    # basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
-                    # tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
-                    # print("tile_np_path={}".format(tile_np_path))
-                    # fu.save_images(images=[(tile_np_path, tile_np)])
-                    #
-                    # tile_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
-                    # tile_np_text = open(tile_np_text_path, "a+")
-                    # tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
-                    # tile_np_text.close()
-
         # Visualization of the results of a detection.
         # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
         vis_util.visualize_boxes_and_labels_on_image_array(
@@ -284,6 +259,7 @@ def predict_images_tiled():
             out_image_np_text.write("{} {} {}\n".format(pr_class, pr_tuple[1], " ".join(map(str, pr_tuple[2]))))
         out_image_np_text.close()
 
+@log_utils.timeit
 def predict_images_batched():
     for im_idx, image_path in enumerate(TEST_IMAGE_PATHS):
         print("image: {}".format(image_path))
@@ -293,11 +269,7 @@ def predict_images_batched():
 
             tiles_np = []
             tile_ins = []
-            #image = Image.open(image_path)
 
-            # The array based representation of the image will be used later in order to prepare the result image with
-            # boxes and labels on it.
-            #image_np = load_image_into_numpy_array(image)
             image_np = cv2.imread(image_path)
             detection_scores = []
             detection_classes = []
@@ -330,7 +302,6 @@ def predict_images_batched():
                     # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
                     # cv2.waitKey()
 
-                    # tiles_np_expanded.append(image_np_expanded)
                     tiles_np.append(tile_np)
                     tile_ins.append((i, j))
 
@@ -372,29 +343,9 @@ def predict_images_batched():
                 detection_scores.extend(output_dict['detection_scores'][tile_idx])
                 detection_boxes.extend(output_dict['detection_boxes'][tile_idx])
 
-                # display bounding boxes
-                # plt.figure(figsize=(IMAGE_SIZE))
-                # # plt.imshow(tile_np)
-                # plt.imshow(image_np)
-                # while True:
-                #     if plt.waitforbuttonpress():
-                #         break
-
-        # save the tile with boxes
-        # basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
-        # tile_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
-        # print("tile_np_path={}".format(tile_np_path))
-        # fu.save_images(images=[(tile_np_path, tile_np)])
-        #
-        # tile_np_text_path = "/home/nightrider/calacademy-fish-id/outputs/{}_tile_{}_{}_{}x{}".format(basename, i, j, IMAGE_H[k], IMAGE_W[k])
-        # tile_np_text = open(tile_np_text_path, "a+")
-        # tile_np_text.write("detection_classes_{}_detection_scores_{}".format(output_dict['detection_classes'], output_dict['detection_scores']))
-        # tile_np_text.close()
-
         # Visualization of the results of a detection.
         # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
         vis_util.visualize_boxes_and_labels_on_image_array(
-            # tile_np,
             image_np,
             np.asarray(detection_boxes, dtype=np.float32),
             np.asarray(detection_classes, dtype=np.int64), # np arrays are double by nature, but this function requires ints for its classes
@@ -429,5 +380,62 @@ def predict_images_batched():
 
 
 if __name__ == "__main__":
+    # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
+    yaml_path = os.path.join(os.curdir, 'inference_pretrained_tf_obj_detect_model.yml')
+    with open(yaml_path, "r") as stream:
+        config = yaml.load(stream)
+
+    ## collect hyper parameters/args from config
+    # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
+    epochs = config["epochs"]
+    threshold = float(config["threshold"])
+    lr = float(config["learning_rate"])
+    lr_decay = float(config["learning_rate_decay"])
+    reduceLROnPlateauConfig = config["ReduceLROnPlateau"]
+    momentum = float(config["momentum"])
+    momentum_type = config["momentum_type"]
+    dropout = float(config["dropout"])
+    optimizer = config["optimizer"]
+    load_weights = config["load_weights"]
+    weights = os.path.join(os.path.abspath(parent_dir), config["weights"])
+    load_model = config["load_model"]
+    model = os.path.join(os.path.abspath(parent_dir), config["model"])
+    loss = config["loss"]
+    accuracy = config["accuracy"]
+    l2_decay = float(config["l2_decay"])
+    kernel_initializer = config["kernel_initializer"]
+    kernel_constraint = float(config["kernel_constraint"])
+    horizontal_flip = config["horizontal_flip"]
+    vertical_flip = config["vertical_flip"]
+    randomly_scale = config["randomly_scale"]
+    randomly_rotate = config["randomly_rotate"]
+    rotation_range = float(config["rotation_range"])
+    test_images_dir = os.path.join(os.path.abspath(parent_dir), config["test_images_dir"])
+    train_images_dir = os.path.join(os.path.abspath(parent_dir), config["train_images_dir"])
+    validation_images_dir = os.path.join(os.path.abspath(parent_dir), config["validation_images_dir"])
+    batch_size = config["batch_size"]
+    train = config["train"]
+    tile_size = config["tile_size"]
+    cleanup_temp_dirs = config["cleanup_temp_dirs"]
+    margin = config["margin"]
+    use_bounding_box_cropping = config["use_bounding_box_cropping"]
+
+    MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
+    MODEL_FILE = MODEL_NAME + '.tar.gz'
+    DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+
+    # Path to frozen detection graph. This is the actual model that is used for the object detection.
+    PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
+
+    # For the sake of simplicity we will use only 1 image:
+    # image1.jpg
+    # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
+    PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
+    TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in
+                        range(1, 2)]  # TODO: use lib/file_utils.py
+
+    # Size, in pixels of input image
+    IMAGE_H = IMAGE_W = [600, 1024]
+
     # predict_images_tiled()
     predict_images_batched()
