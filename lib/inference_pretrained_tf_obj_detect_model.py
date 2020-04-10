@@ -21,47 +21,6 @@ log_utils.init_logging(file_name="inference_pretrained_tf_obj_detect_model_log.t
 
 logger = logging.getLogger(__name__)
 
-# # initialize logging
-# log_utils.init_logging()
-#
-# # What model to download.
-# MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
-# MODEL_FILE = MODEL_NAME + '.tar.gz'
-# DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
-#
-# # Path to frozen detection graph. This is the actual model that is used for the object detection.
-# PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
-#
-# # For the sake of simplicity we will use only 1 image:
-# # image1.jpg
-# # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-# PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
-# TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2)] #TODO: use lib/file_utils.py
-#
-# # Size, in pixels of input image
-# IMAGE_H = IMAGE_W = [600, 1024]
-#
-# # List of the strings that is used to add correct label for each box.
-# PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
-# opener = urllib.request.URLopener()
-# opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
-# tar_file = tarfile.open(MODEL_FILE)
-# for file in tar_file.getmembers():
-#     file_name = os.path.basename(file.name)
-#     if 'frozen_inference_graph.pb' in file_name:
-#         tar_file.extract(file, os.getcwd())
-#
-# detection_graph = tf.Graph()
-# with detection_graph.as_default():
-#     od_graph_def = tf.GraphDef()
-#     with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
-#         serialized_graph = fid.read()
-#         od_graph_def.ParseFromString(serialized_graph)
-#         tf.import_graph_def(od_graph_def, name='')
-#
-# # List of the strings that is used to add correct label for each box.
-# category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
-
 
 def load_image_into_numpy_array(image):
     (im_width, im_height) = image.size
@@ -69,7 +28,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 @log_utils.timeit
-def run_inference_for_multiple_images(images, graph):
+def run_inference_for_multiple_images(images=None, graph=None):
     with graph.as_default():
         with tf.Session() as sess:
             # Get handles to input and output tensors
@@ -119,7 +78,7 @@ def run_inference_for_multiple_images(images, graph):
     return output_dict
 
 @log_utils.timeit
-def run_inference_for_single_image(image, graph):
+def run_inference_for_single_image(image=None, graph=None):
     with graph.as_default():
         with tf.Session() as sess:
             # Get handles to input and output tensors
@@ -152,7 +111,10 @@ def run_inference_for_single_image(image, graph):
             image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
             # Run inference
+            t1 = time.time()
             output_dict = sess.run(tensor_dict, feed_dict={image_tensor: image})
+            t2 = time.time()
+            logger.info("inference time: {}".format(t2-t1))
 
             # all outputs are float32 numpy arrays, so convert types as appropriate
             output_dict['num_detections'] = int(output_dict['num_detections'][0])
@@ -163,12 +125,21 @@ def run_inference_for_single_image(image, graph):
                 output_dict['detection_masks'] = output_dict['detection_masks'][0]
     return output_dict
 
-def predict_images_tiled():
-    for im_idx, image_path in enumerate(TEST_IMAGE_PATHS):
-        print("image: {}".format(image_path))
+@log_utils.timeit
+def predict_images_tiled_sequential(test_image_paths=None, model_input_image_sizes=None, category_index=None):
+    """
+    Inferences a pretrained tensorflow object detection model on a set of image.
 
-        for k in range(0, len(IMAGE_H)):
-            print("image resolution: {}".format(IMAGE_H[k]))
+    :param test_image_paths: list, images
+    :param input_image_sizes: list, tile sizes to use for inference (images assumed to be square)
+    :param category_index: categories and corresponding label_map indices to use
+    :return: None
+    """
+    for im_idx, image_path in enumerate(test_image_paths):
+        logger.info("image: {}".format(image_path))
+
+        for k, model_input_image_size in enumerate(model_input_image_sizes):
+            logger.info("image size: {}".format(model_input_image_size))
 
             image_np = cv2.imread(image_path)
             detection_scores = []
@@ -176,10 +147,10 @@ def predict_images_tiled():
             detection_boxes = []
 
             # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
-            h_mult = np.ceil(image_np.shape[0] / float(IMAGE_H[k]))
-            w_mult = np.ceil(image_np.shape[1] / float(IMAGE_W[k]))
-            h_new = h_mult * IMAGE_H[k]
-            w_new = w_mult * IMAGE_W[k]
+            h_mult = np.ceil(image_np.shape[0] / float(model_input_image_size))
+            w_mult = np.ceil(image_np.shape[1] / float(model_input_image_size))
+            h_new = h_mult * model_input_image_size
+            w_new = w_mult * model_input_image_size
             h_pad_top = 0
             h_pad_bottom = h_new - image_np.shape[0]
             w_pad_right = w_new - image_np.shape[1]
@@ -189,15 +160,15 @@ def predict_images_tiled():
             # cv2.imshow('image_pad_np', image_pad_np)
             # cv2.waitKey()
 
-            print("h_mult={}".format(h_mult))
-            print("w_mult={}".format(w_mult))
+            logger.info("h_mult={}".format(h_mult))
+            logger.info("w_mult={}".format(w_mult))
 
             # Perform inference on tiles of image for better accuracy
             for i in range(0, int(h_mult)):
                 for j in range(0, int(w_mult)):
-                    tile_np = image_pad_np[i*IMAGE_H[k]:(i+1)*IMAGE_H[k], j*IMAGE_W[k]:(j+1)*IMAGE_W[k], :]
+                    tile_np = image_pad_np[i*model_input_image_size:(i+1)*model_input_image_size, j*model_input_image_size:(j+1)*model_input_image_size, :]
 
-                    print("i={}, j={}".format(i, j))
+                    logger.info("i={}, j={}".format(i, j))
                     # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
                     # cv2.waitKey()
 
@@ -210,8 +181,8 @@ def predict_images_tiled():
                     # adjust the bounding box coordinates due to the tiling
                     # for box in non_zero_detection_boxes:
                     for idx, box in enumerate(output_dict['detection_boxes']):
-                        h_offset = i*IMAGE_H[k]
-                        w_offset = j*IMAGE_W[k]
+                        h_offset = i*model_input_image_size
+                        w_offset = j*model_input_image_size
                         ymin, xmin, ymax, xmax = box
                         tile_h, tile_w, tile_d = tile_np.shape[:]
 
@@ -252,7 +223,7 @@ def predict_images_tiled():
         # save the original image with boxes
         basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
         out_image_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
-        print("tile_np_path={}".format(out_image_np_path))
+        logger.info("tile_np_path={}".format(out_image_np_path))
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
@@ -271,13 +242,12 @@ def predict_images_tiled():
         out_image_np_text.close()
 
 @log_utils.timeit
-def predict_images_batched(test_image_paths=None, input_image_sizes=None, category_index=None):
+def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=None, category_index=None):
     for im_idx, image_path in enumerate(test_image_paths):
         logger.info("image: {}".format(image_path))
 
-        for k in range(0, len(input_image_sizes)):
-            image_size = input_image_sizes[k]
-            logger.info("image size: {}x{}".format(image_size, image_size))
+        for k, model_input_image_size in enumerate(model_input_image_sizes):
+            logger.info("image size: {}x{}".format(model_input_image_size, model_input_image_size))
 
             tiles_np = []
             tile_ins = []
@@ -288,10 +258,10 @@ def predict_images_batched(test_image_paths=None, input_image_sizes=None, catego
             detection_boxes = []
 
             # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
-            h_mult = np.ceil(image_np.shape[0] / float(image_size))
-            w_mult = np.ceil(image_np.shape[1] / float(image_size))
-            h_new = h_mult * image_size
-            w_new = w_mult * image_size
+            h_mult = np.ceil(image_np.shape[0] / float(model_input_image_size))
+            w_mult = np.ceil(image_np.shape[1] / float(model_input_image_size))
+            h_new = h_mult * model_input_image_size
+            w_new = w_mult * model_input_image_size
             h_pad_top = 0
             h_pad_bottom = h_new - image_np.shape[0]
             w_pad_right = w_new - image_np.shape[1]
@@ -307,7 +277,7 @@ def predict_images_batched(test_image_paths=None, input_image_sizes=None, catego
             # Perform inference on tiles of image for better accuracy
             for i in range(0, int(h_mult)):
                 for j in range(0, int(w_mult)):
-                    tile_np = image_pad_np[i*image_size:(i+1)*image_size, j*image_size:(j+1)*image_size, :]
+                    tile_np = image_pad_np[i*model_input_image_size:(i+1)*model_input_image_size, j*model_input_image_size:(j+1)*model_input_image_size, :]
 
                     logger.info("i={}, j={}".format(i, j))
                     # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
@@ -330,8 +300,8 @@ def predict_images_batched(test_image_paths=None, input_image_sizes=None, catego
                 boxes = output_dict['detection_boxes'][tile_idx]
 
                 for box_idx, box in enumerate(boxes):
-                    h_offset = i * image_size
-                    w_offset = j * image_size
+                    h_offset = i * model_input_image_size
+                    w_offset = j * model_input_image_size
                     ymin, xmin, ymax, xmax = box
                     tile_h, tile_w, tile_d = tile_np.shape[:]
 
@@ -402,7 +372,7 @@ if __name__ == "__main__":
     model_name = config["model_name"]
     download_base = config["download_base"]
     path_to_test_images_dir = config["path_to_test_images_dir"]
-    input_image_sizes = config["input_image_sizes"]
+    model_input_image_sizes = config["model_input_image_sizes"]
     label_map = config["label_map"]
 
     # For the sake of simplicity we will use only 1 image:
@@ -436,7 +406,9 @@ if __name__ == "__main__":
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
 
-    # predict_images_tiled()
-    predict_images_batched(test_image_paths=test_image_paths,
-                           input_image_sizes=input_image_sizes,
+    # predict_images_tiled_sequential(test_image_paths=test_image_paths,
+    #                              model_input_image_sizes=model_input_image_sizes,
+    #                              category_index=category_index)
+    predict_images_tiled_batched(test_image_paths=test_image_paths,
+                           model_input_image_sizes=model_input_image_sizes,
                            category_index=category_index)

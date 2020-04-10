@@ -7,7 +7,7 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # specific pretrained model
-model_name: faster_rcnn_resnet101_coco_2018_01_28
+model_name: ssd_mobilenet_v2_coco_2018_03_29
 
 # label map
 label_map: mscoco_complete_label_map.pbtxt
@@ -18,7 +18,7 @@ download_base: http://download.tensorflow.org/models/object_detection/
 # path to directory holding test images
 path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test
 
-# Sizes, in pixels, of input images to consider for the model.
+# Sizes, in pixels, of input image for the model.
 # Each number is both height and width as we assume the input image to be square
 # These will vary based on the model architecture.
-input_image_sizes: [600, 1024]
+model_input_image_sizes: [300]
