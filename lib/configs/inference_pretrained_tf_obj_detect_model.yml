@@ -9,6 +9,9 @@
 # specific pretrained model
 model_name: faster_rcnn_resnet101_coco_2018_01_28
 
+# label map
+label_map: mscoco_complete_label_map.pbtxt
+
 # where to find downloadable files for pretrained model mentioned above
 download_base: http://download.tensorflow.org/models/object_detection/
 

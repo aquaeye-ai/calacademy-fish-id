@@ -3,17 +3,18 @@ Class for handling logging tasks
 """
 
 # standard libs
+import os
 import time
 import logging
 import functools
 
-# personal libs
-import lib.globals as globals
-
 logger = logging.getLogger(__name__)
 
-
+# Whether to also print to the terminal in addition to logging to LOG_DIR
 QUIET = False
+
+# Where to write messages to
+LOG_DIR = None
 
 
 def init_logging(file_name="train.log"):
@@ -26,7 +27,7 @@ def init_logging(file_name="train.log"):
     """
 
     # create the file to log to
-    file_path = globals.log_dir + '/' + file_name
+    file_path = os.path.join(LOG_DIR, file_name)
 
     # set up logging to file
     logging.basicConfig(level=logging.DEBUG,
