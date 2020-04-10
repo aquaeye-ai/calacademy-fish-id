@@ -1,5 +1,7 @@
 import os
 import yaml
+import time
+import logging
 import tarfile
 
 import cv2 as cv2
@@ -12,6 +14,12 @@ import lib.log_utils as log_utils
 from object_detection.utils import label_map_util
 from object_detection.utils import ops as utils_ops
 from object_detection.utils import visualization_utils as vis_util
+
+# configure logging
+log_utils.LOG_DIR = "/home/nightrider/calacademy-fish-id/outputs"
+log_utils.init_logging(file_name="inference_pretrained_tf_obj_detect_model_log.txt")
+
+logger = logging.getLogger(__name__)
 
 # # initialize logging
 # log_utils.init_logging()
@@ -95,7 +103,10 @@ def run_inference_for_multiple_images(images, graph):
             image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
             # Run inference
+            t1 = time.time()
             output_dict = sess.run(tensor_dict, feed_dict={image_tensor: images})
+            t2 = time.time()
+            logger.info("inference time: {}".format(t2-t1))
 
             # all outputs are float32 numpy arrays, so convert types as appropriate
             output_dict['num_detections'][:] = map(int, output_dict['num_detections'][:])
@@ -260,13 +271,13 @@ def predict_images_tiled():
         out_image_np_text.close()
 
 @log_utils.timeit
-def predict_images_batched(test_image_paths=None, input_image_sizes=None):
+def predict_images_batched(test_image_paths=None, input_image_sizes=None, category_index=None):
     for im_idx, image_path in enumerate(test_image_paths):
-        print("image: {}".format(image_path))
+        logger.info("image: {}".format(image_path))
 
         for k in range(0, len(input_image_sizes)):
             image_size = input_image_sizes[k]
-            print("image resolution: {}".format(image_size))
+            logger.info("image size: {}x{}".format(image_size, image_size))
 
             tiles_np = []
             tile_ins = []
@@ -290,15 +301,15 @@ def predict_images_batched(test_image_paths=None, input_image_sizes=None):
             # cv2.imshow('image_pad_np', image_pad_np)
             # cv2.waitKey()
 
-            print("h_mult={}".format(h_mult))
-            print("w_mult={}".format(w_mult))
+            logger.info("h_mult={}".format(h_mult))
+            logger.info("w_mult={}".format(w_mult))
 
             # Perform inference on tiles of image for better accuracy
             for i in range(0, int(h_mult)):
                 for j in range(0, int(w_mult)):
                     tile_np = image_pad_np[i*image_size:(i+1)*image_size, j*image_size:(j+1)*image_size, :]
 
-                    print("i={}, j={}".format(i, j))
+                    logger.info("i={}, j={}".format(i, j))
                     # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
                     # cv2.waitKey()
 
@@ -360,7 +371,7 @@ def predict_images_batched(test_image_paths=None, input_image_sizes=None):
         # save the original image with boxes
         basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
         out_image_np_path = "/home/nightrider/calacademy-fish-id/outputs/{}".format(basename)
-        print("tile_np_path={}".format(out_image_np_path))
+        logger.info("tile_np_path={}".format(out_image_np_path))
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
@@ -392,6 +403,7 @@ if __name__ == "__main__":
     download_base = config["download_base"]
     path_to_test_images_dir = config["path_to_test_images_dir"]
     input_image_sizes = config["input_image_sizes"]
+    label_map = config["label_map"]
 
     # For the sake of simplicity we will use only 1 image:
     # image1.jpg
@@ -404,8 +416,7 @@ if __name__ == "__main__":
     path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
 
     # List of the strings that is used to add correct label for each box.
-    path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data',
-                                  'mscoco_complete_label_map.pbtxt')
+    path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
     # download model files
@@ -426,4 +437,6 @@ if __name__ == "__main__":
             tf.import_graph_def(od_graph_def, name='')
 
     # predict_images_tiled()
-    predict_images_batched(test_image_paths=test_image_paths, input_image_sizes=input_image_sizes)
+    predict_images_batched(test_image_paths=test_image_paths,
+                           input_image_sizes=input_image_sizes,
+                           category_index=category_index)
