@@ -13,46 +13,46 @@ from object_detection.utils import label_map_util
 from object_detection.utils import ops as utils_ops
 from object_detection.utils import visualization_utils as vis_util
 
-# initialize logging
-log_utils.init_logging()
-
-# What model to download.
-MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
-MODEL_FILE = MODEL_NAME + '.tar.gz'
-DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
-
-# Path to frozen detection graph. This is the actual model that is used for the object detection.
-PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
-
-# For the sake of simplicity we will use only 1 image:
-# image1.jpg
-# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
-TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2)] #TODO: use lib/file_utils.py
-
-# Size, in pixels of input image
-IMAGE_H = IMAGE_W = [600, 1024]
-
-# List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
-opener = urllib.request.URLopener()
-opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
-tar_file = tarfile.open(MODEL_FILE)
-for file in tar_file.getmembers():
-    file_name = os.path.basename(file.name)
-    if 'frozen_inference_graph.pb' in file_name:
-        tar_file.extract(file, os.getcwd())
-
-detection_graph = tf.Graph()
-with detection_graph.as_default():
-    od_graph_def = tf.GraphDef()
-    with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
-        serialized_graph = fid.read()
-        od_graph_def.ParseFromString(serialized_graph)
-        tf.import_graph_def(od_graph_def, name='')
-
-# List of the strings that is used to add correct label for each box.
-category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
+# # initialize logging
+# log_utils.init_logging()
+#
+# # What model to download.
+# MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
+# MODEL_FILE = MODEL_NAME + '.tar.gz'
+# DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+#
+# # Path to frozen detection graph. This is the actual model that is used for the object detection.
+# PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
+#
+# # For the sake of simplicity we will use only 1 image:
+# # image1.jpg
+# # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
+# PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
+# TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2)] #TODO: use lib/file_utils.py
+#
+# # Size, in pixels of input image
+# IMAGE_H = IMAGE_W = [600, 1024]
+#
+# # List of the strings that is used to add correct label for each box.
+# PATH_TO_LABELS = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', 'mscoco_complete_label_map.pbtxt')
+# opener = urllib.request.URLopener()
+# opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
+# tar_file = tarfile.open(MODEL_FILE)
+# for file in tar_file.getmembers():
+#     file_name = os.path.basename(file.name)
+#     if 'frozen_inference_graph.pb' in file_name:
+#         tar_file.extract(file, os.getcwd())
+#
+# detection_graph = tf.Graph()
+# with detection_graph.as_default():
+#     od_graph_def = tf.GraphDef()
+#     with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
+#         serialized_graph = fid.read()
+#         od_graph_def.ParseFromString(serialized_graph)
+#         tf.import_graph_def(od_graph_def, name='')
+#
+# # List of the strings that is used to add correct label for each box.
+# category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
 
 def load_image_into_numpy_array(image):
@@ -260,12 +260,13 @@ def predict_images_tiled():
         out_image_np_text.close()
 
 @log_utils.timeit
-def predict_images_batched():
-    for im_idx, image_path in enumerate(TEST_IMAGE_PATHS):
+def predict_images_batched(test_image_paths=None, input_image_sizes=None):
+    for im_idx, image_path in enumerate(test_image_paths):
         print("image: {}".format(image_path))
 
-        for k in range(0, len(IMAGE_H)):
-            print("image resolution: {}".format(IMAGE_H[k]))
+        for k in range(0, len(input_image_sizes)):
+            image_size = input_image_sizes[k]
+            print("image resolution: {}".format(image_size))
 
             tiles_np = []
             tile_ins = []
@@ -276,15 +277,14 @@ def predict_images_batched():
             detection_boxes = []
 
             # Pad image dimensions to nearest multiple of 600 (for faster_rcnn_resent101) so that we can operate on crops
-            h_mult = np.ceil(image_np.shape[0] / float(IMAGE_H[k]))
-            w_mult = np.ceil(image_np.shape[1] / float(IMAGE_W[k]))
-            h_new = h_mult * IMAGE_H[k]
-            w_new = w_mult * IMAGE_W[k]
+            h_mult = np.ceil(image_np.shape[0] / float(image_size))
+            w_mult = np.ceil(image_np.shape[1] / float(image_size))
+            h_new = h_mult * image_size
+            w_new = w_mult * image_size
             h_pad_top = 0
             h_pad_bottom = h_new - image_np.shape[0]
             w_pad_right = w_new - image_np.shape[1]
             w_pad_left = 0
-            cv_img = cv2.imread(image_path)
             image_pad_np = cv2.copyMakeBorder(image_np, int(h_pad_top), int(h_pad_bottom), int(w_pad_left), int(w_pad_right), borderType=cv2.BORDER_CONSTANT, value=0)
 
             # cv2.imshow('image_pad_np', image_pad_np)
@@ -296,7 +296,7 @@ def predict_images_batched():
             # Perform inference on tiles of image for better accuracy
             for i in range(0, int(h_mult)):
                 for j in range(0, int(w_mult)):
-                    tile_np = image_pad_np[i*IMAGE_H[k]:(i+1)*IMAGE_H[k], j*IMAGE_W[k]:(j+1)*IMAGE_W[k], :]
+                    tile_np = image_pad_np[i*image_size:(i+1)*image_size, j*image_size:(j+1)*image_size, :]
 
                     print("i={}, j={}".format(i, j))
                     # cv2.imshow('tile-i={}-j={}'.format(i, j), tile_np)
@@ -319,8 +319,8 @@ def predict_images_batched():
                 boxes = output_dict['detection_boxes'][tile_idx]
 
                 for box_idx, box in enumerate(boxes):
-                    h_offset = i * IMAGE_H[k]
-                    w_offset = j * IMAGE_W[k]
+                    h_offset = i * image_size
+                    w_offset = j * image_size
                     ymin, xmin, ymax, xmax = box
                     tile_h, tile_w, tile_d = tile_np.shape[:]
 
@@ -381,61 +381,49 @@ def predict_images_batched():
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    yaml_path = os.path.join(os.curdir, 'inference_pretrained_tf_obj_detect_model.yml')
+    config_dir = os.path.join(os.curdir, 'configs')
+    yaml_path = os.path.join(config_dir, 'inference_pretrained_tf_obj_detect_model.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
 
     ## collect hyper parameters/args from config
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
-    epochs = config["epochs"]
-    threshold = float(config["threshold"])
-    lr = float(config["learning_rate"])
-    lr_decay = float(config["learning_rate_decay"])
-    reduceLROnPlateauConfig = config["ReduceLROnPlateau"]
-    momentum = float(config["momentum"])
-    momentum_type = config["momentum_type"]
-    dropout = float(config["dropout"])
-    optimizer = config["optimizer"]
-    load_weights = config["load_weights"]
-    weights = os.path.join(os.path.abspath(parent_dir), config["weights"])
-    load_model = config["load_model"]
-    model = os.path.join(os.path.abspath(parent_dir), config["model"])
-    loss = config["loss"]
-    accuracy = config["accuracy"]
-    l2_decay = float(config["l2_decay"])
-    kernel_initializer = config["kernel_initializer"]
-    kernel_constraint = float(config["kernel_constraint"])
-    horizontal_flip = config["horizontal_flip"]
-    vertical_flip = config["vertical_flip"]
-    randomly_scale = config["randomly_scale"]
-    randomly_rotate = config["randomly_rotate"]
-    rotation_range = float(config["rotation_range"])
-    test_images_dir = os.path.join(os.path.abspath(parent_dir), config["test_images_dir"])
-    train_images_dir = os.path.join(os.path.abspath(parent_dir), config["train_images_dir"])
-    validation_images_dir = os.path.join(os.path.abspath(parent_dir), config["validation_images_dir"])
-    batch_size = config["batch_size"]
-    train = config["train"]
-    tile_size = config["tile_size"]
-    cleanup_temp_dirs = config["cleanup_temp_dirs"]
-    margin = config["margin"]
-    use_bounding_box_cropping = config["use_bounding_box_cropping"]
-
-    MODEL_NAME = 'faster_rcnn_resnet101_coco_2018_01_28'
-    MODEL_FILE = MODEL_NAME + '.tar.gz'
-    DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
-
-    # Path to frozen detection graph. This is the actual model that is used for the object detection.
-    PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
+    model_name = config["model_name"]
+    download_base = config["download_base"]
+    path_to_test_images_dir = config["path_to_test_images_dir"]
+    input_image_sizes = config["input_image_sizes"]
 
     # For the sake of simplicity we will use only 1 image:
     # image1.jpg
     # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-    PATH_TO_TEST_IMAGES_DIR = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test"
-    TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in
+    test_image_paths = [os.path.join(path_to_test_images_dir, 'image{}.jpg'.format(i)) for i in
                         range(1, 2)]  # TODO: use lib/file_utils.py
 
-    # Size, in pixels of input image
-    IMAGE_H = IMAGE_W = [600, 1024]
+    # Path to frozen detection graph. This is the actual model that is used for the object detection.
+    model_file = model_name + '.tar.gz'
+    path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
+
+    # List of the strings that is used to add correct label for each box.
+    path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data',
+                                  'mscoco_complete_label_map.pbtxt')
+    category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
+
+    # download model files
+    opener = urllib.request.URLopener()
+    opener.retrieve(download_base + model_file, model_file)
+    tar_file = tarfile.open(model_file)
+    for file in tar_file.getmembers():
+        file_name = os.path.basename(file.name)
+        if 'frozen_inference_graph.pb' in file_name:
+            tar_file.extract(file, os.getcwd())
+
+    detection_graph = tf.Graph()
+    with detection_graph.as_default():
+        od_graph_def = tf.GraphDef()
+        with tf.gfile.GFile(path_to_frozen_graph, 'rb') as fid:
+            serialized_graph = fid.read()
+            od_graph_def.ParseFromString(serialized_graph)
+            tf.import_graph_def(od_graph_def, name='')
 
     # predict_images_tiled()
-    predict_images_batched()
+    predict_images_batched(test_image_paths=test_image_paths, input_image_sizes=input_image_sizes)
