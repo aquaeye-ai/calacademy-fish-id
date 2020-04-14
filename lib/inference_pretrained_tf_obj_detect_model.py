@@ -29,8 +29,6 @@ def load_image_into_numpy_array(image):
 
 @log_utils.timeit
 def run_inference_for_multiple_images(images=None, graph=None, sess=None):
-    # with graph.as_default():
-    #     with tf.Session() as sess:
     # Get handles to input and output tensors
     ops = tf.get_default_graph().get_operations()
     all_tensor_names = {output.name for op in ops for output in op.outputs}
