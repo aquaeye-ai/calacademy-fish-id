@@ -28,53 +28,53 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 @log_utils.timeit
-def run_inference_for_multiple_images(images=None, graph=None):
-    with graph.as_default():
-        with tf.Session() as sess:
-            # Get handles to input and output tensors
-            ops = tf.get_default_graph().get_operations()
-            all_tensor_names = {output.name for op in ops for output in op.outputs}
-            tensor_dict = {}
-            for key in [
-                'num_detections', 'detection_boxes', 'detection_scores',
-                'detection_classes', 'detection_masks'
-            ]:
-                tensor_name = key + ':0'
-                if tensor_name in all_tensor_names:
-                    tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
-            # TODO: add this back in
-            # if 'detection_masks' in tensor_dict:
-            #     # The following processing is only for single image
-            #     detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
-            #     detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
-            #     # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
-            #     real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
-            #     detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
-            #     detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
-            #     detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
-            #         detection_masks,
-            #         detection_boxes,
-            #         image.shape[1],
-            #         image.shape[2])
-            #     detection_masks_reframed = tf.cast(tf.greater(detection_masks_reframed, 0.5), tf.uint8)
-            #     # Follow the convention by adding back the batch dimension
-            #     tensor_dict['detection_masks'] = tf.expand_dims(detection_masks_reframed, 0)
-            image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
+def run_inference_for_multiple_images(images=None, graph=None, sess=None):
+    # with graph.as_default():
+    #     with tf.Session() as sess:
+    # Get handles to input and output tensors
+    ops = tf.get_default_graph().get_operations()
+    all_tensor_names = {output.name for op in ops for output in op.outputs}
+    tensor_dict = {}
+    for key in [
+        'num_detections', 'detection_boxes', 'detection_scores',
+        'detection_classes', 'detection_masks'
+    ]:
+        tensor_name = key + ':0'
+        if tensor_name in all_tensor_names:
+            tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
+    # TODO: add this back in
+    # if 'detection_masks' in tensor_dict:
+    #     # The following processing is only for single image
+    #     detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
+    #     detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
+    #     # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
+    #     real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
+    #     detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
+    #     detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
+    #     detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
+    #         detection_masks,
+    #         detection_boxes,
+    #         image.shape[1],
+    #         image.shape[2])
+    #     detection_masks_reframed = tf.cast(tf.greater(detection_masks_reframed, 0.5), tf.uint8)
+    #     # Follow the convention by adding back the batch dimension
+    #     tensor_dict['detection_masks'] = tf.expand_dims(detection_masks_reframed, 0)
+    image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
-            # Run inference
-            t1 = time.time()
-            output_dict = sess.run(tensor_dict, feed_dict={image_tensor: images})
-            t2 = time.time()
-            logger.info("inference time: {}".format(t2-t1))
+    # Run inference
+    t1 = time.time()
+    output_dict = sess.run(tensor_dict, feed_dict={image_tensor: images})
+    t2 = time.time()
+    logger.info("inference time: {}".format(t2-t1))
 
-            # all outputs are float32 numpy arrays, so convert types as appropriate
-            output_dict['num_detections'][:] = map(int, output_dict['num_detections'][:])
-            output_dict['detection_classes'][:] = output_dict['detection_classes'][:].astype(np.int64)
-            output_dict['detection_boxes'][:] = output_dict['detection_boxes'][:]
-            output_dict['detection_scores'][:] = output_dict['detection_scores'][:]
-            # TODO: add this back in
-            # if 'detection_masks' in output_dict:
-            #     output_dict['detection_masks'] = output_dict['detection_masks'][0]
+    # all outputs are float32 numpy arrays, so convert types as appropriate
+    output_dict['num_detections'][:] = map(int, output_dict['num_detections'][:])
+    output_dict['detection_classes'][:] = output_dict['detection_classes'][:].astype(np.int64)
+    output_dict['detection_boxes'][:] = output_dict['detection_boxes'][:]
+    output_dict['detection_scores'][:] = output_dict['detection_scores'][:]
+    # TODO: add this back in
+    # if 'detection_masks' in output_dict:
+    #     output_dict['detection_masks'] = output_dict['detection_masks'][0]
     return output_dict
 
 @log_utils.timeit
@@ -275,6 +275,7 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
             logger.info("w_mult={}".format(w_mult))
 
             # Perform inference on tiles of image for better accuracy
+            num_tiles = 0
             for i in range(0, int(h_mult)):
                 for j in range(0, int(w_mult)):
                     tile_np = image_pad_np[i*model_input_image_size:(i+1)*model_input_image_size, j*model_input_image_size:(j+1)*model_input_image_size, :]
@@ -285,12 +286,15 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
 
                     tiles_np.append(tile_np)
                     tile_ins.append((i, j))
+                    num_tiles += 1
+
+            logger.info("num_tiles={}".format(num_tiles))
 
             # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
             tiles_np_expanded = np.asarray(tiles_np)
 
             # Actual detection.
-            output_dict = run_inference_for_multiple_images(tiles_np_expanded, detection_graph)
+            output_dict = run_inference_for_multiple_images(tiles_np_expanded, detection_graph, sess=sess)
 
             # adjust the bounding box coordinates due to the tiling
             # for box in non_zero_detection_boxes:
@@ -400,15 +404,16 @@ if __name__ == "__main__":
 
     detection_graph = tf.Graph()
     with detection_graph.as_default():
-        od_graph_def = tf.GraphDef()
-        with tf.gfile.GFile(path_to_frozen_graph, 'rb') as fid:
-            serialized_graph = fid.read()
-            od_graph_def.ParseFromString(serialized_graph)
-            tf.import_graph_def(od_graph_def, name='')
+        with tf.Session() as sess:
+            od_graph_def = tf.GraphDef()
+            with tf.gfile.GFile(path_to_frozen_graph, 'rb') as fid:
+                serialized_graph = fid.read()
+                od_graph_def.ParseFromString(serialized_graph)
+                tf.import_graph_def(od_graph_def, name='')
 
-    # predict_images_tiled_sequential(test_image_paths=test_image_paths,
-    #                              model_input_image_sizes=model_input_image_sizes,
-    #                              category_index=category_index)
-    predict_images_tiled_batched(test_image_paths=test_image_paths,
-                           model_input_image_sizes=model_input_image_sizes,
-                           category_index=category_index)
+                # predict_images_tiled_sequential(test_image_paths=test_image_paths,
+                #                              model_input_image_sizes=model_input_image_sizes,
+                #                              category_index=category_index)
+                predict_images_tiled_batched(test_image_paths=test_image_paths,
+                                       model_input_image_sizes=model_input_image_sizes,
+                                       category_index=category_index)
