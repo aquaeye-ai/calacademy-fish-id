@@ -1,25 +1,13 @@
+# Adapted from: https://towardsdatascience.com/detailed-tutorial-build-your-custom-real-time-object-detector-5ade1017fd2d#d582
 from __future__ import division, print_function, absolute_import
 
-import pandas as pd
-import numpy as np
-import csv
-
-import re
 import os
-import io
 import glob
-import shutil
-# import urllib.request
-import tarfile
+
+import pandas as pd
 import xml.etree.ElementTree as ET
 
-# import tensorflow.compat.v1 as tf
-import cv2
 
-from PIL import Image
-from collections import namedtuple, OrderedDict
-
-#adjusted from: https://github.com/datitran/raccoon_dataset
 def xml_to_csv(path):
     classes_names = []
     xml_list = []
@@ -29,7 +17,7 @@ def xml_to_csv(path):
         root = tree.getroot()
         for member in root.findall('object'):
             classes_names.append(member[0].text)
-            value = (root.find('filename').text + '.jpg',
+            value = (root.find('filename').text,
                      int(root.find('size')[0].text),
                      int(root.find('size')[1].text),
                      member[0].text,
