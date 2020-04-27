@@ -22,3 +22,6 @@ path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills
 # Each number is both height and width as we assume the input image to be square
 # These will vary based on the model architecture.
 model_input_image_sizes: [300]
+
+# minimum scoring threshold
+min_score_threshold: 0.1
