@@ -1,0 +1,32 @@
+#######################
+# CONFIG for tile_annotated_images.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+save_before_after_map: 1
+
+keep_partial_labels: 1
+
+tile_overlap: 0.5
+
+model: ssd_mobilenet_v2_coco_2018_03_29
+
+# Some models to train on
+models_config:
+    ssd_mobilenet_v2_coco_2018_03_29:
+        image_size:
+            height: 300
+            width: 300
+
+im_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/no_crops/images
+
+an_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/no_crops/annotations
+
+im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/size_300_300/images
+
+an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/size_300_300/annotations
+
+
