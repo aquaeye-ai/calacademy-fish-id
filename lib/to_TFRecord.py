@@ -13,7 +13,7 @@ import tensorflow as tf
 
 
 # change this to the base directory where your data/ is
-DATA_BASE_URL = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/object_detection'
+DATA_BASE_URL = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/size_300_300'
 
 # location of images
 IMAGE_DIR = os.path.join(DATA_BASE_URL, 'images/')
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         input_path = os.path.join(DATA_BASE_URL, csv + '.csv')
         output_path = os.path.join(DATA_BASE_URL, csv + '.record')
         writer = tf.io.TFRecordWriter(output_path)
-        examples = pd.read_csv(input_path)
+        examples = pd.read_csv(input_path, converters={'filename': lambda x: str(x)}) # converters necessary to preserve leading zeros in filenames (if leading zeros exist)
         grouped = split(examples, 'filename')
 
         for group in grouped:

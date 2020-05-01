@@ -443,15 +443,16 @@ if __name__ == "__main__":
     # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
     test_image_paths = [os.path.join(path_to_test_images_dir, 'image{}.jpg'.format(i)) for i in
                         range(1, 2)]  # TODO: use lib/file_utils.py
+    # test_image_paths = fu.find_images(directory=path_to_test_images_dir, extension=".jpg")
 
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
     path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    # path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/pretrained/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned_model/frozen_inference_graph.pb'
+    # path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned_models/4_27_2020/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
     path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
-    # path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/object_detection/label_map.pbtxt'
+    # path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/size_300_300/label_map.pbtxt'
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
     # download model files

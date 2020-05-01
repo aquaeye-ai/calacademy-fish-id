@@ -15,9 +15,17 @@ def xml_to_csv(path):
     for xml_file in glob.glob(path + '/*.xml'):
         tree = ET.parse(xml_file)
         root = tree.getroot()
+        filename = root.find('filename').text
+
+        # If the .xml annotations were produced using an annotation tiling software such as: https://github.com/jdcast/image_bbox_slicer
+        # then the filename with the suffix of .jpg won't be saved in the .xml file and we need to add it.  Otherwise
+        # lib/to_TFRecord.py will fail.
+        if not filename.lower().endswith('.jpg'):
+            filename += '.jpg'
+
         for member in root.findall('object'):
             classes_names.append(member[0].text)
-            value = (root.find('filename').text,
+            value = (filename,
                      int(root.find('size')[0].text),
                      int(root.find('size')[1].text),
                      member[0].text,
@@ -33,7 +41,7 @@ def xml_to_csv(path):
     return xml_df, classes_names
 
 if __name__ == "__main__":
-    data_dir_path = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/object_detection"
+    data_dir_path = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/size_300_300"
 
     for label_path in ['train_labels', 'test_labels']:
         image_path = os.path.join(data_dir_path, label_path)
