@@ -1,0 +1,15 @@
+#######################
+# CONFIG for renumber_image_bbox_slicer_output_files.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+source_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/combined_300_600/combined
+
+destination_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/combined_300_600/renumbered
+
+start_number: 144
+
+image_extension: '.jpg'

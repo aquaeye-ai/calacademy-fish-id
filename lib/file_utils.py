@@ -522,3 +522,21 @@ def prune_outputs_directories():
                 print('deleting: {}'.format(child_dir))
 
                 shutil.rmtree(parent_dir + child_dir)
+
+
+def renumber_image_bbox_slicer_output_files(source_directory=None, destination_directory=None, start_number=0, image_extension='.png'):
+    image_paths = find_images(directory=source_directory, extension=image_extension)
+
+    for idx, image_path in enumerate(image_paths):
+        dir_path = os.path.dirname(image_path)
+        basename = os.path.basename(image_path)
+        src_ann_path = os.path.join(dir_path, basename[:-4]+".xml") # remove image extension from basename then add annotation extension
+        dst_ann_path = os.path.join(destination_directory, "{}.xml".format(idx+start_number))
+        dst_img_path = os.path.join(destination_directory, "{}{}".format(idx+start_number, image_extension))
+
+        # copy files
+        print("moving {} to {}".format(src_ann_path, dst_ann_path))
+        print("moving {} to {}\n".format(image_path, dst_img_path))
+
+        shutil.copyfile(src_ann_path, dst_ann_path)
+        shutil.copyfile(image_path, dst_img_path)
