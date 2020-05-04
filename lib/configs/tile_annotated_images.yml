@@ -25,9 +25,6 @@ im_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/st
 
 an_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/no_crops/annotations
 
-#im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/size_300_300/images
+im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/size_300_300/images
 
-#an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/size_300_300/annotations
-
-im_dst: /home/nightrider/Desktop/tiled
-an_dst: /home/nightrider/Desktop/tiled
+an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/dry_run/crops/size_300_300/annotations
