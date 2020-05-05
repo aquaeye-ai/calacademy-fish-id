@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     #the distination folder where the model will be saved
     #change this if you have a different working dir
-    dest_dir_path = os.path.join('/home/nightrider/calacademy-fish-id/classifiers/models/pretrained', model)
+    dest_dir_path = os.path.join('/home/nightrider/calacademy-fish-id/classifiers/models/', model, "pretrained")
 
     # create destination directory if none exists
     fu.init_directory(directory=dest_dir_path)

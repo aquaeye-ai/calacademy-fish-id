@@ -13,7 +13,7 @@ import tensorflow as tf
 
 
 # change this to the base directory where your data/ is
-DATA_BASE_URL = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/size_300_300'
+DATA_BASE_URL = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600'
 
 # location of images
 IMAGE_DIR = os.path.join(DATA_BASE_URL, 'images/')
