@@ -10,6 +10,8 @@ import ntpath
 import shutil
 import logging
 
+import xml.etree.ElementTree
+
 import numpy as np
 
 # personal libs
@@ -540,3 +542,11 @@ def renumber_image_bbox_slicer_output_files(source_directory=None, destination_d
 
         shutil.copyfile(src_ann_path, dst_ann_path)
         shutil.copyfile(image_path, dst_img_path)
+
+        # adjust the filename and path tags in the xml file to match new destination
+        et = xml.etree.ElementTree.parse(src_ann_path)
+        root = et.getroot()
+
+        root.find("filename").text = "{}{}".format(idx+start_number, image_extension)
+        root.find("path").text = dst_img_path
+        et.write(dst_ann_path)
