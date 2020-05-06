@@ -1,0 +1,16 @@
+#######################
+# CONFIG for sample_video_frames.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# we want the sampling rate to be large enough so that we don't have frames that are too strongly correlated
+sample_rate: 10
+
+video_path: '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/video/raw/IMG_0512.MOV'
+
+destination_directory: '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/video/sampled_new'
+
+
