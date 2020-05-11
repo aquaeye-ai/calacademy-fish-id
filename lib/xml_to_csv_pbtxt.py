@@ -41,7 +41,7 @@ def xml_to_csv(path):
     return xml_df, classes_names
 
 if __name__ == "__main__":
-    data_dir_path = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600"
+    data_dir_path = "/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/one_class"
 
     for label_path in ['train_labels', 'test_labels']:
         image_path = os.path.join(data_dir_path, label_path)

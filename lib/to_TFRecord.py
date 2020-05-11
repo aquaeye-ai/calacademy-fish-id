@@ -13,23 +13,29 @@ import tensorflow as tf
 
 
 # change this to the base directory where your data/ is
-DATA_BASE_URL = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600'
+DATA_BASE_URL = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/combined_300_600/one_class'
 
 # location of images
 IMAGE_DIR = os.path.join(DATA_BASE_URL, 'images/')
 
 
+# def class_text_to_int(row_label):
+#     if row_label == 'acanthurus blochii':
+#         return 1
+#     elif row_label == 'caesio teres':
+#         return 2
+#     elif row_label == 'heniochus diphreutes':
+#         return 3
+#     elif row_label == 'naso brevirostris':
+#         return 4
+#     elif row_label == 'other':
+#         return 5
+#     else:
+#         None
+
 def class_text_to_int(row_label):
-    if row_label == 'acanthurus blochii':
+    if row_label == 'other':
         return 1
-    elif row_label == 'caesio teres':
-        return 2
-    elif row_label == 'heniochus diphreutes':
-        return 3
-    elif row_label == 'naso brevirostris':
-        return 4
-    elif row_label == 'other':
-        return 5
     else:
         None
 
