@@ -38,4 +38,8 @@ if __name__ == "__main__":
     slicer.save_before_after_map = True if save_before_after_map > 0 else False
     slicer.keep_partial_labels = True if keep_partial_labels > 0 else False
     slicer.slice_by_size(tile_size=(h, w), tile_overlap=tile_overlap)
-    # slicer.visualize_sliced_random() # can't use this line because of installation bug for tkinter, instead we use labelImg to visualize the annotations on the images
+
+    # Can't use this line if script is executed within pycharm because of installation bug for tkinter so in this case
+    # we can instead use labelImg to visualize the annotations on the images.
+    # However, this line will work if the script is run outside of pycharm with python 2.7.
+    slicer.visualize_sliced_random()
