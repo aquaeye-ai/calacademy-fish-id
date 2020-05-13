@@ -21,10 +21,10 @@ models_config:
             height: 300
             width: 300
 
-im_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/train/temp/input_images
+im_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/images
 
-an_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/train/temp/input_annotations
+an_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/annotations
 
-im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/train/temp/images
+im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/output_images
 
-an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/train/temp/annotations
+an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/output_annotations

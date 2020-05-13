@@ -6,10 +6,10 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-source_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/train/temp/combined
+source_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/temp/original_images
 
-destination_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/train/temp/renumbered
+destination_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/temp/original_renumbered
 
-start_number: 391
+start_number: 546
 
 image_extension: '.jpg'

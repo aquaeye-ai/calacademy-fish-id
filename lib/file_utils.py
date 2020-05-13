@@ -343,6 +343,28 @@ def find_jsons(directory=None, extension=".json"):
     :param directory: directory path
     :return: list of json file names
     """
+    import warnings
+    warnings.warn("deprecated", DeprecationWarning)
+
+    files = os.listdir(directory)
+    files.sort()
+    jsons = []
+
+    for f in files:
+        if f.upper().endswith(extension.upper()):
+            fname = os.path.join(directory, f)
+            jsons.append(fname)
+
+    return jsons
+
+
+def find_files(directory=None, extension=".xml"):
+    """
+    Look in the given directory for files ending with the given extension.
+
+    :param directory: directory path
+    :return: list of file names
+    """
 
     files = os.listdir(directory)
     files.sort()
@@ -544,9 +566,39 @@ def renumber_image_bbox_slicer_output_files(source_directory=None, destination_d
         shutil.copyfile(image_path, dst_img_path)
 
         # adjust the filename and path tags in the xml file to match new destination
-        et = xml.etree.ElementTree.parse(src_ann_path)
+        et = xml.etree.ElementTree.parse(dst_ann_path)
         root = et.getroot()
 
         root.find("filename").text = "{}{}".format(idx+start_number, image_extension)
         root.find("path").text = dst_img_path
         et.write(dst_ann_path)
+
+
+def remove_empty_annotations_and_images(directory=None, image_extension='.png', annotation_extension='.xml'):
+    """
+    Look through directory and remove empty annotation/image pairs.
+
+    :param directory: str, directory path
+    :param image_extension: str, e.g. '.png'
+    :param annotation_extension: str, e.g. '.xml'
+    :return: None
+    """
+    ann_paths = find_files(directory=directory, extension=annotation_extension)
+
+    for idx, ann_path in enumerate(ann_paths):
+        et = xml.etree.ElementTree.parse(ann_path)
+        root = et.getroot()
+
+        if root.find("object") == None:
+            print("Found empty annotation/image pair")
+
+            basename = os.path.basename(ann_path)
+            basename = basename[:-4] # remove extension
+
+            img_path = os.path.join(directory, basename+image_extension)
+
+            print("Removing empty annotation: {}".format(ann_path))
+            os.remove(ann_path)
+
+            print("Removing empty image: {}".format(img_path))
+            os.remove(img_path)

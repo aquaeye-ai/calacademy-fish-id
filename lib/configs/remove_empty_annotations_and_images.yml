@@ -1,0 +1,13 @@
+#######################
+# CONFIG for remove_empty_annotations_and_images.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/combined
+
+image_extension: '.jpg'
+
+annotation_extension: '.xml'
