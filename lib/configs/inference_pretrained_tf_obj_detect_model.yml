@@ -17,6 +17,7 @@ download_base: http://download.tensorflow.org/models/object_detection/
 
 # path to directory holding test images
 path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test
+#path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600/images
 
 # Sizes, in pixels, of input image for the model.
 # Each number is both height and width as we assume the input image to be square
@@ -24,4 +25,4 @@ path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills
 model_input_image_sizes: [300]
 
 # minimum scoring threshold
-min_score_threshold: 0.1
+min_score_threshold: 0.7

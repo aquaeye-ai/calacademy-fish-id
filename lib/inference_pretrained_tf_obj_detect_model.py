@@ -146,6 +146,10 @@ def predict_images_tiled_sequential(test_image_paths=None, model_input_image_siz
             logger.info("image size: {}".format(model_input_image_size))
 
             image_np = cv2.imread(image_path)
+
+            # CV2 reads image in BGR format and TF is trained in RGB format
+            image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+
             detection_scores = []
             detection_classes = []
             detection_boxes = []
@@ -209,7 +213,11 @@ def predict_images_tiled_sequential(test_image_paths=None, model_input_image_siz
                     detection_scores.extend(output_dict['detection_scores'])
                     detection_boxes.extend(output_dict['detection_boxes'])
 
-        # Visualization of the results of a detection.
+        ## Visualization of the results of a detection.
+
+        # CV2 reads image in BGR format and TF is trained in RGB format
+        image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+
         # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
         vis_util.visualize_boxes_and_labels_on_image_array(
             # tile_np,
@@ -258,6 +266,10 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
             tile_ins = []
 
             image_np = cv2.imread(image_path)
+
+            # CV2 reads image in BGR format and TF is trained in RGB format
+            image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+
             detection_scores = []
             detection_classes = []
             detection_boxes = []
@@ -333,7 +345,11 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
                 detection_scores.extend(output_dict['detection_scores'][tile_idx])
                 detection_boxes.extend(output_dict['detection_boxes'][tile_idx])
 
-        # Visualization of the results of a detection.
+        ## Visualization of the results of a detection.
+
+        # CV2 reads image in BGR format and TF is trained in RGB format
+        image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+
         # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
         vis_util.visualize_boxes_and_labels_on_image_array(
             image_np,
@@ -373,6 +389,10 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
         logger.info("image: {}".format(image_path))
 
         image_np = cv2.imread(image_path)
+
+        # CV2 reads image in BGR format and TF is trained in RGB format
+        image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+
         h, w = image_np.shape[:2]
         logger.info("image size: {}x{}".format(h, w))
 
@@ -386,7 +406,11 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
         detection_classes = output_dict['detection_classes'][0]
         detection_boxes = output_dict['detection_boxes'][0]
 
-        # Visualization of the results of a detection.
+        ## Visualization of the results of a detection.
+
+        # CV2 reads image in BGR format and TF is trained in RGB format
+        image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+
         # This function groups boxes that correspond to the same location: https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py
         vis_util.visualize_boxes_and_labels_on_image_array(
             image_np,
@@ -441,28 +465,28 @@ if __name__ == "__main__":
     # For the sake of simplicity we will use only 1 image:
     # image1.jpg
     # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-    test_image_paths = [os.path.join(path_to_test_images_dir, 'image{}.jpg'.format(i)) for i in
-                        range(1, 2)]  # TODO: use lib/file_utils.py
-    # test_image_paths = fu.find_images(directory=path_to_test_images_dir, extension=".jpg")
+    # test_image_paths = [os.path.join(path_to_test_images_dir, 'image{}.jpg'.format(i)) for i in
+    #                     range(1, 2)]  # TODO: use lib/file_utils.py
+    test_image_paths = fu.find_images(directory=path_to_test_images_dir, extension=".jpg")
 
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
-    path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    # path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned_models/4_27_2020/frozen_inference_graph.pb'
+    # path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
+    path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned/5_11_2020/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
-    path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
-    # path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/size_300_300/label_map.pbtxt'
+    # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
+    path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/one_class/label_map.pbtxt'
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
-    # download model files
-    opener = urllib.request.URLopener()
-    opener.retrieve(download_base + model_file, model_file)
-    tar_file = tarfile.open(model_file)
-    for file in tar_file.getmembers():
-        file_name = os.path.basename(file.name)
-        if 'frozen_inference_graph.pb' in file_name:
-            tar_file.extract(file, os.getcwd())
+    # # download model files
+    # opener = urllib.request.URLopener()
+    # opener.retrieve(download_base + model_file, model_file)
+    # tar_file = tarfile.open(model_file)
+    # for file in tar_file.getmembers():
+    #     file_name = os.path.basename(file.name)
+    #     if 'frozen_inference_graph.pb' in file_name:
+    #         tar_file.extract(file, os.getcwd())
 
     detection_graph = tf.Graph()
     with detection_graph.as_default():
