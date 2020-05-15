@@ -25,6 +25,6 @@ im_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/st
 
 an_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/annotations
 
-im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/output_images
+im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/output_images_300
 
-an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/output_annotations
+an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/temp/output_annotations_300
