@@ -239,9 +239,9 @@ def predict_images_tiled_sequential(test_image_paths=None, model_input_image_siz
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
-        # First we grab only non-zero probability detection outputs
+        # First we threshold detection outputs so that we match drawn image.
         # Note: we don't remove duplicate boxes as this could affect our evaluation metrics
-        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
+        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > min_score_threshold
         non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_boxes = np.asarray(detection_boxes, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
@@ -370,9 +370,9 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
-        # First we grab only non-zero probability detection outputs
+        # First we threshold detection outputs so that we match drawn image.
         # Note: we don't remove duplicate boxes as this could affect our evaluation metrics
-        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
+        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > min_score_threshold
         non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_boxes = np.asarray(detection_boxes, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
@@ -431,9 +431,9 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
         fu.save_images(images=[(out_image_np_path, image_np)])
 
         ## save the detection classes and scores to text file
-        # First we grab only non-zero probability detection outputs
+        # First we threshold detection outputs so that we match drawn image.
         # Note: we don't remove duplicate boxes as this could affect our evaluation metrics
-        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > 0
+        non_zero_outputs = np.asarray(detection_scores, dtype=np.float32) > min_score_threshold
         non_zero_detection_classes = np.asarray(detection_classes, dtype=np.int64)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_scores = np.asarray(detection_scores, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
         non_zero_detection_boxes = np.asarray(detection_boxes, dtype=np.float32)[non_zero_outputs] # indexing must be done on np array and not list
@@ -472,11 +472,11 @@ if __name__ == "__main__":
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
     # path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned/5_11_2020/frozen_inference_graph.pb'
+    path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned/5_15_2020/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
     # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
-    path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/one_class/label_map.pbtxt'
+    path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/multi_class/label_map.pbtxt'
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
     # # download model files
