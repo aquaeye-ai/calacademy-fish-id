@@ -36,6 +36,8 @@ IMAGE_DIR = os.path.join(DATA_BASE_URL, 'images/')
 def class_text_to_int(row_label):
     if row_label == 'other':
         return 1
+    elif row_label == 'caesio teres':
+        return 2
     else:
         None
 
