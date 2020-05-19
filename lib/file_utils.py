@@ -602,3 +602,30 @@ def remove_empty_annotations_and_images(directory=None, image_extension='.png', 
 
             print("Removing empty image: {}".format(img_path))
             os.remove(img_path)
+
+
+def string_replace_in_annotation_class(directory=None, old_str=None, new_str=None, annotation_extension='.png'):
+    """
+    Walks the xml tree and replaces any substring in the annotation's class label that matches old_str with new_str.
+
+    :param directory: str, path
+    :param old_str: str, string to replace
+    :param new_str: str, string to replace old_str with
+    :param annotation_extension: str, extension for annotation files
+    :return: None
+    """
+    ann_paths = find_files(directory=directory, extension=annotation_extension)
+
+    for idx, ann_path in enumerate(ann_paths):
+        et = xml.etree.ElementTree.parse(ann_path)
+        root = et.getroot()
+
+        for elem in root.getiterator():
+            if elem.tag == 'object':
+
+                if old_str in elem._children[0].text:
+                    print("Replacing '{}' in '{}' with '{}' for ann_path: {}".format(old_str, elem._children[0].text, new_str, ann_path))
+
+                    elem._children[0].text = elem._children[0].text.replace(old_str, new_str)
+
+        et.write(ann_path)
