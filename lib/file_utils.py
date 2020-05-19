@@ -13,6 +13,7 @@ import logging
 import xml.etree.ElementTree
 
 import numpy as np
+import pandas as pd
 
 # personal libs
 import lib.globals as globals
@@ -549,6 +550,15 @@ def prune_outputs_directories():
 
 
 def renumber_image_bbox_slicer_output_files(source_directory=None, destination_directory=None, start_number=0, image_extension='.png'):
+    """
+    Renumbers annotation tiles' names sequentially starting from a given number.
+
+    :param source_directory: str, path to directory holding original tiles
+    :param destination_directory: str, path to directory to save renamed tiles
+    :param start_number: int, starting value to begin sequentially renumbering from
+    :param image_extension: str, image extension
+    :return: None
+    """
     image_paths = find_images(directory=source_directory, extension=image_extension)
 
     for idx, image_path in enumerate(image_paths):
@@ -629,3 +639,26 @@ def string_replace_in_annotation_class(directory=None, old_str=None, new_str=Non
                     elem._children[0].text = elem._children[0].text.replace(old_str, new_str)
 
         et.write(ann_path)
+
+
+def collapse_classes_to_subset_in_csv(csv_path=None, keep_classes=None, default_class=None):
+    """
+    Collapse all classes in csv file (in TF training format such as that produced by lib/xml_to_csv_pbtxt.py) to
+    default_class if they aren't present in the list provided by keep_classes.
+
+    :param csv_path: str, path to csv file
+    :param keep_classes: list of str, classes to keep
+    :param default_class: str, class to collapse classes to that are not present in keep_classes
+    :return: None
+    """
+    with open(csv_path) as csv_file:
+        doc_df = pd.read_csv(csv_file)
+
+        for row_idx, row in doc_df.iterrows():
+            print("row: {}".format(row_idx))
+
+            if doc_df['class'].values[row_idx] not in keep_classes:
+                print('collapsing {} to {}'.format(doc_df['class'].values[row_idx], default_class))
+                doc_df['class'][row_idx] = default_class
+
+        doc_df.to_csv(csv_path)

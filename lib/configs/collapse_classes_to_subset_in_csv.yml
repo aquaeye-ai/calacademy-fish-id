@@ -1,0 +1,13 @@
+#######################
+# CONFIG for collapse_classes_to_subset_in_csv.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+csv_path: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/multi_class/train_labels.csv
+
+keep_classes: [other, caesio teres]
+
+default_class: other
