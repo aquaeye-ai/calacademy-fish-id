@@ -6,10 +6,10 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-source_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/temp/combined_600_filtered
+source_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/wip_annotation/combined_300_filtered
 
-destination_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/temp/combined_600_renumbered
+destination_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/wip_annotation/combined_300_renumbered
 
-start_number: 1463
+start_number: 1675
 
 image_extension: '.jpg'
