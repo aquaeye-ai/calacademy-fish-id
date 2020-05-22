@@ -2,15 +2,18 @@
 Script that wraps tensorflow's freeze_graph functionality so that it can be run as demonstrated here:
 https://github.com/tensorflow/models/tree/master/research/slim#Export and
 https://stackoverflow.com/questions/51408732/vgg-19-slim-model-a-frozen-pb-graph
+
+Requires /lib/image_classification/export_inference_graph.py's exported_inference_graph.pb output as input
 """
 import os
 import yaml
+import subprocess
 
-from tensorflow.python.tools import freeze_graph
+# from tensorflow.python.tools import freeze_graph
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.curdir, '..', 'configs')
+    config_dir = os.path.join(os.curdir, '..', 'configs', 'image_classification')
     yaml_path = os.path.join(config_dir, 'freeze_graph.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
@@ -26,8 +29,13 @@ if __name__ == "__main__":
     output_graph = config["output_graph"]
 
     # freeze graph
-    freeze_graph.freeze_graph(input_graph=input_graph,
-                              input_binary=input_binary,
-                              input_checkpoint=input_checkpoint,
-                              output_node_names=output_node_names,
-                              output_graph=output_graph)
+    # Note: for some reason, calling freeze_graph module's freeze_graph from within python doesn't work and complains
+    # about lack of all args being supplied, so we have to call it as a terminal command.
+    subprocess.call(["python",
+                    "-m",
+                    "tensorflow.python.tools.freeze_graph",
+                    "--input_graph", "{}".format(input_graph),
+                    "--input_binary", "true",
+                    "--output_node_names", "{}".format(output_node_names),
+                    "--input_checkpoint", "{}".format(input_checkpoint),
+                    "--output_graph", "{}".format(output_graph)])

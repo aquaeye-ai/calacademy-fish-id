@@ -1,0 +1,13 @@
+#######################
+# CONFIG for image_classification/export_inference_graph.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# model name of valid TF Slim model as demonstrated here: https://github.com/tensorflow/models/tree/master/research/slim#Export
+model_name: inception_v3
+
+# path and filename to output exported inference graph to
+output_file: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/pretrained/inception_v3_inf_graph.pb
