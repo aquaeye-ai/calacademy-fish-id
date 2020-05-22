@@ -1,0 +1,28 @@
+#######################
+# CONFIG for inference_pretrained_tf_img_class_model.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to pretrained model
+path_to_frozen_graph: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/pretrained/frozen_inference_graph.pb
+
+# label map
+label_map: mscoco_complete_label_map.pbtxt
+
+# path to directory holding test images
+path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/test
+#path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600/images
+
+# Sizes, in pixels, of input image for the model.
+# Each number is both height and width as we assume the input image to be square
+# These will vary based on the model architecture.
+model_input_image_sizes: [300]
+
+# minimum scoring threshold
+min_score_threshold: 0.1
+
+# path to labels file
+path_to_labels: /home/nightrider/tensorflow/models/research/slim/labels.txt
