@@ -6,7 +6,7 @@ import tarfile
 
 import cv2 as cv2
 import numpy as np
-import file_utils as fu
+import lib.file_utils as fu
 import tensorflow as tf
 import six.moves.urllib as urllib
 import lib.log_utils as log_utils
