@@ -1,3 +1,8 @@
+"""
+Script to inference pretrained TF image classification model, e.g. from Slim model zoo: https://github.com/tensorflow/models/tree/master/research/slim#Pretrained
+Adapted from: https://github.com/legolas123/cv-tricks.com/blob/master/Tensorflow-tutorials/Tensorflow-slim-run-prediction/run_inference_on_v3.py
+"""
+
 import numpy as np
 import os
 import cv2
