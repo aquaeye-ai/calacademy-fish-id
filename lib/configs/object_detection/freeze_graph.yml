@@ -1,0 +1,19 @@
+#######################
+# CONFIG for image_classification/freeze_graph.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# type of input for model
+input_type: image_tensor
+
+# path to trained checkpoint prefix
+trained_checkpoint_prefix: /home/nightrider/calacademy-fish-id/outputs/fine_tuned_model_training/ssd_mobilenet_v2_coco_2018_03_29/5_23_2020/model.ckpt-33968
+
+# path to pipeline config used for training
+pipeline_config_path: /home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/pretrained/pipeline.config
+
+# path to directory that will hold frozen graph and its associated outputs
+output_directory: /home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned/5_23_2020
