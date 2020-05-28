@@ -662,3 +662,23 @@ def collapse_classes_to_subset_in_csv(csv_path=None, keep_classes=None, default_
                 doc_df['class'][row_idx] = default_class
 
         doc_df.to_csv(csv_path)
+
+
+def renumber_images(source_directory=None, destination_directory=None, start_number=0, image_extension='.png'):
+    """
+    Renumbers images' names sequentially starting from a given number.
+
+    :param source_directory: str, path to directory holding original images
+    :param destination_directory: str, path to directory to save renamed images
+    :param start_number: int, starting value to begin sequentially renumbering from
+    :param image_extension: str, image extension
+    :return: None
+    """
+    image_paths = find_images(directory=source_directory, extension=image_extension)
+
+    for idx, image_path in enumerate(image_paths):
+        dst_img_path = os.path.join(destination_directory, "{}{}".format(idx+start_number, image_extension))
+
+        # copy files
+        print("moving {} to {}\n".format(image_path, dst_img_path))
+        shutil.copyfile(image_path, dst_img_path)
