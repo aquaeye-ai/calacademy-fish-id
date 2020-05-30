@@ -7,7 +7,7 @@ import file_utils as fu
 from imutils import paths
 
 
-DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/caesio_teres"
+DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/pseudanthias_dispar"
 REMOVE = 1
 
 

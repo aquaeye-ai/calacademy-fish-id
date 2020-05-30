@@ -12,7 +12,7 @@ import requests
 
 
 API_KEY = "16656ec34ce04b0f9fd4e1e83db388d4"
-MAX_RESULTS = 600
+MAX_RESULTS = 759
 GROUP_SIZE = 50
 
 # set the endpoint API URL
@@ -25,8 +25,8 @@ URL = "https://api.cognitive.microsoft.com/bing/v7.0/images/search"
 EXCEPTIONS = set([IOError, errno.ENOENT, exceptions.RequestException, exceptions.HTTPError, exceptions.ConnectionError,
                   exceptions.Timeout])
 
-QUERY = "caesio teres OR blue and yellow fusilier OR yellowtail fusilier"
-OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/caesio_teres/bing"
+QUERY = "pseudanthias dispar OR dispar anthias"
+OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/pseudanthias_dispar/bing"
 
 if __name__ == "__main__":
     # store the search term in a convenience variable then set the

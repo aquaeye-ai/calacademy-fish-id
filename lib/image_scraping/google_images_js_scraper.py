@@ -10,7 +10,7 @@ import requests
 
 
 URLS = "/home/nightrider/Downloads/urls.txt"
-OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/caesio_teres"
+OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/pseudanthias_dispar"
 
 def download_images_for_urls(urls=None, dst_dir=None):
     rows = open(urls).read().strip().split("\n")
