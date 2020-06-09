@@ -36,32 +36,7 @@ EXCEPTIONS = set([IOError, errno.ENOENT, exceptions.RequestException, exceptions
 # OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/three_class/chromis_ternatensis/bing"
 
 QUERIES = {
-    "chromis_viridis": "Chromis viridis OR Green Chromis",
-    "chromis_ternatensis": "Chromis ternatensis OR Ternate Chromis",
-    "lepidozygus_tapeinosoma": "Lepidozygus tapeinosoma OR Fusilier Damselfish",
-    "pomacentrus_auriventris": "Pomacentrus auriventris OR Goldbelly Damselfish",
-    "pomacentrus_coelestis": "Pomacentrus coelestis OR Neon Damsel OR Blue and Gold Damsel",
-    "pomacentrus_bankanensis": "Pomacentrus bankanensis OR Speckled Damselfish",
-    "scarus_quoyi": "Scarus quoyi OR Quoy’s Parrotfish",
-    "pseudanthias_pleurotaenia": "Pseudanthias pleurotaenia OR Squarespot Anthias",
-    "pseudanthias_squamipinnis": "Pseudanthias squamipinnis OR Lyretail Anthias",
-    "pseudanthias_tuka": "Pseudanthias tuka OR Purple Anthias",
-    "pseudanthias_lori": "Pseudanthias lori OR Lori’s Anthias",
-    "pseudanthias_fasciatus": "Pseudanthias fasciatus OR Red Stripe Anthias",
-    "siganus_punctatus": "Siganus punctatus OR Goldspotted Spinefoot Rabbitfish",
-    "scolopsis_bilineata": "Scolopsis bilineata OR Threadfin Bream OR Whiptail Bream",
-    "cyprinocirrhites_polyactis": "Cyprinocirrhites polyactis OR Swallowtail Hawkfish OR Lyretail Hawkfish",
-    "paracirrhites_arcatus": "Paracirrhites arcatus OR Arc-eye Hawkfish",
-    "myripristis_sp": "Myripristis sp. OR Soldierfish",
-    "ostorhinchus_aureus": "Ostorhinchus aureus OR Ring-Tailed Cardinalfish",
-    "zoramia_leptacanthus": "Zoramia leptacanthus OR Threadfin Cardinalfish",
-    "sphaeramia_nematoptera": "Sphaeramia nematoptera OR Pajama Cardinalfish",
-    "ostorhinchus_compressus": "Ostorhinchus compressus OR Ochre-Striped Cardinalfish",
-    "plectorhinchus_chaetodonoides": "Plectorhinchus chaetodonoides OR Harlequin Sweetlips",
-    "plectorhinchus_vittatus": "Plectorhinchus vittatus OR Oriental Sweetlips",
-    "xanthichthys_auromarginatus": "Xanthichthys auromarginatus OR Blue Throat Triggerfish OR Gilded/Bluechin Triggerfish",
-    "pterocaesio_tile": "Pterocaesio tile OR Dark Banded Fusilier",
-    "pomacentrus_moluccensis": "Pomacentrus moluccensis OR Lemon Damselfish"
+    "naso_unicornis": "Naso unicornis OR Blue-spine Unicornfish"
 }
 
 if __name__ == "__main__":
