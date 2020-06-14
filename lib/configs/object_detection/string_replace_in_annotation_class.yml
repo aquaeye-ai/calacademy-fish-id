@@ -8,8 +8,8 @@
 
 directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/train_labels
 
-old_str: psuedanthias
+old_str: unimaculatus
 
-new_str: pseudanthias
+new_str: vulpinas
 
 annotation_extension: .xml
