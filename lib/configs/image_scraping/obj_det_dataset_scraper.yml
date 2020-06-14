@@ -1,0 +1,13 @@
+#######################
+# CONFIG for object_detection/scrape_obj_det_dataset.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to directory containing xml files
+directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/test_labels
+
+# annotation extension
+annotation_extension: xml
