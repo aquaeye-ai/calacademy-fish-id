@@ -6,10 +6,10 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/test_labels
+directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/train_labels
 
-old_str: vulpinas
+old_str: daseyllus
 
-new_str: vulpinus
+new_str: dascyllus
 
 annotation_extension: .xml
