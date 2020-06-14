@@ -3,7 +3,7 @@
 import os
 import yaml
 
-import file_utils as fu
+import lib.file_utils as fu
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
