@@ -59,7 +59,7 @@ if __name__ == "__main__":
                     fu.init_directory(directory=os.path.join(dst_img_directory, label))
                     cv2.imwrite(os.path.join(dst_img_directory, label, img_filename[:-4]+'_crop_{}.jpg'.format(idx)), crop)
                 else:
-                    print("Invalid crop: {}; xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, xmin, ymin, xmax, ymax))
+                    print("Invalid crop: ({}, {}); xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, xmin, ymin, xmax, ymax))
 
                 idx+=1
 
