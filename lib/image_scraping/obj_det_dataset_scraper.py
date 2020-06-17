@@ -56,6 +56,9 @@ if __name__ == "__main__":
                 # print('Shape: {}'.format(crop.shape[0:2]))
 
                 if h > 0 and w > 0:
+                    if h < 10 or w < 10:
+                        print("Warning::small crop: ({}, {}); xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, xmin, ymin, xmax, ymax))
+
                     fu.init_directory(directory=os.path.join(dst_img_directory, label))
                     cv2.imwrite(os.path.join(dst_img_directory, label, img_filename[:-4]+'_crop_{}.jpg'.format(idx)), crop)
                 else:
