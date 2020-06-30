@@ -682,3 +682,50 @@ def renumber_images(source_directory=None, destination_directory=None, start_num
         # copy files
         print("moving {} to {}\n".format(image_path, dst_img_path))
         shutil.copyfile(image_path, dst_img_path)
+
+
+def clean_image_extensions(source_directory=None, destination_directory=None):
+    """
+    Reduces image extensions to either .png or .jpg based on the presence of either in the extension.
+    E.g. '<image_name>.jpg&w=600' -> '<image_name>.jpg' or '<image_name>.pngblaghgh12w' -> '<image_name>.png'
+
+    Useful for cleaning the image extensions of scraped Bing/Google images (especially Bing) since some of their images
+    tend to have strange file extensions.
+
+    :param source_directory: str, path to directory holding original images
+    :param destination_directory: str, path to directory to save renamed images
+    :param start_number: int, starting value to begin sequentially renumbering from
+    :param image_extension: str, image extension
+    :return: None
+    """
+    from PIL import Image
+
+    init_directory(directory=destination_directory)
+
+    # grab all files in directory, since we don't know beforehand what their extensions will look like
+    image_paths = os.listdir(source_directory)
+
+    for idx, image_path in enumerate(image_paths):
+        skip = False
+        full_image_path = os.path.join(source_directory, image_path)
+
+        name, dirty_extension = os.path.splitext(image_path)
+
+        # choose appropriate file extension
+        clean_extension = None
+        image_type = Image.open(full_image_path).format
+        if 'JPEG' == image_type:
+            clean_extension = '.jpg'
+        elif 'PNG' == image_type:
+            clean_extension = '.png'
+        else:
+            skip = True
+            print('Unhandled image type: {} for image: {}'.format(image_type, full_image_path))
+
+        # copy image to new path/extension
+        if not skip:
+            dst_img_path = os.path.join(destination_directory, "{}{}".format(name, clean_extension))
+
+            # copy files
+            print("moving {} to {}\n".format(image_path, dst_img_path))
+            shutil.copyfile(full_image_path, dst_img_path)
