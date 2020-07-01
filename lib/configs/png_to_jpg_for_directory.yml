@@ -1,0 +1,11 @@
+#######################
+# CONFIG for jpg_to_png_for_directory.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+source_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zebrasoma_veliferum/bing_cleaned
+
+remove_png: 1
