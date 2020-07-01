@@ -729,5 +729,5 @@ def clean_image_extensions(source_directory=None, destination_directory=None):
             dst_img_path = os.path.join(destination_directory, "{}{}".format(name, clean_extension))
 
             # copy files
-            print("moving {} to {}\n".format(image_path, dst_img_path))
+            # print("moving {} to {}\n".format(image_path, dst_img_path))
             shutil.copyfile(full_image_path, dst_img_path)
