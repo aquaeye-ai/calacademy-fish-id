@@ -716,6 +716,8 @@ def clean_image_extensions(source_directory=None, destination_directory=None):
         image_type = Image.open(full_image_path).format
         if 'JPEG' == image_type:
             clean_extension = '.jpg'
+        elif 'MPO' == image_type: # we cheat here and call it JPEG format since MPO is multiple jpg images combined into a stereo image
+            clean_extension = '.jpg'
         elif 'PNG' == image_type:
             clean_extension = '.png'
         else:
