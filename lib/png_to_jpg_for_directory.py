@@ -32,6 +32,7 @@ if __name__ == "__main__":
 
     # remove all png if desired
     if remove_png > 0:
+        print("Removing png images") # this line seems to prevent a perceived race condition between the mogrify process ending and the rm process beginning -> sometimes the rm process doesn't complete without this line added
         subprocess.Popen("rm -v {}/*.png".format(source_directory),
                          shell=True)
                          # stdout=subprocess.PIPE,
