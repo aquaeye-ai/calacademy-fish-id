@@ -6,6 +6,6 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-source_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus/google
+source_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/acanthochromis_polyacanthus/bing
 
-destination_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus/google_cleaned
+destination_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/acanthochromis_polyacanthus/bing_cleaned
