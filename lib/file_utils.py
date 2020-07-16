@@ -674,14 +674,20 @@ def renumber_images(source_directory=None, destination_directory=None, start_num
     :param image_extension: str, image extension
     :return: None
     """
+    init_directory(directory=destination_directory)
+
     image_paths = find_images(directory=source_directory, extension=image_extension)
 
+    count = 0
     for idx, image_path in enumerate(image_paths):
         dst_img_path = os.path.join(destination_directory, "{}{}".format(idx+start_number, image_extension))
 
         # copy files
         print("moving {} to {}\n".format(image_path, dst_img_path))
         shutil.copyfile(image_path, dst_img_path)
+        count += 1
+
+    print("# images renumbered: {}".format(count))
 
 
 def clean_image_extensions(source_directory=None, destination_directory=None):

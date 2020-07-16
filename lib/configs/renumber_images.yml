@@ -6,10 +6,10 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-source_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/pseudanthias_dispar/old
+source_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus/google_cleaned
 
-destination_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/pseudanthias_dispar/renumbered
+destination_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus/google_cleaned_renumbered
 
-start_number: 0
+start_number: 172
 
 image_extension: '.jpg'
