@@ -7,8 +7,8 @@ import file_utils as fu
 from imutils import paths
 
 
-DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/two_class/pseudanthias_dispar"
-REMOVE = 1
+DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/acanthurus_triostegus/combined"
+REMOVE = 0
 
 
 def dhash(image, hashSize=8):
@@ -42,6 +42,13 @@ if __name__ == "__main__":
 		p.append(imagePath)
 		hashes[h] = p
 
+	# count the duplicate sets for visibility into data
+	num_duplicate_sets = 0
+	for (h, hashedPaths) in hashes.items():
+		if len(hashedPaths) > 1:
+			num_duplicate_sets += 1
+	print("Found {} duplicate sets".format(num_duplicate_sets))
+
 	# loop over the image hashes
 	for (h, hashedPaths) in hashes.items():
 		# check to see if there is more than one image with the same hash
@@ -73,4 +80,5 @@ if __name__ == "__main__":
 				# for the first image in the list (since we want to keep
 				# one, and only one, of the duplicate images)
 				for p in hashedPaths[1:]:
+					print("Removing: {}".format(p))
 					os.remove(p)
