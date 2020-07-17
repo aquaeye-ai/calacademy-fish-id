@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 import file_utils as fu
 
-BASE_DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/acanthurus_lineatus"
+BASE_DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus"
 SOURCE_DIRECTORY = os.path.join(BASE_DIRECTORY, "combined")
 POTENTIAL_DUPLICATES_DIRECTORY = os.path.join(BASE_DIRECTORY, "potential_duplicates")
 AUTO_REMOVE = 0
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 						montage = np.hstack([montage, image])
 				# show the montage for the hash
 				print("[INFO] hash: {}".format(h))
-				cv2.imshow("Press 'd' to remove duplicates; Any other key to continue", montage)
+				cv2.imshow("Press: 'd' to remove duplicates; 'm' to move all but left-most image to potential_duplicates directory; Any other key to continue", montage)
 
 				# wait for user defined action before proceeding
 				k = cv2.waitKey(0)
