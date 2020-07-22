@@ -39,7 +39,7 @@ if __name__ == "__main__":
         for elem in root.getiterator():
             if elem.tag == 'filename':
                 # open image
-                img_filename = elem.text
+                img_filename = elem.text + '.jpg'
                 img_path = os.path.join(src_img_directory, img_filename)
                 img = cv2.imread(img_path)
             elif elem.tag == 'object':

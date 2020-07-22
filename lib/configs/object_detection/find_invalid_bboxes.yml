@@ -7,13 +7,13 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to directory containing source annotation files
-src_ann_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/test_labels
+src_ann_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/wip/output_annotations_600
 
 # path to directory containing source image files
-src_img_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/images
+src_img_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/wip/output_images_600
 
 # path to directory where found annotations/images will be stored
-dst_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/temp
+dst_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/wip/temp_600
 
 # annotation file extension
 annotation_extension: xml

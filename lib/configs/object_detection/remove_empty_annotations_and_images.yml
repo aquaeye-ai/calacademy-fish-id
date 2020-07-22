@@ -6,7 +6,7 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/temp/combined_600_filtered
+directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/wip/temp_600
 
 image_extension: '.jpg'
 
