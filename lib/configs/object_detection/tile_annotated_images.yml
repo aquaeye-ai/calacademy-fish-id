@@ -21,10 +21,10 @@ models_config:
             height: 300
             width: 300
 
-im_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/wip_annotation/images
+im_src: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/original_images
 
-an_src: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/wip_annotation/annotations
+an_src: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/original_annotations
 
-im_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/wip_annotation/output_images_300
+im_dst: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/wip/output_images_300
 
-an_dst: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/stills/full/wip_annotation/output_annotations_300
+an_dst: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/wip/output_annotations_300
