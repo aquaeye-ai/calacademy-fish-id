@@ -1,4 +1,5 @@
 # Script used to find empty and near-empty bounding boxes annotated for object detection data.
+# Saves the found image/bounding-boxe pairs to a given directory for later inspection.
 
 import os
 import xml
