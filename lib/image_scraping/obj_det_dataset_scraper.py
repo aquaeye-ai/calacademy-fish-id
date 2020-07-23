@@ -40,6 +40,7 @@ if __name__ == "__main__":
                 img = cv2.imread(img_path)
             elif elem.tag == 'object':
                 label =  elem._children[0].text
+                label = label.replace(" ", "_")  # replace the spaces in multi word names with underscores since the labels get used as directory names
                 if label not in classes:
                     classes.append(label)
                     # print("Found '{}' for ann_path: {}".format(label, ann_path))
@@ -59,7 +60,7 @@ if __name__ == "__main__":
                     if h < 10 or w < 10:
                         print("Warning::small crop: ({}, {}); xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, xmin, ymin, xmax, ymax))
 
-                    fu.init_directory(directory=os.path.join(dst_img_directory, label.replace(" ", "_"))) # replace the spaces in multi word names with underscores since the labels get used as directory names
+                    fu.init_directory(directory=os.path.join(dst_img_directory, label))
                     cv2.imwrite(os.path.join(dst_img_directory, label, img_filename[:-4]+'_crop_{}.jpg'.format(idx)), crop)
                 else:
                     print("Invalid crop: ({}, {}); xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, xmin, ymin, xmax, ymax))
