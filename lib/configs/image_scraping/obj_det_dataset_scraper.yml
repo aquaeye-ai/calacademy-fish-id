@@ -13,7 +13,7 @@ src_ann_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection
 src_img_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/original_images
 
 # path to directory where image crops will be stored
-dst_img_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/obj_det_scraping
+dst_img_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/obj_det_scraping
 
 # annotation file extension
 annotation_extension: xml
