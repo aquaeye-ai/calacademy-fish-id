@@ -1,8 +1,15 @@
-
-
-
-
 # NOTE: For approach 1.b.1 from https://trello.com/c/U6xXr9Bh/55-retrainpy-approach-1b1
+#
+# Example Script Usage (from within top level of project in terminal of pycharm):
+# python -m lib.image_classification.retrain_1_b_1 \
+#   --bottleneck_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/bottlenecks \
+#   --how_many_training_steps=500 \
+#   --model_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/models/ \
+#   --summaries_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/training_summaries/mobilenet_0.50_224 \
+#   --output_graph=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/retrained_graph.pb \
+#   --output_labels=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/retrained_labels.txt \
+#   --architecture=mobilenet_0.50_224 \
+#   --image_dir=/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/common_group_names
 #
 #
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
