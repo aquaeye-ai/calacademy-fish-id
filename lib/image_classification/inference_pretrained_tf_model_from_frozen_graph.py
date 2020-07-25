@@ -123,7 +123,8 @@ def run_inference_for_multiple_images(images=None, graph=None, sess=None, output
     # we need to expand the first dimension if we only inference on one image, since the model inference expects a batch
     if len(images.shape) == 3:
         images = np.expand_dims(images, 0)
-    image_tensor = tf.get_default_graph().get_tensor_by_name('input:0')
+    # image_tensor = tf.get_default_graph().get_tensor_by_name('input:0')
+    image_tensor = tf.get_default_graph().get_tensor_by_name('Placeholder:0')
 
     # Run inference
     t1 = time.time()
@@ -289,6 +290,7 @@ if __name__ == "__main__":
     path_to_frozen_graph = config["path_to_frozen_graph"]
     path_to_labels = config["path_to_labels"]
     output_node = config["output_node"]
+    use_imagenet_labels = config["use_imagenet_labels"]
 
     # grab image paths
     test_image_paths = fu.find_images(directory=path_to_test_images_dir, extension=".jpg")
@@ -296,7 +298,14 @@ if __name__ == "__main__":
     # Dictionary of the strings that is used to add correct label for each class index in the model's output.
     # key: index in output
     # value: string name of class
-    category_index = imagenet.create_readable_names_for_imagenet_labels()
+    # TODO: we could likely collapse this if statement if we spent the time to look up the file for imagenet (and consequently not need the use_imagenet_labels flag)
+    category_index = {}
+    if use_imagenet_labels > 0:
+        category_index = imagenet.create_readable_names_for_imagenet_labels()
+    else:
+        with open(path_to_labels) as labels_f:
+            for idx, line in enumerate(labels_f):
+                category_index[idx] = line.strip()
 
     detection_graph = tf.Graph()
     with detection_graph.as_default():
