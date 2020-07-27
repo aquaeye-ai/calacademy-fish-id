@@ -6,4 +6,4 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/common_group_names
+directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_obj_det/groupings/common_group_names
