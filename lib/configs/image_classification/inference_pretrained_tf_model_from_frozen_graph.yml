@@ -30,5 +30,11 @@ path_to_labels: /home/nightrider/calacademy-fish-id/classifiers/image_classifica
 # output node name in graph
 output_node: final_result #InceptionV3/Predictions/Reshape_1
 
+# input node name in graph
+input_node: Placeholder #input
+
 # whether to use imagenet labels or provided labels file
 use_imagenet_labels: 0
+
+# pretrained TF Slim models trained with certain preprocessing steps and so we must use that same preprocessing when using the models
+apply_tf_slim_preprocessing: 0 #1

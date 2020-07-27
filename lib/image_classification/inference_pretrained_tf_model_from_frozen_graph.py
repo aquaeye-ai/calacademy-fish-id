@@ -62,7 +62,7 @@ def load_img(path_img):
         return image
 
 #TODO: consider replacing this functionality with cv2
-def preprocess(image, height, width, central_fraction=0.875, scope=None):
+def preprocess(image, height, width, central_fraction=0.875, scope=None, apply_tf_slim_preprocessing=False):
     """Prepare one image for evaluation.
 
     If height and width are specified it would output an image with that size by
@@ -89,7 +89,7 @@ def preprocess(image, height, width, central_fraction=0.875, scope=None):
     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     # Crop the central region of the image with an area containing 87.5% of
     # the original image.
-    if central_fraction:
+    if central_fraction and apply_tf_slim_preprocessing == True:
         image = tf.image.central_crop(image, central_fraction=central_fraction)
 
     if height and width:
@@ -98,8 +98,11 @@ def preprocess(image, height, width, central_fraction=0.875, scope=None):
         image = tf.image.resize_bilinear(image, [height, width],
                                          align_corners=False)
         image = tf.squeeze(image, [0])
-    image = tf.subtract(image, 0.5)
-    image = tf.multiply(image, 2.0)
+
+    if apply_tf_slim_preprocessing == True:
+        image = tf.subtract(image, 0.5)
+        image = tf.multiply(image, 2.0)
+
     return image
 
 def load_image_into_numpy_array(image):
@@ -108,7 +111,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 @log_utils.timeit
-def run_inference_for_multiple_images(images=None, graph=None, sess=None, output_node=None):
+def run_inference_for_multiple_images(images=None, graph=None, sess=None, output_node=None, input_node=None):
     # Get handles to input and output tensors
     ops = tf.get_default_graph().get_operations()
     all_tensor_names = {output.name for op in ops for output in op.outputs}
@@ -123,8 +126,7 @@ def run_inference_for_multiple_images(images=None, graph=None, sess=None, output
     # we need to expand the first dimension if we only inference on one image, since the model inference expects a batch
     if len(images.shape) == 3:
         images = np.expand_dims(images, 0)
-    # image_tensor = tf.get_default_graph().get_tensor_by_name('input:0')
-    image_tensor = tf.get_default_graph().get_tensor_by_name('Placeholder:0')
+    image_tensor = tf.get_default_graph().get_tensor_by_name(input_node + ':0')
 
     # Run inference
     t1 = time.time()
@@ -226,7 +228,7 @@ def predict_images_tiled_batched(test_image_paths=None, tile_sizes=None, categor
             out_image_np_text.close()
 
 def predict_images_whole(test_image_paths=None, category_index=None, min_score_threshold=None, model_input_size=None,
-                         output_node=None):
+                         output_node=None, input_node=None, apply_tf_slim_preprocessing=False):
     """
     Inferences model on entire image for each image path supplied.
 
@@ -240,7 +242,7 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
         logger.info("image: {}".format(image_path))
 
         image = load_img(image_path)
-        image = preprocess(image, model_input_size, model_input_size)
+        image = preprocess(image, model_input_size, model_input_size, apply_tf_slim_preprocessing=apply_tf_slim_preprocessing)
         image_np = tf.Session().run(image)
 
         h, w = image_np.shape[:2]
@@ -252,7 +254,8 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
         ## Actual detection.
         # Both of these produce the same but I use Reshape_1 to stay in line with tf slim's tutorial: https://github.com/tensorflow/models/tree/master/research/slim#Export
         # output_node = 'InceptionV3/Predictions/Softmax'
-        output_dict = run_inference_for_multiple_images(image_np, detection_graph, sess=sess, output_node=output_node)
+        output_dict = run_inference_for_multiple_images(image_np, detection_graph, sess=sess, output_node=output_node,
+                                                        input_node=input_node)
 
         class_scores = output_dict[output_node][0]
 
@@ -290,7 +293,9 @@ if __name__ == "__main__":
     path_to_frozen_graph = config["path_to_frozen_graph"]
     path_to_labels = config["path_to_labels"]
     output_node = config["output_node"]
-    use_imagenet_labels = config["use_imagenet_labels"]
+    input_node = config["input_node"]
+    use_imagenet_labels = False if config["use_imagenet_labels"] <= 0 else True
+    apply_tf_slim_preprocessing = False if config["apply_tf_slim_preprocessing"] <= 0 else True
 
     # grab image paths
     test_image_paths = fu.find_images(directory=path_to_test_images_dir, extension=".jpg")
@@ -300,7 +305,7 @@ if __name__ == "__main__":
     # value: string name of class
     # TODO: we could likely collapse this if statement if we spent the time to look up the file for imagenet (and consequently not need the use_imagenet_labels flag)
     category_index = {}
-    if use_imagenet_labels > 0:
+    if use_imagenet_labels == True:
         category_index = imagenet.create_readable_names_for_imagenet_labels()
     else:
         with open(path_to_labels) as labels_f:
@@ -326,4 +331,6 @@ if __name__ == "__main__":
                                      category_index=category_index,
                                      min_score_threshold=min_score_threshold,
                                      model_input_size=model_input_size,
-                                     output_node=output_node)
+                                     output_node=output_node,
+                                     input_node=input_node,
+                                     apply_tf_slim_preprocessing=apply_tf_slim_preprocessing)
