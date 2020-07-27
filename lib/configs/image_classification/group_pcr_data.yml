@@ -1,0 +1,16 @@
+#######################
+# CONFIG for image_scraping/group_pcr_data.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to directory containing source annotation files
+directory_src: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/obj_det_scraping
+
+# path to directory containing source image files
+directory_dst: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/obj_det_scraping
+
+# mapping to use, must be defined in group_pcr_data.py
+db_map_key: OBJECT_DETECTION_TO_COMMON_GROUP_NAMES
