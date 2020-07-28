@@ -198,7 +198,7 @@ def generate_scientific_species_names_stats(directory=None):
 
 def generate_training_splits_stats(directory=None, splits=None):
     for split in splits:
-        generate_training_split_stats(directory=os.path.join(directory, 'train'), split=split)
+        generate_training_split_stats(directory=os.path.join(directory, split), split=split)
 
 def generate_training_split_stats(directory=None, split=None):
     ## collect the data for each class
@@ -264,7 +264,7 @@ def generate_training_split_stats(directory=None, split=None):
     plt.tight_layout()
 
     # Create legend, title & Show graphic
-    plt.title("Training Split Stats: {}".format(split))
+    plt.title("Training Split Stats: {}\n Total Images: {}".format(split, sum(num_combined_totals)))
     plt.legend()
     # plt.savefig(os.path.join(os.path.dirname(directory), 'training_split_{}_stats.png'.format(split)))
     plt.show()
@@ -278,7 +278,7 @@ def generate_training_split_stats(directory=None, split=None):
     fig2, ax2 = plt.subplots()
     ax2.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', shadow=False, startangle=180)
     ax2.axis('equal')
-    plt.title("{}: Web Vs Object Detection".format(split))
+    plt.title("{}: Web Vs Object Detection\n Total Images: {}".format(split, sum(num_combined_totals)))
     plt.show()
 
 
@@ -293,6 +293,7 @@ if __name__ == "__main__":
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
     directory = config["directory"]
     db_type = config["db_type"]
+    splits = config["splits"]
 
     if db_type == MASTER_DB:
         generate_master_stats(directory=directory)
@@ -301,5 +302,5 @@ if __name__ == "__main__":
     elif db_type == SCIENTIFIC_SPECIES_NAMES_DB:
         generate_scientific_species_names_stats(directory=directory)
     elif db_type == TRAINING_SPLITS_DB:
-        generate_training_splits_stats(directory=directory, splits=['train', 'test'])
+        generate_training_splits_stats(directory=directory, splits=splits)
 

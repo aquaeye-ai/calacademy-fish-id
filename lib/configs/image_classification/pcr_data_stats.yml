@@ -11,3 +11,9 @@ directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr
 
 # dataset type so the script knows how to parse the data
 db_type: training_splits
+
+# only necessary if generating stats for db_type of training_splits, e.g. train/test/val
+splits:
+  - train
+  - test
+  - val
