@@ -293,14 +293,14 @@ if __name__ == "__main__":
     ## collect hyper parameters/args from config
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
     directory = config["directory"]
-    dataset = os.path.basename(directory)
+    db_type = config["db_type"]
 
-    if dataset == MASTER_DB:
+    if db_type == MASTER_DB:
         generate_master_stats(directory=directory)
-    elif dataset == COMMON_GROUP_NAMES_DB:
+    elif db_type == COMMON_GROUP_NAMES_DB:
         generate_common_group_names_stats(directory=directory)
-    elif dataset == SCIENTIFIC_SPECIES_NAMES_DB:
+    elif db_type == SCIENTIFIC_SPECIES_NAMES_DB:
         generate_scientific_species_names_stats(directory=directory)
-    elif dataset == TRAINING_SPLITS_DB:
+    elif db_type == TRAINING_SPLITS_DB:
         generate_training_splits_stats(directory=directory)
 
