@@ -13,13 +13,13 @@ directory_web: /home/nightrider/calacademy-fish-id/datasets/image_classification
 directory_od: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_obj_det/groupings/common_group_names
 
 # path to directory to hold data splits
-directory_dst: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/temp
+directory_dst: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/2
 
 # percentage of images ot use as train
-percent_train: 80
+percent_train: 90
 
 # percentage of images to use as validation
-percent_val: 10
+percent_val: 0
 
 # percentage of images to use as test
 percent_test: 10
