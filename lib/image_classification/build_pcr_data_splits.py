@@ -120,5 +120,8 @@ if __name__ == "__main__":
                                                                  type="od", percent_train=percent_train, percent_val=percent_val,
                                                                  percent_test=percent_test)
 
+    # copy config so we can recall what parameters were used to construct the dataset splits
+    shutil.copy(yaml_path, os.path.join(directory_dst, 'config.yml'))
+
     print("\nWeb Totals: train_{}, val_{}, test_{}".format(web_total_train, web_total_val, web_total_test))
     print("OD Totals: train_{}, val_{}, test_{}".format(od_total_train, od_total_val, od_total_test))
