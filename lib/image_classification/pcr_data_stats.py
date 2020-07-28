@@ -196,10 +196,9 @@ def generate_scientific_species_names_stats(directory=None):
     plt.legend()
     plt.show()
 
-def generate_training_splits_stats(directory=None):
-    generate_training_split_stats(directory=os.path.join(directory, 'train'), split='train')
-    generate_training_split_stats(directory=os.path.join(directory, 'val'), split='val')
-    generate_training_split_stats(directory=os.path.join(directory, 'test'), split='test')
+def generate_training_splits_stats(directory=None, splits=None):
+    for split in splits:
+        generate_training_split_stats(directory=os.path.join(directory, 'train'), split=split)
 
 def generate_training_split_stats(directory=None, split=None):
     ## collect the data for each class
@@ -302,5 +301,5 @@ if __name__ == "__main__":
     elif db_type == SCIENTIFIC_SPECIES_NAMES_DB:
         generate_scientific_species_names_stats(directory=directory)
     elif db_type == TRAINING_SPLITS_DB:
-        generate_training_splits_stats(directory=directory)
+        generate_training_splits_stats(directory=directory, splits=['train', 'test'])
 
