@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 MASTER_DB = "master"
 SCIENTIFIC_SPECIES_NAMES_DB = "scientific_species_names"
 COMMON_GROUP_NAMES_DB = "common_group_names"
+TRAINING_SPLITS_DB = "training_splits"
 
 
 def generate_master_stats(directory=None):
@@ -195,6 +196,92 @@ def generate_scientific_species_names_stats(directory=None):
     plt.legend()
     plt.show()
 
+def generate_training_splits_stats(directory=None):
+    generate_training_split_stats(directory=os.path.join(directory, 'train'), split='train')
+    generate_training_split_stats(directory=os.path.join(directory, 'val'), split='val')
+    generate_training_split_stats(directory=os.path.join(directory, 'test'), split='test')
+
+def generate_training_split_stats(directory=None, split=None):
+    ## collect the data for each class
+
+    # get class directories
+    class_dirs = [d for d in os.listdir(directory)]
+
+    # collect Google/Bing/Combined subdirectory stats
+    num_web_totals = []
+    num_od_totals = []
+    num_combined_totals = []
+    for class_dir in class_dirs:
+        class_dir_path = os.path.join(directory, class_dir)
+
+        num_web = len([f for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))
+                       and '_web.' in os.path.join(class_dir_path, f)])
+
+        num_od = len([f for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))
+                       and '_od.' in os.path.join(class_dir_path, f)])
+
+        num_combined = len(
+            [f for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))])
+
+        num_web_totals.append(num_web)
+        num_od_totals.append(num_od)
+        num_combined_totals.append(num_combined)
+
+        print("[INFO] In directory {} -> num_web: {}, num_od: {}, num_combined: {}".format(class_dir, num_web, num_od,
+                                                                                           num_combined))
+
+    # sort the data for better viewing
+    zipped = zip(num_combined_totals, num_web_totals, num_od_totals, class_dirs)
+    zipped.sort(reverse=True)
+
+    ## perform bar plotting
+
+    # set width of bar
+    barWidth = 0.25
+
+    # Set position of bar on X axis
+    r1 = np.arange(len(num_web_totals))
+    r2 = [x + barWidth for x in r1]
+    r3 = [x + barWidth for x in r2]
+
+    # Make the plot
+    plt.bar(r1, [x[0] for x in zipped], color='#7f6d5f', width=barWidth, edgecolor='white', label='Combined')
+    plt.bar(r2, [x[1] for x in zipped], color='#557f2d', width=barWidth, edgecolor='white', label='Web')
+    plt.bar(r3, [x[2] for x in zipped], color='#2d7f5e', width=barWidth, edgecolor='white', label='Object Detection')
+
+    # set yticks
+    plt.ylabel('Frequency', fontweight='bold')
+    plt.yticks([x + 100 for x in range(0, zipped[0][0], 100)])
+
+    # Add xticks on the middle of the group bars
+    plt.xlabel('Class', fontweight='bold')
+    plt.xticks([r + barWidth for r in range(len(num_web_totals))], [x[3] for x in zipped])
+    plt.xticks(rotation=90)
+    ax = plt.gca()
+    ax.tick_params(axis='x', labelsize=8)
+    ax.yaxis.grid()
+
+    # extend margin at bottom of graph
+    plt.tight_layout()
+
+    # Create legend, title & Show graphic
+    plt.title("Training Split Stats: {}".format(split))
+    plt.legend()
+    # plt.savefig(os.path.join(os.path.dirname(directory), 'training_split_{}_stats.png'.format(split)))
+    plt.show()
+    plt.close()
+
+    ## perform pi charting
+
+    labels = ['Web', 'Object Detection']
+    sizes = [np.float(sum(num_web_totals)) / np.float(sum(num_combined_totals)), np.float(sum(num_od_totals)) / np.float(sum(num_combined_totals))]
+    explode = (0, 0)
+    fig2, ax2 = plt.subplots()
+    ax2.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', shadow=False, startangle=180)
+    ax2.axis('equal')
+    plt.title("{}: Web Vs Object Detection".format(split))
+    plt.show()
+
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
@@ -214,4 +301,6 @@ if __name__ == "__main__":
         generate_common_group_names_stats(directory=directory)
     elif dataset == SCIENTIFIC_SPECIES_NAMES_DB:
         generate_scientific_species_names_stats(directory=directory)
+    elif dataset == TRAINING_SPLITS_DB:
+        generate_training_splits_stats(directory=directory)
 
