@@ -1167,9 +1167,10 @@ def main(_):
 
     # We've completed all our training, so run a final test evaluation on
     # some new images we haven't used before.
-    run_final_eval(sess, module_spec, class_count, image_lists,
-                   jpeg_data_tensor, decoded_image_tensor, resized_image_tensor,
-                   bottleneck_tensor)
+    if FLAGS.testing_percentage > 0:
+        run_final_eval(sess, module_spec, class_count, image_lists,
+                       jpeg_data_tensor, decoded_image_tensor, resized_image_tensor,
+                       bottleneck_tensor)
 
     # Write out the trained graph and labels with the weights stored as
     # constants.
