@@ -14,7 +14,7 @@ path_to_frozen_graph: /home/nightrider/calacademy-fish-id/classifiers/image_clas
 path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/2/test
 #path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600/images
 
-output_dir: /home/nightrider/calacademy-fish-id/outputs/image_classification/fine_tuned_inference/mobilenet_1.0_224
+output_dir: /home/nightrider/calacademy-fish-id/outputs/image_classification/fine_tuned_inference/mobilenet_1.0_224/07_30_2020/1
 
 # Sizes, in pixels, of input image for the model (before any resizing for preprocessing happens)
 # Each number is both height and width as we assume the input image to be square
