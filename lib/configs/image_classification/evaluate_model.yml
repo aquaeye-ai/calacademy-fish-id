@@ -1,0 +1,46 @@
+#######################
+# CONFIG for evaluate_model.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to pretrained model
+path_to_frozen_graph: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_1.0_224/fine_tuned/7_28_2020/retrained_graph.pb #/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/pretrained/frozen_inference_graph.pb
+
+# path to directory holding test images
+# This directory must contain sub-folders as class-names that each contain images for that class
+path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/2/test
+#path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/dry_run/crops/combined_300_600/images
+
+output_dir: /home/nightrider/calacademy-fish-id/outputs/image_classification/fine_tuned_inference/mobilenet_1.0_224
+
+# Sizes, in pixels, of input image for the model (before any resizing for preprocessing happens)
+# Each number is both height and width as we assume the input image to be square
+# These will vary based on the model architecture.
+tile_sizes: [300]
+
+# input dimensions of model, taken as height and width
+model_input_size: 299
+
+# minimum scoring threshold
+min_score_threshold: 0.1
+
+# path to labels file
+path_to_labels: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_1.0_224/fine_tuned/7_28_2020/retrained_labels.txt #/home/nightrider/tensorflow/models/research/slim/labels.txt
+
+# output node name in graph
+output_node: final_result #InceptionV3/Predictions/Reshape_1
+
+# input node name in graph
+input_node: Placeholder #input
+
+# whether to use imagenet labels or provided labels file
+use_imagenet_labels: 0
+
+# pretrained TF Slim models trained with certain preprocessing steps and so we must use that same preprocessing when using the models
+apply_tf_slim_preprocessing: 0 #1
+
+# K value for Top-K stats
+K: 5
