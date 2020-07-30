@@ -214,7 +214,7 @@ def create_image_lists(image_dir, testing_percentage, validation_percentage):
       logging.warning(
           'WARNING: Folder %s has more than %s images. Some images will '
           'never be selected.', dir_name, MAX_NUM_IMAGES_PER_CLASS)
-    label_name = re.sub(r'[^a-z0-9]+', ' ', dir_name.lower())
+    label_name = re.sub(r'[^a-z0-9_]+', ' ', dir_name.lower())
     training_images = []
     testing_images = []
     validation_images = []
