@@ -14,7 +14,7 @@
 #   --flip_left_right \
 #   --random_crop=10 \
 #   --random_scale=30 \
-#   --random_brightness=30 \
+#   --random_brightness=30
 #
 #
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
