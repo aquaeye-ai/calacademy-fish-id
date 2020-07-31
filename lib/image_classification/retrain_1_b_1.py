@@ -2,14 +2,19 @@
 #
 # Example Script Usage (from within top level of project in terminal of pycharm):
 # python -m lib.image_classification.retrain_1_b_1 \
-#   --bottleneck_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/bottlenecks \
+#   --bottleneck_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/fine_tuned/7_31_2020/1/bottlenecks \
+#   --saved_model_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/fine_tuned/7_31_2020/1/models/ \
+#   --summaries_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/fine_tuned/7_31_2020/1/training_summaries/ \
+#   --output_graph=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3/fine_tuned/7_31_2020/1/retrained_graph.pb \
+#   --image_dir=/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/2/train \
+#   --tfhub_module=https://tfhub.dev/google/imagenet/inception_v3/feature_vector/3 \
 #   --how_many_training_steps=500 \
-#   --model_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/models/ \
-#   --summaries_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/training_summaries/mobilenet_0.50_224 \
-#   --output_graph=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/retrained_graph.pb \
-#   --output_labels=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/retrained_labels.txt \
-#   --architecture=mobilenet_0.50_224 \
-#   --image_dir=/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/common_group_names
+#   --testing_percentage=0 \
+#   --validation_percentage=10 \
+#   --flip_left_right \
+#   --random_crop=10 \
+#   --random_scale=30 \
+#   --random_brightness=30 \
 #
 #
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
@@ -981,7 +986,7 @@ def export_model(module_spec, class_count, saved_model_dir):
             sess,
             saved_model_dir,
             inputs={'image': in_image},
-            outputs={'prediction': graph.get_tensor_by_name('final_result:0')},
+            outputs={'prediction': graph.get_tensor_by_name(FLAGS.final_tensor_name + ':0')},
             legacy_init_op=tf.group(tf.tables_initializer(), name='legacy_init_op')
         )
 
