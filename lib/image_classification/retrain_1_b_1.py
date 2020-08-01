@@ -6,6 +6,7 @@
 #   --saved_model_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/models/ \
 #   --summaries_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/training_summaries/ \
 #   --output_graph=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/retrained_graph.pb \
+#   --output_labels=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/output_labels.txt \
 #   --image_dir=/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/2/train \
 #   --tfhub_module=https://tfhub.dev/google/imagenet/inception_v3/feature_vector/3 \
 #   --how_many_training_steps=500 \
