@@ -1,3 +1,15 @@
+"""
+Script to inference a TF model from frozen graph.
+For use with pretrained TF Slim models (e.g. those used with lib/image_classification/inference_pretrained_tf_model_from_frozen_graph.py)
+and those models fine-tuned/trained using  lib/image_classification/retrain_1_b_1.py.
+
+NOTE: the log.txt will be output in a parent directory as compared to the output_dir provided to the script.
+
+TODO: Adopt the early, one-time instantiation of TF tensors flow of script lib/image_classification_evaluate_tf_model_from_frozen_graph.py
+TODO: so that the script doesn't slow down from continuous grafting of tensors to the graph throughout the for-loop inference.
+"""
+
+
 import os
 import yaml
 import time
