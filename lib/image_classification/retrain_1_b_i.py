@@ -1,7 +1,7 @@
-# NOTE: For approach 1.b.1 from https://trello.com/c/U6xXr9Bh/55-retrainpy-approach-1b1
+# NOTE: For approach 1.b.1 from https://trello.com/c/U6xXr9Bh/55-retrainpy-approach-1bi
 #
 # Example Script Usage (from within top level of project in terminal of pycharm):
-# python -m lib.image_classification.retrain_1_b_1 \
+# python -m lib.image_classification.retrain_1_b_i \
 #   --bottleneck_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/bottlenecks \
 #   --saved_model_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/models/ \
 #   --summaries_dir=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/inception_v3_tfhub_v3/fine_tuned/7_31_2020/1/training_summaries/ \

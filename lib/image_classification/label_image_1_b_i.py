@@ -1,7 +1,7 @@
-# NOTE: For approach 1.b.1 from https://trello.com/c/U6xXr9Bh/55-retrainpy-approach-1b1
+# NOTE: For approach 1.b.1 from https://trello.com/c/U6xXr9Bh/55-retrainpy-approach-1bi
 #
 # Example Script Usage (from within top level of project in terminal of pycharm):
-# python -m lib.image_classification.label_image_1_b_1 \
+# python -m lib.image_classification.label_image_1_b_i \
 # --graph=/home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_0.50_224/fine_tuned/7_24_2020/retrained_graph.pb \
 # --image=/home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/test/web9.jpg \
 # --input_layer=Placeholder \
