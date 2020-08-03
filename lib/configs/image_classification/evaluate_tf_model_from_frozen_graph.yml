@@ -1,5 +1,5 @@
 #######################
-# CONFIG for evaluate_model.py #
+# CONFIG for evaluate_tf_model_from_frozen_graph.py #
 #######################
 
 #NOTE:
