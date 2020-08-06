@@ -15,7 +15,7 @@ import requests
 import lib.file_utils as fu
 
 
-API_KEY = "e462070da4fd402a92a108160420c7f3"
+API_KEY = "21fa58d3ce7541a186836e465660b07f"#"e462070da4fd402a92a108160420c7f3"
 # make sufficiently large, 2000 is recommended as ideal for object detection problems and we apply that advice to the
 # image classification problem
 MAX_RESULTS = 2000
@@ -36,14 +36,20 @@ EXCEPTIONS = set([IOError, errno.ENOENT, exceptions.RequestException, exceptions
 # OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/three_class/chromis_ternatensis/bing"
 
 QUERIES = {
-    "naso_unicornis": "Naso unicornis OR Blue-spine Unicornfish"
+    "trachinotus_mookalee": "Trachinotus mookalee OR Indian pompano",
+    "rhinoptera_javanica": "Rhinoptera javanica OR Cownose ray",
+    "taeniura_lymma": "Taeniura lymma OR Blue-spotted ribbontail ray",
+    "himantura_uarnak": "Himantura uarnak OR Honeycomb ray",
+    "neotrygon_kuhlii": "Neotrygon kuhlii OR Bluespotted stingray",
+    "monodactylus_argenteus": "Monodactylus argenteus OR Diamond fish OR Mono fish",
+    "trachinotus_mookalee": "Trachinotus mookalee OR Indian pompano"
 }
 
 if __name__ == "__main__":
     # loop through our dictionary of species/queries, scrape images for each pair and store the resulting images
     for species, query in QUERIES.items():
         # create output directory
-        output_parent_dir = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/three_class/"
+        output_parent_dir = "/home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web/"
         output_dir = os.path.join(output_parent_dir, species, "bing")
         fu.init_directory(directory=output_dir)
 
