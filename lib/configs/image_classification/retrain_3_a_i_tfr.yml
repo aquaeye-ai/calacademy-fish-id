@@ -1,0 +1,42 @@
+#######################
+# CONFIG for retrain_3_a_i.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to directory holding training data
+data_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/1_tfr
+
+# path to directory to store training summary files, e.g tensorboard
+training_summaries: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/8_5_2020/1/training_summaries
+
+# path to directory to store trained model
+model_dir: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/8_5_2020/1
+
+# input dimensions of model, taken as height and width
+model_input_size: 224
+
+# batch size
+batch_size: 32
+
+# epochs to train
+epochs: 10
+
+# alpha of mobilenet if using mobilenet
+alpha: 1.0
+
+# model to use
+architecture: mobilenet_v2
+
+# number of classes
+num_classes: 20
+
+# number of training data points
+# TODO should be removed and inferred programatically
+num_train_examples: 33054
+
+# number of testing data points
+# TODO should be removed and inferred programatically
+num_test_examples: 4138
