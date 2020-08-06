@@ -1,5 +1,7 @@
 import os
 import yaml
+import time
+import shutil
 
 import tensorflow as tf
 
@@ -80,7 +82,8 @@ if __name__ == "__main__":
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
     # model_name = config["model_name"]
     # download_base = config["download_base"]
-    data_dir = config["data_dir"]
+    train_dir = config["train_dir"]
+    val_dir = config["val_dir"]
     train_sums_dir = config["training_summaries"]
     model_dir = config["model_dir"]
     batch_size = config["batch_size"]
@@ -95,19 +98,22 @@ if __name__ == "__main__":
     # create training_summaries dir if it doesn't exist
     fu.init_directory(directory=train_sums_dir)
 
+    # copy config to output dir for book keeping
+    shutil.copyfile(src=yaml_path, dst=os.path.join(model_dir, os.path.basename(yaml_path)))
+
     IMG_SHAPE = (model_input_size, model_input_size, 3)
 
     # gather training TFRecord files
     filepaths_train = []
-    for i in os.listdir(data_dir):
-        if os.path.isfile(os.path.join(data_dir, i)) and 'train' in i:
-            filepaths_train.append(os.path.join(data_dir, i))
+    for i in os.listdir(train_dir):
+        if os.path.isfile(os.path.join(train_dir, i)):
+            filepaths_train.append(os.path.join(train_dir, i))
 
     # gather testing TFRecord files
-    filepaths_test = []
-    for i in os.listdir(data_dir):
-        if os.path.isfile(os.path.join(data_dir, i)) and 'train' in i:
-            filepaths_test.append(os.path.join(data_dir, i))
+    filepaths_val = []
+    for i in os.listdir(val_dir):
+        if os.path.isfile(os.path.join(val_dir, i)):
+            filepaths_val.append(os.path.join(val_dir, i))
 
     # get train and validation data tensors
     image_train, label_train = create_dataset(filepaths=filepaths_train,
@@ -115,7 +121,7 @@ if __name__ == "__main__":
                                               num_classes=num_classes,
                                               tgt_size=model_input_size)
 
-    image_val, label_val = create_dataset(filepaths=filepaths_test,
+    image_val, label_val = create_dataset(filepaths=filepaths_val,
                                           batch_size=batch_size,
                                           num_classes=num_classes,
                                           tgt_size=model_input_size)
@@ -172,6 +178,7 @@ if __name__ == "__main__":
     steps_per_epoch = num_train_examples // batch_size
     validation_steps = num_test_examples // batch_size
 
+    t1 = time.time()
     history = model_k.fit(x=image_train,
                           y=label_train,
                           epochs=epochs,
@@ -180,6 +187,8 @@ if __name__ == "__main__":
                           validation_data=(image_val, label_val),
                           callbacks=callbacks,
                           workers=4)
+    t2 = time.time()
+    print("Fine-tuning starting at last layer took: {}s".format(t2 - t1))
 
     # view train/val accuracy and loss
     acc = history.history['categorical_accuracy']
@@ -204,11 +213,11 @@ if __name__ == "__main__":
     plt.ylabel('Cross Entropy')
     plt.ylim([0, max(plt.ylim())])
     plt.title('Training and Validation Loss')
-    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_{}_layers_fine_tune.png'.format(1)))
+    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_fine_tuned_last_layer.png'))
     # plt.show()
 
     # save intermediate model
-    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_{}_layers.hdf'.format(1)))
+    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_layer.hdf'))
 
     ## Fine-tune more layers
 
@@ -234,14 +243,18 @@ if __name__ == "__main__":
     model_k.summary()
 
     # train the model
+    t3 = time.time()
     history_fine = model_k.fit(x=image_train,
                                y=label_train,
-                               epochs=epochs,
+                               epochs=epochs+epochs, # epochs is understood as final epoch to train until reached, NOT a total number of epochs to train for
                                steps_per_epoch=steps_per_epoch,
                                validation_steps=validation_steps,
                                validation_data=(image_val, label_val),
                                callbacks=callbacks,
-                               workers=4)
+                               workers=4,
+                               initial_epoch=epochs)
+    t4 = time.time()
+    print("Fine-tuning starting at layer {} took: {}s".format(fine_tune_at, t2 - t1))
 
     # view train/val accuracy and loss
     acc += history_fine.history['categorical_accuracy']
@@ -266,8 +279,8 @@ if __name__ == "__main__":
     plt.plot([epochs - 1, epochs - 1], plt.ylim(), label='Start Fine Tuning')
     plt.legend(loc='upper right')
     plt.title('Training and Validation Loss')
-    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_last_{}_layers_fine_tune.png'.format(fine_tune_at)))
+    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_fine_tuning_layers_starting_at_{}.png'.format(fine_tune_at)))
     # plt.show()
 
     # save intermediate model
-    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_{}_layers.hdf'.format(fine_tune_at)))
+    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_starting_at_layer_{}.hdf'.format(fine_tune_at)))
