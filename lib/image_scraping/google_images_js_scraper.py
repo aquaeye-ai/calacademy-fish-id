@@ -142,7 +142,7 @@ import requests
 
 
 URLS = "/home/nightrider/Downloads/urls.txt"
-OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus/google"
+OUTPUT = "/home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web/master/trachinotus_mookalee/google"
 
 def download_images_for_urls(urls=None, dst_dir=None):
     rows = open(urls).read().strip().split("\n")
