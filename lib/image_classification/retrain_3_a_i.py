@@ -1,5 +1,7 @@
 import os
 import yaml
+import time
+import shutil
 
 import tensorflow as tf
 
@@ -40,6 +42,9 @@ if __name__ == "__main__":
 
     # create training_summaries dir if it doesn't exist
     fu.init_directory(directory=train_sums_dir)
+
+    # copy config to output dir for book keeping
+    shutil.copyfile(src=yaml_path, dst=os.path.join(model_dir, os.path.basename(yaml_path)))
 
     # get class directories
     class_image_paths = {}
@@ -114,6 +119,7 @@ if __name__ == "__main__":
     steps_per_epoch = train_generator.n // batch_size
     validation_steps = validation_generator.n // batch_size
 
+    t1 = time.time()
     history = model_k.fit_generator(train_generator,
                                   steps_per_epoch=steps_per_epoch,
                                   epochs=epochs,
@@ -121,6 +127,8 @@ if __name__ == "__main__":
                                   validation_data=validation_generator,
                                   validation_steps=validation_steps,
                                   callbacks=callbacks)
+    t2 = time.time()
+    print("Fine-tuning starting at last layer took: {}s".format(t2 - t1))
 
     # view train/val accuracy and loss
     acc = history.history['categorical_accuracy']
@@ -145,11 +153,11 @@ if __name__ == "__main__":
     plt.ylabel('Cross Entropy')
     plt.ylim([0, max(plt.ylim())])
     plt.title('Training and Validation Loss')
-    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_{}_layers_fine_tune.png'.format(1)))
+    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_fine_tuned_last_layer.png'))
     # plt.show()
 
     # save intermediate model
-    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_{}_layers.hdf'.format(1)))
+    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_layer.hdf'))
 
     ## Fine-tune more layers
 
@@ -175,13 +183,17 @@ if __name__ == "__main__":
     model_k.summary()
 
     # train the model
+    t3 = time.time()
     history_fine = model_k.fit_generator(train_generator,
                                          steps_per_epoch=steps_per_epoch,
-                                         epochs=epochs,
+                                         epochs=epochs+epochs, # epochs is understood as final epoch to train until reached, NOT a total number of epochs to train for
                                          workers=4,
                                          validation_data=validation_generator,
                                          validation_steps=validation_steps,
-                                         callbacks=callbacks)
+                                         callbacks=callbacks,
+                                         initial_epoch=epochs)
+    t4 = time.time()
+    print("Fine-tuning starting at layer {} took: {}s".format(fine_tune_at, t2 - t1))
 
     # view train/val accuracy and loss
     acc += history_fine.history['categorical_accuracy']
@@ -206,8 +218,8 @@ if __name__ == "__main__":
     plt.plot([epochs - 1, epochs - 1], plt.ylim(), label='Start Fine Tuning')
     plt.legend(loc='upper right')
     plt.title('Training and Validation Loss')
-    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_last_{}_layers_fine_tune.png'.format(fine_tune_at)))
+    plt.savefig(os.path.join(train_sums_dir, 'acc_loss_for_fine_tuning_layers_starting_at_{}.png'.format(fine_tune_at)))
     # plt.show()
 
     # save intermediate model
-    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_{}_layers.hdf'.format(fine_tune_at)))
+    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_starting_at_layer_{}.hdf'.format(fine_tune_at)))
