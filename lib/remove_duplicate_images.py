@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 import file_utils as fu
 
-BASE_DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/all_classes/zoramia_leptacanthus"
+BASE_DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web/master/himantura_uarnak"
 SOURCE_DIRECTORY = os.path.join(BASE_DIRECTORY, "combined")
 POTENTIAL_DUPLICATES_DIRECTORY = os.path.join(BASE_DIRECTORY, "potential_duplicates")
 AUTO_REMOVE = 0
