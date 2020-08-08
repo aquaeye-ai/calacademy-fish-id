@@ -1,3 +1,18 @@
+"""
+Computes similarities of all images in a directory given a hashSize.
+hashSize = 8 has been found to find only identical images.
+hashSize = 4 has been found to give near-identical images.
+
+If AUTO_REMOVE != 0, then the script will prompt user to for a set of found, identical images.
+The prompt will display the found duplicates in a window, left-to-right, in descending order of dimensions.
+Pressing 'd' will remove all but left-most image.
+Pressing 'm' will move all but left-most image to a separate folder called "potential_duplicates".
+Pressing any other key will ignore the current set and move on to the next set.
+
+Adapted from: https://www.pyimagesearch.com/2020/04/20/detect-and-remove-duplicate-images-from-a-dataset-for-deep-learning/
+"""
+
+
 import os
 import cv2
 import shutil
