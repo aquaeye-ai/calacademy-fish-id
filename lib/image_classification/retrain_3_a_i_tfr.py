@@ -34,6 +34,9 @@ def _parse_function(example, tgt_size=None):
     # turn your saved image string into an array
     parsed_example['image/encoded'] = tf.image.decode_jpeg(parsed_example['image/encoded'], channels=3)
 
+    # convert from full range of uint8 to range [0,1] of float32.
+    parsed_example['image/encoded'] = tf.image.convert_image_dtype(parsed_example['image/encoded'], tf.float32)
+
     # resize image to target shape
     parsed_example['image/encoded'] = tf.image.resize(images=parsed_example['image/encoded'],
                                                       size=[tgt_size, tgt_size],
