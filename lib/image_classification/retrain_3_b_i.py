@@ -16,6 +16,7 @@ import matplotlib.image as mpimg
 import lib.file_utils as fu
 
 
+MOBILENET_V1 = 'mobilenet_v1'
 MOBILENET_V2 = 'mobilenet_v2'
 
 
@@ -51,7 +52,10 @@ if __name__ == "__main__":
     class_dirs = [d for d in os.listdir(train_dir)]
 
     # rescale all images by 1./255 and apply image augmentation
-    train_datagen = keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
+    train_datagen = keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,
+                                                                 brightness_range=[0.7, 1.3],
+                                                                 zoom_range=[0.7, 1.3],
+                                                                 horizontal_flip=True)
 
     validation_datagen = keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
 
@@ -81,6 +85,11 @@ if __name__ == "__main__":
                                                        include_top=False,
                                                        weights='imagenet',
                                                        alpha=alpha)
+    elif architecture == MOBILENET_V1:
+        base_model = tf.keras.applications.MobileNet(input_shape=IMG_SHAPE,
+                                                     include_top=False,
+                                                     weights='imagenet',
+                                                     alpha=alpha)
 
     # setup tensorboard logging callback
     tensorboard_cb = keras.callbacks.TensorBoard(

@@ -16,7 +16,7 @@ val_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/s
 training_summaries: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/8_6_2020/2/training_summaries
 
 # path to directory to store trained model
-model_dir: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/8_6_2020/2
+model_dir: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/8_7_2020/1
 
 # input dimensions of model, taken as height and width
 model_input_size: 224
@@ -31,4 +31,4 @@ epochs: 10
 alpha: 1.0
 
 # model to use
-architecture: mobilenet_v2
+architecture: mobilenet
