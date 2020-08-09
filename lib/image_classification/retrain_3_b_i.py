@@ -23,7 +23,7 @@ MOBILENET_V2 = 'mobilenet_v2'
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
     config_dir = os.path.join(os.curdir, '..', 'configs', 'image_classification')
-    yaml_path = os.path.join(config_dir, 'retrain_3_a_i.yml')
+    yaml_path = os.path.join(config_dir, 'retrain_3_b_i.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
 
@@ -55,7 +55,11 @@ if __name__ == "__main__":
     train_datagen = keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,
                                                                  brightness_range=[0.7, 1.3],
                                                                  zoom_range=[0.7, 1.3],
-                                                                 horizontal_flip=True)
+                                                                 horizontal_flip=True,
+                                                                 rotation_range=30,
+                                                                 width_shift_range=20,
+                                                                 height_shift_range=20,
+                                                                 fill_mode='reflect')
 
     validation_datagen = keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
 
