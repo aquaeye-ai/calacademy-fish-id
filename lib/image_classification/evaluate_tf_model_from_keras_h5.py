@@ -1,7 +1,7 @@
 """
 Script to evaluate and provide Top-1 and Top-K stats on test data for a TF model from frozen graph.
-For use with pretrained TF Slim models (e.g. those used with lib/image_classification/inference_pretrained_tf_model_from_frozen_graph.py)
-and those models fine-tuned/trained using  lib/image_classification/retrain_1_b_1.py.
+For use with keras-saved hdf5-formatted pretrained TF models and those models fine-tuned/trained using
+lib/image_classification/retrain_3_b_i.py.
 
 NOTE: the log.txt will be output in a parent directory as compared to the output_dir provided to the script.
 
