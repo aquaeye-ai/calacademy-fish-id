@@ -1,0 +1,37 @@
+#######################
+# CONFIG for evaluate_tf_model_from_keras.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to keras-trained h5 model
+path_to_model_h5: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/8_7_2020/2/retrained_model_starting_at_layer_100.h5
+
+# path to labels file
+path_to_labels: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v1_050_224_tfhub_v3/fine_tuned/7_31_2020/1/output_labels.txt
+
+# path to directory holding test images
+# This directory must contain sub-folders as class-names that each contain images for that class
+path_to_test_images_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_web_plus_scraped_obj_det/groupings/training_splits/7_28_2020/2/test
+
+# path to directory to hold output files
+output_dir: /home/nightrider/calacademy-fish-id/outputs/image_classification/fine_tuned_inference/mobilenet_v2_100_224_keras/8_10_2020/1
+
+# Sizes, in pixels, of input image for the model (before any resizing for preprocessing happens)
+# Each number is both height and width as we assume the input image to be square
+# These will vary based on the model architecture.
+tile_sizes: [300]
+
+# input dimensions of model, taken as height and width
+model_input_size: 224
+
+# minimum scoring threshold
+min_score_threshold: 0.1
+
+# whether to use imagenet labels or provided labels file
+use_imagenet_labels: 0
+
+# K value for Top-K stats
+K: 5
