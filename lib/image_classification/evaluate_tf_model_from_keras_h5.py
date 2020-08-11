@@ -44,94 +44,12 @@ from object_detection.utils import visualization_utils as vis_util
 # configure logging
 OUTPUT_DIR = "/home/nightrider/calacademy-fish-id/outputs/image_classification"
 log_utils.LOG_DIR = OUTPUT_DIR
-log_utils.init_logging(file_name="inference_pretrained_tf_model_from_frozen_graph_log.txt")
+log_utils.init_logging(file_name="inference_trained_tf_model_from_keras_log.txt")
 
 logger = logging.getLogger(__name__)
 
 
-def def_load_img_op(path_img):
-    """
-    Load an image to tensorflow.
-    Adapted from: https://stackoverflow.com/questions/43341970/tensorflow-dramatic-loss-of-accuracy-after-freezing-graph
-
-    :param path_img: image path on the disk
-    :return: 3D tensorflow image
-    """
-    img_data = tf.io.read_file(path_img)
-    image_op = tf.image.decode_image(img_data)  # use png or jpg decoder based on your files.
-
-    return image_op
-
-#TODO: consider replacing this functionality with cv2
-def def_preprocess_ops(image, height, width, central_fraction=0.875, scope=None, apply_tf_slim_preprocessing=False):
-    """Prepare one image for evaluation.
-
-    If height and width are specified it would output an image with that size by
-    applying resize_bilinear.
-
-    If central_fraction is specified it would cropt the central fraction of the
-    input image.
-
-    Adapted from: https://stackoverflow.com/questions/43341970/tensorflow-dramatic-loss-of-accuracy-after-freezing-graph
-
-    Args:
-      image: 3-D Tensor of image. If dtype is tf.float32 then the range should be
-        [0, 1], otherwise it would converted to tf.float32 assuming that the range
-        is [0, MAX], where MAX is largest positive representable number for
-        int(8/16/32) data type (see `tf.image.convert_image_dtype` for details)
-      height: integer
-      width: integer
-      central_fraction: Optional Float, fraction of the image to crop.
-      scope: Optional scope for name_scope.
-    Returns:
-      3-D float Tensor of prepared image.
-    """
-
-    image_data = tf.image.convert_image_dtype(image, dtype=tf.float32)
-
-    # Crop the central region of the image with an area containing 87.5% of
-    # the original image.
-    if central_fraction and apply_tf_slim_preprocessing == True:
-        image_data = tf.image.central_crop(image_data, central_fraction=central_fraction)
-
-    if height and width:
-        # Resize the image to the specified height and width.
-        image_data = tf.expand_dims(image_data, 0)
-        image_data = tf.image.resize_bilinear(image_data, [height, width], align_corners=False)
-        image_data = tf.squeeze(image_data, [0])
-
-    if apply_tf_slim_preprocessing == True:
-        image_data = tf.subtract(image_data, 0.5)
-        image_data = tf.multiply(image_data, 2.0)
-
-    return image_data
-
 @log_utils.timeit
-def run_inference_for_multiple_images(images=None, output_node=None, input_tensor=None, tensor_dict=None):
-    """
-    Call sess.run on full graph for inference of batch of images (can be single image).
-
-    :param images: numpy array of images
-    :param output_node: str, name of output node in graph
-    :param input_tensor: str, name of input node in graph
-    :param tensor_dict: dict of tf tensors and arguments to supply session.run() call with
-    :return: dict of outputs from inference
-    """
-    # we need to expand the first dimension if we only inference on one image, since the model inference expects a batch
-    if len(images.shape) == 3:
-        images = np.expand_dims(images, 0)
-
-    # Run inference
-    t1 = time.time()
-    output_dict = sess.run(tensor_dict, feed_dict={input_tensor: images})
-    t2 = time.time()
-    logger.info("inference time: {}".format(t2-t1))
-
-    # all outputs are float32 numpy arrays, so convert types as appropriate
-    output_dict[output_node] = output_dict[output_node][:]
-
-    return output_dict
-
 def predict_images_whole(test_image_paths=None, category_index=None, K=None, model=None):
     """
     Inferences model on entire image for each image path supplied.
@@ -150,11 +68,14 @@ def predict_images_whole(test_image_paths=None, category_index=None, K=None, mod
         # cv2 loads image in BGR format but model needs RGB format
         image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
 
+        # scale image since we trained on scaled images
+        image_np = image_np * (1. / 255)
+
         h, w = image_np.shape[:2]
         logger.info("image size: {}x{}".format(h, w))
 
-        cv2.imshow('image_np', image_np)
-        cv2.waitKey()
+        # cv2.imshow('image_np', image_np)
+        # cv2.waitKey()
 
         ## Actual detection.
 
@@ -166,12 +87,13 @@ def predict_images_whole(test_image_paths=None, category_index=None, K=None, mod
         class_scores = output_dict[0]
 
         # sort the class_scores
-        top_k_class_scores = np.argsort(class_scores)[-K:]
+        top_k_class_scores_idx = np.argsort(class_scores)[-K:]
+        top_k_class_scores_idx = list(reversed(top_k_class_scores_idx))
+        top_k_class_scores = class_scores[top_k_class_scores_idx]
 
-        top_k_class_scores = list(reversed(top_k_class_scores))
 
         ## return the top-k classes and scores to text file
-        class_names = [category_index[i] for i in top_k_class_scores]
+        class_names = [category_index[i] for i in top_k_class_scores_idx]
 
         results.append((image_path, class_names, top_k_class_scores))
 
@@ -212,9 +134,10 @@ if __name__ == "__main__":
     # TODO: we could likely collapse this if statement if we spent the time to look up the file for imagenet (and consequently not need the use_imagenet_labels flag)
     category_index = {}
     if use_imagenet_labels == True:
-        category_index = imagenet.create_readable_names_for_imagenet_labels()
+        category_index = imagenet.create_readable_names_for_imagenet_labels() #TODO this may need sorting
     else:
         with open(path_to_labels) as labels_f:
+            # we need to sort the labels since this is how keras reads the labels in during training: https://stackoverflow.com/questions/38971293/get-class-labels-from-keras-functional-model
             for idx, line in sorted(enumerate(labels_f)):
                 category_index[idx] = line.strip()
 
