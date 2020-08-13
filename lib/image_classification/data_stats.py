@@ -1,4 +1,5 @@
-# Script used to generate chart graphics representing data statistics for each dataset within dataset/image_classification/pcr.
+# Script used to generate chart graphics representing data statistics for each dataset within datasets/image_classification/pcr
+# and datasets/image_classification/reef_lagoon.
 # NOTE: will extract the dataset name from the dataset path.  Thus, the basename of a given dataset path must match one
 # of the predefined names at the start of this file, e.g. 'master' or 'scientific_species_names'.
 
@@ -285,7 +286,7 @@ def generate_training_split_stats(directory=None, split=None):
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
     config_dir = os.path.join(os.pardir, 'configs', 'image_classification')
-    yaml_path = os.path.join(config_dir, 'pcr_data_stats.yml')
+    yaml_path = os.path.join(config_dir, 'data_stats.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
 
