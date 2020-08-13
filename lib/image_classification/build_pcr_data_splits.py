@@ -108,17 +108,29 @@ if __name__ == "__main__":
     fu.init_directory(val_dir)
     fu.init_directory(test_dir)
 
-    # get class directories
-    class_dirs_web = [d for d in os.listdir(directory_web)]
-    class_dirs_od = [d for d in os.listdir(directory_od)]
+    # get class directories and partition data
+    # we may not be using both web and obj det data, so check first
+    web_total_train, web_total_val, web_total_test = 0, 0, 0
+    if directory_web is not None:
+        class_dirs_web = [d for d in os.listdir(directory_web)]
 
-    # partition data
-    web_total_train, web_total_val, web_total_test = partition_data(directory_src=directory_web, class_dirs=class_dirs_web,
-                                                                    type="web", percent_train=percent_train, percent_val=percent_val,
-                                                                    percent_test=percent_test)
-    od_total_train, od_total_val, od_total_test = partition_data(directory_src=directory_od, class_dirs=class_dirs_od,
-                                                                 type="od", percent_train=percent_train, percent_val=percent_val,
-                                                                 percent_test=percent_test)
+        web_total_train, web_total_val, web_total_test = partition_data(directory_src=directory_web,
+                                                                        class_dirs=class_dirs_web,
+                                                                        type="web",
+                                                                        percent_train=percent_train,
+                                                                        percent_val=percent_val,
+                                                                        percent_test=percent_test)
+
+    od_total_train, od_total_val, od_total_test = 0, 0, 0
+    if directory_od is not None:
+        class_dirs_od = [d for d in os.listdir(directory_od)]
+
+        od_total_train, od_total_val, od_total_test = partition_data(directory_src=directory_od,
+                                                                     class_dirs=class_dirs_od,
+                                                                     type="od",
+                                                                     percent_train=percent_train,
+                                                                     percent_val=percent_val,
+                                                                     percent_test=percent_test)
 
     # copy config so we can recall what parameters were used to construct the dataset splits
     shutil.copy(yaml_path, os.path.join(directory_dst, 'config.yml'))
