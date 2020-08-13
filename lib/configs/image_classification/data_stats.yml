@@ -7,12 +7,13 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # data directory
-directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web/groupings/training_splits/8_12_2020/1
+directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web/master
 
 # dataset type so the script knows how to parse the data
-db_type: training_splits
+db_type: master
 
 # only necessary if generating stats for db_type of training_splits, e.g. train/test/val
 splits:
   - train
   - test
+  - val
