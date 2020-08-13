@@ -1,5 +1,5 @@
 """
-Groups pcr data under datasets/image_classification_pcr.
+Groups pcr data under datasets/image_classification/pcr.
 For example, can be given the output of lib/image_scraping/obj_det_dataset_scraper.py, a mapping defined in this script ->
 will then group the data from obj_det_dataset_scraper.py according to the mapping and store in a given directory.
 """
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         num_class = 0
         for idx, f_path_src in enumerate([os.path.join(class_dir_path, f) for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))]):
             basename = os.path.basename(f_path_src)
-            f_path_dst = os.path.join(bucket_dir_path, basename)
+            f_path_dst = os.path.join(bucket_dir_path, "{}_{}".format(class_dir, basename))
             shutil.copyfile(f_path_src, f_path_dst)
             total += 1
             num_class += 1
