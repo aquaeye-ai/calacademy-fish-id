@@ -1,0 +1,11 @@
+#######################
+# CONFIG for view_livestream.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+stream_url: https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1597373469/ei/vac1X9_5GY2tkgb0zquYAg/ip/98.207.8.218/id/bq2ZR-KMr_A.2/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/goi/160/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/hls_chunk_host/r5---sn-n4v7snee.googlevideo.com/playlist_duration/30/manifest_duration/30/vprv/1/playlist_type/DVR/initcwndbps/12840/mh/K6/mm/44/mn/sn-n4v7snee/ms/lva/mv/m/mvi/5/pl/21/dover/11/keepalive/yes/fexp/23883098/mt/1597351759/disable_polymer/true/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,goi,sgoap,sgovp,playlist_duration,manifest_duration,vprv,playlist_type/sig/AOq0QJ8wRAIgN9Z_OG3USLtfn9NJ_GGOagDmdt0IK3CC_reeXUYu9RICIC8CO5O4sC0l4TVtAnpX9iSe7pupkl55wzesHQ5gF118/lsparams/hls_chunk_host,initcwndbps,mh,mm,mn,ms,mv,mvi,pl/lsig/AG3C_xAwRQIgXkGA2LEZXCfWCb-yKR1YzbnSdjht38bVApJMxjcVyGQCIQCFSikIh-KdSL00MrophMTmcWe4bZrwLi2VSTi9YYduOg%3D%3D/playlist/index.m3u8
+
+destination_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/raw
