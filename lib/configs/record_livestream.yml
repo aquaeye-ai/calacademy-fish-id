@@ -13,5 +13,5 @@ stream_url: https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/15
 destination_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/raw
 
 # amount of seconds to record for
-record_time: 10
+record_time: 300
 
