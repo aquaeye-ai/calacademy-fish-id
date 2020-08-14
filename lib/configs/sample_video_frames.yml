@@ -7,10 +7,10 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # we want the sampling rate to be large enough so that we don't have frames that are too strongly correlated
-sample_rate: 10
+sample_rate: 30
 
-video_path: '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/video/raw/IMG_0512.MOV'
+video_path: '/home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/raw/2020_08_13_22_05_39_length_300s.mp4'
 
-destination_directory: '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/pcr/video/sampled_new'
+destination_directory: '/home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/sampled'
 
 
