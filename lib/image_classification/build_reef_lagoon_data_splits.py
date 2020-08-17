@@ -92,8 +92,8 @@ if __name__ == "__main__":
 
     ## collect hyper parameters/args from config
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
-    directory_web = config["directory_web"]
-    directory_od = config["directory_od"]
+    directories_web = config["directories_web"]
+    directories_od = config["directories_od"]
     directory_dst = config["directory_dst"]
     percent_train = config["percent_train"]
     percent_val = config["percent_val"]
@@ -111,26 +111,34 @@ if __name__ == "__main__":
     # get class directories and partition data
     # we may not be using both web and obj det data, so check first
     web_total_train, web_total_val, web_total_test = 0, 0, 0
-    if directory_web is not None:
-        class_dirs_web = [d for d in os.listdir(directory_web)]
+    if directories_web is not None:
+        for dir in directories_web:
+            class_dirs_web = [d for d in os.listdir(dir)]
 
-        web_total_train, web_total_val, web_total_test = partition_data(directory_src=directory_web,
-                                                                        class_dirs=class_dirs_web,
-                                                                        type="web",
-                                                                        percent_train=percent_train,
-                                                                        percent_val=percent_val,
-                                                                        percent_test=percent_test)
+            web_total_train_unpacked, web_total_val_unpacked, web_total_test_unpacked = partition_data(directory_src=dir,
+                                                                                                       class_dirs=class_dirs_web,
+                                                                                                       type="web",
+                                                                                                       percent_train=percent_train,
+                                                                                                       percent_val=percent_val,
+                                                                                                       percent_test=percent_test)
+            web_total_train += web_total_train_unpacked
+            web_total_val += web_total_val_unpacked
+            web_total_test += web_total_test_unpacked
 
     od_total_train, od_total_val, od_total_test = 0, 0, 0
-    if directory_od is not None:
-        class_dirs_od = [d for d in os.listdir(directory_od)]
+    if directories_od is not None:
+        for dir in directories_od:
+            class_dirs_od = [d for d in os.listdir(dir)]
 
-        od_total_train, od_total_val, od_total_test = partition_data(directory_src=directory_od,
-                                                                     class_dirs=class_dirs_od,
-                                                                     type="od",
-                                                                     percent_train=percent_train,
-                                                                     percent_val=percent_val,
-                                                                     percent_test=percent_test)
+            od_total_train_unpacked, od_total_val_unpacked, od_total_test_unpacked = partition_data(directory_src=dir,
+                                                                                                    class_dirs=class_dirs_od,
+                                                                                                    type="od",
+                                                                                                    percent_train=percent_train,
+                                                                                                    percent_val=percent_val,
+                                                                                                    percent_test=percent_test)
+            od_total_train += od_total_train_unpacked
+            od_total_val += od_total_val_unpacked
+            od_total_test += od_total_test_unpacked
 
     # copy config so we can recall what parameters were used to construct the dataset splits
     shutil.copy(yaml_path, os.path.join(directory_dst, 'config.yml'))
