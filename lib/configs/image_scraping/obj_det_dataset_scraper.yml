@@ -7,13 +7,13 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to directory containing source annotation files
-src_ann_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/original_annotations
+src_ann_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/stills/full/wip/original_annotations
 
 # path to directory containing source image files
-src_img_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/pcr/stills/full/original_images
+src_img_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/stills/full/wip/original_images
 
 # path to directory where image crops will be stored
-dst_img_directory: /home/nightrider/calacademy-fish-id/datasets/image_classification/pcr/scraped_obj_det/master
+dst_img_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/stills/full/wip/scraped
 
 # annotation file extension
 annotation_extension: xml
