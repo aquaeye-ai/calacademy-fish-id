@@ -71,6 +71,11 @@ if __name__ == "__main__":
         # Since we use categorical_crossentropy loss, we need categorical labels
         class_mode='categorical')
 
+    # write training labels to file for later use
+    with open(os.path.join(model_dir, 'train_labels.txt'), "w+") as f:
+        for label in train_generator.class_indices:
+            f.write("{}\n".format(label))
+
     # flow validation images in batches of 20 using test_datagen generator
     validation_generator = validation_datagen.flow_from_directory(
         val_dir,  # Source directory for the validation images
