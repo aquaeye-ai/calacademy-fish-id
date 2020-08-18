@@ -138,8 +138,10 @@ if __name__ == "__main__":
     else:
         with open(path_to_labels) as labels_f:
             # we need to sort the labels since this is how keras reads the labels in during training: https://stackoverflow.com/questions/38971293/get-class-labels-from-keras-functional-model
-            for idx, line in sorted(enumerate(labels_f)):
+            idx = 0
+            for line in sorted(labels_f):
                 category_index[idx] = line.strip()
+                idx += 1
 
     # load model
     model = keras.models.load_model(path_to_model_h5)
