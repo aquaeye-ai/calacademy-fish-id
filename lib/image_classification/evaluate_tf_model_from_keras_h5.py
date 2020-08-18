@@ -152,6 +152,8 @@ if __name__ == "__main__":
 
                 t1 = time.time()
                 total_num_images = 0
+                total_num_correct_top_1 = 0
+                total_num_correct_top_k = 0
                 total_accuracy_top_1 = 0.0
                 total_accuracy_top_k = 0.0
                 for cls_idx, class_dir in enumerate(class_dirs):
@@ -179,6 +181,8 @@ if __name__ == "__main__":
 
                             # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
                             image_paths_incorrect_top_1.append((result[0], result[1][:K], result[2][:K]))
+                        else:
+                            total_num_correct_top_1 += 1
 
                     percent_incorrect_top_1 = (np.float(num_incorrect_top_1) / np.float(len(results))) * 100.0
                     total_accuracy_top_1 += (100.0 - percent_incorrect_top_1)
@@ -196,6 +200,8 @@ if __name__ == "__main__":
 
                             # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
                             image_paths_incorrect_top_k.append((result[0], result[1][:K], result[2][:K]))
+                        else:
+                            total_num_correct_top_k += 1
 
                     percent_incorrect_top_k = (np.float(num_incorrect_top_k) / np.float(len(results))) * 100.0
                     total_accuracy_top_k += (100.0 - percent_incorrect_top_k)
@@ -246,6 +252,12 @@ if __name__ == "__main__":
                     total_accuracy_top_1 / np.float(len(class_dirs))))
                 stats_f.write("Average Top-{} Accuracy: {:.2f}%".format(
                     K, total_accuracy_top_k / np.float(len(class_dirs))))
+
+                # write overall top-1 and top-K accuracy across all test examples
+                stats_f.write("\nOverall Top-1 Accuracy: {:.2f}%\n".format(
+                    (np.float(total_num_correct_top_1) / np.float(total_num_images)) * 100))
+                stats_f.write("Overall Top-{} Accuracy: {:.2f}%".format(
+                    K, (np.float(total_num_correct_top_k) / np.float(total_num_images)) * 100))
 
                 t2 = time.time()
                 logger.info("Total Images: {}".format(total_num_images))
