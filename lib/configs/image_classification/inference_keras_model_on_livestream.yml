@@ -1,0 +1,13 @@
+#######################
+# CONFIG for inference_keras_model_on_livestream.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# HLS m3u8 url as described here: https://stackoverflow.com/questions/35608686/how-can-i-get-the-actual-video-url-of-a-youtube-live-stream
+stream_url: https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1597897890/ei/Qqg9X6PUD9GCkwaq8oegAg/ip/98.207.8.218/id/bq2ZR-KMr_A.2/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/goi/160/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/hls_chunk_host/r5---sn-n4v7snee.googlevideo.com/playlist_duration/30/manifest_duration/30/vprv/1/playlist_type/DVR/initcwndbps/15450/mh/K6/mm/44/mn/sn-n4v7snee/ms/lva/mv/m/mvi/5/pl/21/dover/11/keepalive/yes/mt/1597875921/disable_polymer/true/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,goi,sgoap,sgovp,playlist_duration,manifest_duration,vprv,playlist_type/sig/AOq0QJ8wRQIgd9C6iQqwSFi8tiMpH11Cw-R31oH8Gkqhz1AVzfnWcrQCIQC0m4OPW-yohWnZTqDniyvyhBS5rnAnVR6s8KiBKpLmeA%3D%3D/lsparams/hls_chunk_host,initcwndbps,mh,mm,mn,ms,mv,mvi,pl/lsig/AG3C_xAwRgIhAIUmJHEOpBEPyWrs9_UfNpJuy9Eos-4NzSIbrt0KzUA5AiEA6CWhfvUGbbZY6PpnnonqdzJKMrYFuvmJTG3PWM2v6So%3D/playlist/index.m3u8
+
+# where to store output
+destination_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/raw
