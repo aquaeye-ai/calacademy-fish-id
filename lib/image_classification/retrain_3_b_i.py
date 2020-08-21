@@ -175,7 +175,7 @@ if __name__ == "__main__":
     # plt.show()
 
     # save intermediate model
-    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_layer.hdf'))
+    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_last_layer.h5'))
 
     ## Fine-tune more layers
 
@@ -240,4 +240,4 @@ if __name__ == "__main__":
     # plt.show()
 
     # save intermediate model
-    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_starting_at_layer_{}.hdf'.format(fine_tune_at)))
+    model_k.save(filepath=os.path.join(model_dir, 'retrained_model_starting_at_layer_{}.h5'.format(fine_tune_at)))
