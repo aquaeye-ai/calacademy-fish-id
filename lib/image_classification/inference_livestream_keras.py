@@ -69,16 +69,17 @@ import datetime
 
 from collections import Counter
 
-SERVER_URL = 'http://172.17.0.2:8000/eval'
+# SERVER_URL = 'http://172.17.0.2:8000/eval'
 
 
 class webcam_manager():
-    def __init__(self, stream_url=None):
+    def __init__(self, stream_url=None, server_url=None):
         # init state
         self.shouldPause = False
         self.shouldHideModelControls = False
         self.frame_count = 0
         self.stream_url = stream_url
+        self.server_url = server_url
         self.font = font = cv2.FONT_HERSHEY_SIMPLEX
         self.width, self.height = 800, 600
         self.classification_buffer = []
@@ -151,106 +152,87 @@ class webcam_manager():
         self.lFrame = tk.LabelFrame(self.root, relief="ridge", borderwidth=4, background="red", text="Frame",
                                     font="bold", labelanchor="n")
         self.lFrame.grid(row=0, column=0, padx=10, pady=10, rowspan=4)
-        # self.lFrame.pack(side="left", padx=10, pady=10)
 
     def init_tk_rFrame(self):
         self.rFrame = tk.Frame(self.root)
         self.rFrame.grid(row=0, column=1, padx=10, pady=10)
-        # self.rFrame.pack(side="right", padx=10, pady=10)
 
     def init_tk_inputsFrame(self):
         self.inputsFrame = tk.LabelFrame(self.root, text="Input", font="bold", labelanchor="n")
         self.inputsFrame.grid(row=0, column=1, padx=10, pady=10)
-        # self.inputsFrame.pack(side="top", padx=10, pady=10)
 
     def init_tk_cmFrame(self):
         self.cmFrame = tk.LabelFrame(self.root, text="Recommmended Counter Measure", font="bold", labelanchor="n")
         self.cmFrame.grid(row=1, column=1, padx=10, pady=10)
-        # self.cmFrame.pack(side="top", padx=10, pady=10)
 
     def init_tk_pcFrame(self):
         self.pcFrame = tk.LabelFrame(self.root, text="Program Controls", font="bold", labelanchor="n")
-        # self.pcFrame.pack(side="top", padx=10, pady=10)
         self.pcFrame.grid(row=2, column=1, padx=10, pady=10)
 
     def init_tk_mcFrame(self):
         self.mcFrame = tk.LabelFrame(self.root, text="Model Controls", font="bold", labelanchor="n")
-        # self.mcFrame.pack(side="top", padx=10, pady=10)
         self.mcFrame.grid(row=3, column=1, padx=10, pady=10)
 
     def init_tk_imageLabel(self):
         self.imageLabel = tk.Label(self.lFrame, relief="sunken")
-        # self.imageLabel.pack(padx=2, pady=2)
         self.imageLabel.grid(row=0, column=0, padx=2, pady=2)
 
     def init_tk_inputsLabel(self):
         self.inputsLabel = tk.Label(self.inputsFrame, anchor="w", width=75, justify="left", relief="ridge", borderwidth=2)
-        # self.inputsLabel.pack(padx=10, pady=10)
         self.inputsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
 
     def init_tk_cmLabel(self):
         self.cmLabel = tk.Label(self.cmFrame, anchor="w", width=75, justify="left", relief="ridge", borderwidth=2)
-        # self.cmLabel.pack(padx=10, pady=10)
         self.cmLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
 
     def init_tk_jammingButton(self):
         self.jammingButton = tk.Button(self.cmFrame, width=20, relief="raised", borderwidth=2, text="Jam")
-        # self.jammingButton.pack(side="left", padx=10, pady=10)
         self.jammingButton.grid(row=1, column=0, padx=10, pady=10)
 
     def init_tk_empButton(self):
         self.empButton = tk.Button(self.cmFrame, width=20, relief="raised", borderwidth=2, text="EMP")
-        # self.empButton.pack(side="left", padx=5, pady=10)
         self.empButton.grid(row=1, column=1, padx=5, pady=10)
 
     def init_tk_hackButton(self):
         self.hackButton = tk.Button(self.cmFrame, width=20, relief="raised", borderwidth=2, text="Hack")
-        # self.hackButton.pack(side="left", padx=10, pady=10)
         self.hackButton.grid(row=1, column=2, padx=10, pady=10)
 
     def init_tk_startButton(self):
         self.startButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Start",
                                      command=self.start)
-        # self.startButton.pack(side="left", padx=10, pady=10)
         self.startButton.grid(row=1, column=0, padx=10, pady=10)
 
     def init_tk_stopButton(self):
         self.stopButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Stop",
                                     command=self.stop)
-        # self.stopButton.pack(side="left", padx=10, pady=10)
         self.stopButton.grid(row=1, column=1, padx=10, pady=10)
 
     def init_tk_pauseButton(self):
         self.pauseButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Pause",
                                      command=self.pause)
-        # self.pauseButton.pack(side="left", padx=10, pady=10)
         self.pauseButton.grid(row=1, column=2, padx=10, pady=10)
 
     def init_tk_hideShowMCButton(self):
         self.hideMCButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2,
                                       text="Hide/Show Model Controls", wraplength=90,
                                       command=self.hideShowModelControls)
-        # self.hideMCButton.pack(side="left", padx=10, pady=10)
         self.hideMCButton.grid(row=1, column=3, padx=10, pady=10)
 
     def init_tk_unsure_thrshld_scale(self):
         self.utScale = tk.Scale(self.mcFrame, from_=0, to=1, resolution=0.01, label="UNSURE_THRESHOLD",
                                 command=self.utScaleChanged)
-        # self.utScale.pack(side="left", padx=10, pady=10)
         self.utScale.grid(row=0, column=0, padx=10, pady=10)
         self.utScale.set(self.unsure_threshold)
 
     def init_tk_drone_thrshld_scale(self):
         self.dtScale = tk.Scale(self.mcFrame, from_=0, to=1, resolution=0.01, label="DRONE_THRESHOLD",
                                 command=self.dtScaleChanged)
-        # self.dtScale.pack(side="left", padx=10, pady=10)
         self.dtScale.grid(row=0, column=1, padx=10, pady=10)
         self.dtScale.set(self.drone_threshold)
 
     def init_tk_payload_thrshld_scale(self):
         self.ptScale = tk.Scale(self.mcFrame, from_=0, to=1, resolution=0.01, label="PAYLOAD_THRESHOLD",
                                 command=self.ptScaleChanged)
-        # self.ptScale.pack(side="left", padx=10, pady=10)
         self.ptScale.grid(row=0, column=2, padx=10, pady=10)
         self.ptScale.set(self.payload_threshold)
 
@@ -266,10 +248,8 @@ class webcam_manager():
     def hideShowModelControls(self):
         self.shouldHideModelControls = ~self.shouldHideModelControls
         if self.shouldHideModelControls:
-            # self.mcFrame.pack_forget()
             self.mcFrame.grid_remove()
         else:
-            # self.mcFrame.pack()
             self.mcFrame.grid()
 
     def display_cap(self):
@@ -316,12 +296,14 @@ class webcam_manager():
         if not self.shouldPause:
             i = self.frame_count
             ret, frame = self.cap.read()
+            print("image shape: {}".format(frame.shape))
+            print("image dtype: {}".format(frame.dtype))
 
             frame_counter = str(i)
 
-            img_str = cv2.imencode('.jpg', frame)[1].tostring()
+            retval, buffer = cv2.imencode('.jpg', frame)#[0].tostring()
 
-            # response = self.eval_image(i, img_str)
+            response = self.eval_image(id=i, shape=frame.shape, data=buffer)
 
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
@@ -375,21 +357,25 @@ class webcam_manager():
         ret += "Known Vulnerabilities: {}\n".format(specs['vulnerabilities'])
         return ret
 
-    def eval_image(self, image_id, image_data):
+    def eval_image(self, id=None, shape=None, data=None):
         """Summary: Evaluate a single frame. Sends data to model server api and retrieves resposne.
 
            TODO: Currently runs about 0.05 seconds round trip. Look for where this could be sped up.
         """
-        json_payload = json.dumps({'image_id': image_id,
-                                   'image_data': base64.b64encode(image_data)})
+        json_payload = json.dumps({'id': id,
+                                   'height': shape[0],
+                                   'width': shape[1],
+                                   'depth': shape[2],
+                                   'image': base64.b64encode(data),
+                                   'K': 5})
 
-        print("Sending request - image_id: {}".format(image_id))
+        print("Sending request - image id: {}".format(id))
         start = time.time()
-        response = requests.post(SERVER_URL, json=json_payload)
+        response = requests.post(self.server_url, json=json_payload)
         print('request returned {} in {} seconds.'.format(response.status_code, time.time() - start))
         # print(response.json())
 
-        parsed_response = self.parse_response(response.json(), image_id)
+        parsed_response = self.parse_response(response.json(), id)
         print(parsed_response)
         return parsed_response
 
@@ -547,15 +533,16 @@ class webcam_manager():
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
     config_dir = os.path.join(os.pardir, 'configs', 'image_classification')
-    yaml_path = os.path.join(config_dir, 'inference_keras_model_on_livestream.yml')
+    yaml_path = os.path.join(config_dir, 'inference_livestream_keras.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
 
     ## collect hyper parameters/args from config
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
     stream_url = config["stream_url"]
+    server_url = config["server_url"]
     dst_dir = config["destination_directory"]
 
-    cam_manager = webcam_manager(stream_url=stream_url)
+    cam_manager = webcam_manager(stream_url=stream_url, server_url=server_url)
     cam_manager.root.mainloop()
     cam_manager.close_camera()
