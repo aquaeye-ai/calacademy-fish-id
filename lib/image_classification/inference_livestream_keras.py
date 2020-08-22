@@ -79,6 +79,7 @@ class webcam_manager():
         self.shouldPause = False
         self.shouldHideModelControls = False
         self.frame_count = 0
+        self.frame = None
         self.stream_url = stream_url
         self.server_url = server_url
         self.server_eval_endpoint = server_eval_endpoint
@@ -143,6 +144,7 @@ class webcam_manager():
         self.init_tk_startButton()
         self.init_tk_quitButton()
         self.init_tk_pauseButton()
+        self.init_tk_evalButton()
         self.init_tk_hideShowMCButton()
 
     def init_tk_scales(self):
@@ -213,6 +215,11 @@ class webcam_manager():
                                      command=self.pause)
         self.pauseButton.grid(row=1, column=2, padx=10, pady=10)
 
+    def init_tk_evalButton(self):
+        self.evalButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Predict!",
+                                    command=self.eval)
+        self.evalButton.grid(row=2, column=0, padx=10, pady=10)
+
     def init_tk_hideShowMCButton(self):
         self.hideMCButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2,
                                       text="Hide/Show Model Controls", wraplength=90,
@@ -248,14 +255,24 @@ class webcam_manager():
         Display frames from the camera until q is pressed.
         :return: None
         """
-        while (True):
-            # Capture frame-by-frame
-            ret, frame = self.cap.read()
+        # Capture frame-by-frame
+        ret, frame = self.cap.read()
 
-            # Display the resulting frame
-            cv2.imshow('frame', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+        # Display the resulting frame
+        if not self.shouldPause:
+            frame = cv2.flip(frame, 1)
+            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+            cv2image = cv2.resize(cv2image, dsize=(self.width, self.height))
+
+            img = Image.fromarray(cv2image)
+            imgtk = ImageTk.PhotoImage(image=img)
+
+            self.imageLabel.imgtk = imgtk
+            self.imageLabel.configure(image=imgtk)
+
+            self.imageLabel.after(1, self.display_cap)
+
+            self.frame_count += 1
 
     def write_cap(self, frame_count=300):
         """
@@ -307,17 +324,14 @@ class webcam_manager():
         Run and evaluate a stream of frames from the camera.
         :return: None
         """
-        if not self.shouldPause:
-            i = self.frame_count
-            ret, frame = self.cap.read()
+        if self.shouldEval:
+            frame = self.frame
             print("image shape: {}".format(frame.shape))
             print("image dtype: {}".format(frame.dtype))
 
-            frame_counter = str(i)
-
             retval, buffer = cv2.imencode('.jpg', frame)
 
-            response = self.eval_image(id=i, shape=frame.shape, data=buffer)
+            response = self.eval_image(id=self.frame_count, shape=frame.shape, data=buffer)
 
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
@@ -331,7 +345,7 @@ class webcam_manager():
             self.imageLabel.imgtk = imgtk
             self.imageLabel.configure(image=imgtk)
 
-            inputsLabelText = "Timestamp: {}\n\n".format(st)
+            inputsLabelText = "Timestamp: {}\n".format(st)
 
             # write top K classes and scores
             inputsLabelText += "\nTop {} Classes:\n".format(self.K)
@@ -359,8 +373,7 @@ class webcam_manager():
             #     cmLabelText = "User input needed: {}".format(response['payload_type'])
             # self.cmLabel.text = cmLabelText
             # self.cmLabel.configure(text=cmLabelText)
-            self.cmLabel.after(1, self.eval_cap)
-            self.frame_count += 1
+            # self.cmLabel.after(1, self.eval_cap)
 
     def eval_image(self, id=None, shape=None, data=None):
         """
@@ -451,20 +464,30 @@ class webcam_manager():
         return parsed_response
 
     def run(self):
-        self.eval_cap()
-        # self.display_cap()
+        self.display_cap()
 
     def start(self):
         self.shouldPause = False
         self.run()
         self.startButton.configure(state="disabled")
+        self.evalButton.configure(state="disabled")
+        self.pauseButton.configure(state="normal")
 
     def quit(self):
         self.root.quit()
 
     def pause(self):
         self.shouldPause = True
+        self.pauseButton.configure(state="disabled")
         self.startButton.configure(state="normal")
+        self.evalButton.configure(state="normal")
+        ret, frame = self.cap.read()
+        self.frame = frame
+
+    def eval(self):
+        self.shouldEval = True
+        self.pauseButton.configure(state="disabled")
+        self.eval_cap()
 
     def close_camera(self):
         self.cap.release()
