@@ -73,21 +73,24 @@ from collections import Counter
 
 
 class webcam_manager():
-    def __init__(self, stream_url=None, server_url=None):
+    def __init__(self, stream_url=None, server_url=None, server_eval_endpoint=None, server_num_classes_endpoint=None,
+                 num_classes=None):
         # init state
         self.shouldPause = False
         self.shouldHideModelControls = False
         self.frame_count = 0
         self.stream_url = stream_url
         self.server_url = server_url
+        self.server_eval_endpoint = server_eval_endpoint
+        self.server_num_classes_endpoint = server_num_classes_endpoint
         self.font = font = cv2.FONT_HERSHEY_SIMPLEX
         self.width, self.height = 800, 600
         self.classification_buffer = []
         self.classification_buffer_index = 0
         self.classification_buffer_ready = False
         self.unsure_threshold = 0.5
-        self.drone_threshold = 0.65
-        self.payload_threshold = 0.5
+        self.K = 1
+        self.num_classes = num_classes
         self.drone_db = {'phantom': {'freqs': ['5.725 GHz - 5.825 GHz', '922.7 MHz - 927.7 MHz'],
                                      'maxTransmit': '1000m',
                                      'maxSpeed': '16m/s',
@@ -102,7 +105,6 @@ class webcam_manager():
                                     'vulnerabilities': 'Open Wifi Communication'}}
 
         # init UI elements
-        # TODO: use Tkinter's grid layout instead of pack for arrangement/structuring
         self.init_cap()
         self.init_tk_root()
         self.init_tk_frames()
@@ -139,14 +141,13 @@ class webcam_manager():
         self.init_tk_empButton()
         self.init_tk_hackButton()
         self.init_tk_startButton()
-        self.init_tk_stopButton()
+        self.init_tk_quitButton()
         self.init_tk_pauseButton()
         self.init_tk_hideShowMCButton()
 
     def init_tk_scales(self):
         self.init_tk_unsure_thrshld_scale()
-        self.init_tk_drone_thrshld_scale()
-        self.init_tk_payload_thrshld_scale()
+        self.init_k_scale()
 
     def init_tk_lFrame(self):
         self.lFrame = tk.LabelFrame(self.root, relief="ridge", borderwidth=4, background="red", text="Frame",
@@ -202,10 +203,10 @@ class webcam_manager():
                                      command=self.start)
         self.startButton.grid(row=1, column=0, padx=10, pady=10)
 
-    def init_tk_stopButton(self):
-        self.stopButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Stop",
-                                    command=self.stop)
-        self.stopButton.grid(row=1, column=1, padx=10, pady=10)
+    def init_tk_quitButton(self):
+        self.quitButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Quit",
+                                    command=self.quit)
+        self.quitButton.grid(row=1, column=1, padx=10, pady=10)
 
     def init_tk_pauseButton(self):
         self.pauseButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Pause",
@@ -224,26 +225,16 @@ class webcam_manager():
         self.utScale.grid(row=0, column=0, padx=10, pady=10)
         self.utScale.set(self.unsure_threshold)
 
-    def init_tk_drone_thrshld_scale(self):
-        self.dtScale = tk.Scale(self.mcFrame, from_=0, to=1, resolution=0.01, label="DRONE_THRESHOLD",
-                                command=self.dtScaleChanged)
-        self.dtScale.grid(row=0, column=1, padx=10, pady=10)
-        self.dtScale.set(self.drone_threshold)
-
-    def init_tk_payload_thrshld_scale(self):
-        self.ptScale = tk.Scale(self.mcFrame, from_=0, to=1, resolution=0.01, label="PAYLOAD_THRESHOLD",
-                                command=self.ptScaleChanged)
-        self.ptScale.grid(row=0, column=2, padx=10, pady=10)
-        self.ptScale.set(self.payload_threshold)
+    def init_k_scale(self):
+        self.kScale = tk.Scale(self.mcFrame, from_=1, to=self.num_classes, resolution=1, label="K: How Predictions to Return?", command=self.kScaleChanged)
+        self.kScale.grid(row=0, column=1, padx=10, pady=10)
+        self.kScale.set(self.K)
 
     def utScaleChanged(self, event):
         self.unsure_threshold = self.utScale.get()
 
-    def dtScaleChanged(self, event):
-        self.drone_threshold = self.dtScale.get()
-
-    def ptScaleChanged(self, event):
-        self.payload_threshold = self.ptScale.get()
+    def kScaleChanged(self, event):
+        self.K = self.kScale.get()
 
     def hideShowModelControls(self):
         self.shouldHideModelControls = ~self.shouldHideModelControls
@@ -253,7 +244,9 @@ class webcam_manager():
             self.mcFrame.grid()
 
     def display_cap(self):
-        """Summary: Display frames from the camera until q is pressed.
+        """
+        Display frames from the camera until q is pressed.
+        :return: None
         """
         while (True):
             # Capture frame-by-frame
@@ -265,7 +258,10 @@ class webcam_manager():
                 break
 
     def write_cap(self, frame_count=300):
-        """Summary: Record a stream of frasmes (no evaluation)
+        """
+         Record a stream of frames (no evaluation)
+        :param frame_count: number of frames to record
+        :return: None
         """
         for i in xrange(0, frame_count):
             ret, frame = self.cap.read()
@@ -290,8 +286,26 @@ class webcam_manager():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
+    def species_specs(self, drone=""):
+        """
+        Return species specs for species in text block with each line corresponding to key spec
+        :param drone: species db key
+        :return: None
+        """
+        specs = self.drone_db[drone]
+        ret = ""
+        ret += "Communication Frequencies: {}\n".format(specs['freqs'])
+        ret += "Max Controller Distance: {}\n".format(specs['maxTransmit'])
+        ret += "Max Speed: {}\n".format(specs['maxSpeed'])
+        ret += "Max Flight Time: {}\n".format(specs['maxFlightTime'])
+        ret += "Max Payload Weight: {}\n".format(specs['maxPayloadWeight'])
+        ret += "Known Vulnerabilities: {}\n".format(specs['vulnerabilities'])
+        return ret
+
     def eval_cap(self):
-        """Summary: Run and evaluate a stream of frames from the camera.
+        """
+        Run and evaluate a stream of frames from the camera.
+        :return: None
         """
         if not self.shouldPause:
             i = self.frame_count
@@ -301,7 +315,7 @@ class webcam_manager():
 
             frame_counter = str(i)
 
-            retval, buffer = cv2.imencode('.jpg', frame)#[0].tostring()
+            retval, buffer = cv2.imencode('.jpg', frame)
 
             response = self.eval_image(id=i, shape=frame.shape, data=buffer)
 
@@ -317,13 +331,17 @@ class webcam_manager():
             self.imageLabel.imgtk = imgtk
             self.imageLabel.configure(image=imgtk)
 
-            inputsLabelText = "Timestamp: {}\n".format(st)
-            # if response['drone_class']:
-            #     inputsLabelText += "Radar: Geolocation -> {lat: 37.4712310, lon: -122.1324510, elevation: 10m}\n"
-            #     inputsLabelText += "Visual: Type of UAV -> {} Quadcopter\n".format(response['drone_class'])
-            #     inputsLabelText += self.drone_specs(response['drone_class'])
-            # else:
-            #     inputsLabelText += "\nRadar: Geolocation\nVisual: No drone detected"
+            inputsLabelText = "Timestamp: {}\n\n".format(st)
+
+            # write top K classes and scores
+            inputsLabelText += "\nTop {} Classes:\n".format(self.K)
+            for idx, _class in enumerate(response['top_k_classes']):
+                inputsLabelText += "{}: {}\n".format(_class, response['top_k_scores'][idx])
+
+            # write all classes and their average scores
+            inputsLabelText += "\nAverage Scores for All Classes:\n"
+            for idx, average_class in enumerate(response['average_classes']):
+                inputsLabelText += "{}: {}\n".format(average_class, response['average_scores'][idx])
 
             self.inputsLabel.text = inputsLabelText
             self.inputsLabel.configure(text=inputsLabelText)
@@ -344,168 +362,91 @@ class webcam_manager():
             self.cmLabel.after(1, self.eval_cap)
             self.frame_count += 1
 
-    def drone_specs(self, drone=""):
-        """Summary: return drone specs for drone in text block with each line corresponding to key spec
-        """
-        specs = self.drone_db[drone]
-        ret = ""
-        ret += "Communication Frequencies: {}\n".format(specs['freqs'])
-        ret += "Max Controller Distance: {}\n".format(specs['maxTransmit'])
-        ret += "Max Speed: {}\n".format(specs['maxSpeed'])
-        ret += "Max Flight Time: {}\n".format(specs['maxFlightTime'])
-        ret += "Max Payload Weight: {}\n".format(specs['maxPayloadWeight'])
-        ret += "Known Vulnerabilities: {}\n".format(specs['vulnerabilities'])
-        return ret
-
     def eval_image(self, id=None, shape=None, data=None):
-        """Summary: Evaluate a single frame. Sends data to model server api and retrieves resposne.
-
-           TODO: Currently runs about 0.05 seconds round trip. Look for where this could be sped up.
+        """
+        Evaluate a single frame. Sends data to model server api and retrieves response.
+        TODO: Currently runs about 0.05 seconds round trip. Look for where this could be sped up.
+        :param id: id of image
+        :param shape: shape of original image
+        :param data: image pixel values
+        :return: parsed prediction response from server for image
         """
         json_payload = json.dumps({'id': id,
                                    'height': shape[0],
                                    'width': shape[1],
                                    'depth': shape[2],
                                    'image': base64.b64encode(data),
-                                   'K': 5})
+                                   'K': self.K})
 
         print("Sending request - image id: {}".format(id))
         start = time.time()
-        response = requests.post(self.server_url, json=json_payload)
+        response = requests.post(self.server_url + self.server_eval_endpoint, json=json_payload)
         print('request returned {} in {} seconds.'.format(response.status_code, time.time() - start))
-        # print(response.json())
+        print('response:\n{}'.format(response.json()))
 
-        parsed_response = self.parse_response(response.json(), id)
-        print(parsed_response)
+        parsed_response = self.parse_eval_response(response.json(), id)
+        print("parsed response:\n{}".format(parsed_response))
         return parsed_response
 
-    def parse_response(self, response, image_id):
-        """Summary: Takes the json returned from the model api for a evaluated frame and returns
-                classification broken down by drone, payload with confidence, thresholding and
-                smoothing over X frames.
-
+    def parse_eval_response(self, response, id):
         """
-
+        Takes the json returned from the model api for a evaluated frame and returns classification broken down by drone,
+        payload with confidence, thresholding and smoothing over X frames.
+        :param response: json response to parse
+        :param id: id of image
+        :return: dict containing parsed json response
+        """
         # Put threshold on invdividual classifications, if not over the mark, put Unsure, best guess: {} with {}% confidence
         UNSURE_THRESHOLD = self.unsure_threshold
-        DRONE_THRESHOLD = self.drone_threshold
-        PAYLOAD_THRESHOLD = self.payload_threshold
 
+        # number of frame to report average scores
         CLASSIFICATION_BUFFER_LENGTH = 10
 
-        # Parse the evauluation string to get classes and scores.
-        # TODO: Return json from model we can use directly as a dictionary rather than parse.
-        classifications = response['evaluation'].split('|')
-        classifications = [classification.split('(') for classification in classifications]
+        ## parse the response to get classes and scores.
 
-        _classes = [classification[0].strip() for classification in classifications[:-1]]
-        scores = [classification[1].strip() for classification in classifications[:-1]]
-        scores = [float(score[8:-1]) for score in scores]
+        # convert unicode values to str
+        top_k_classes = [str(i) for i in response['top_k_classes']]
+
+        # convert unicode values to float
+        top_k_scores = response['top_k_scores']
+        top_k_scores = [float(i) for i in top_k_scores]
 
         # Turn classes/scores list into dict of class: score
-        class_scores = {_class: scores[index] for index, _class in enumerate(_classes)}
+        class_scores_dict = {_class: top_k_scores[index] for index, _class in enumerate(top_k_classes)}
 
-        # For first ten, don't smooth, just fill buffer, otherwise update the buffer
+        ## compute average class scores
+
+        # for first ten, don't smooth, just fill buffer, otherwise update the buffer
         if self.classification_buffer_ready:
-            self.classification_buffer[self.classification_buffer_index] = class_scores
+            self.classification_buffer[self.classification_buffer_index] = class_scores_dict
             self.classification_buffer_index += 1
         else:
-            self.classification_buffer.append(class_scores)
+            self.classification_buffer.append(class_scores_dict)
             self.classification_buffer_index += 1
             if self.classification_buffer_index >= CLASSIFICATION_BUFFER_LENGTH:
                 self.classification_buffer_ready = True
 
         if self.classification_buffer_index >= CLASSIFICATION_BUFFER_LENGTH:
             self.classification_buffer_index = 0
-        # Compute the average
 
+        # compute the average
+        # initialize the averages to current values in case the buffer isn't ready
+        average_scores_dict = class_scores_dict
         if self.classification_buffer_ready:
             counter_sum = sum((Counter(dict(x)) for x in self.classification_buffer), Counter())
-            class_scores = {key: value / (1.0 * CLASSIFICATION_BUFFER_LENGTH) for key, value in counter_sum.iteritems()}
+            average_scores_dict = {key: value / (1.0 * CLASSIFICATION_BUFFER_LENGTH) for key, value in counter_sum.iteritems()}
 
-        _classes = []
-        scores = []
-        for key, value in class_scores.iteritems():
-            _classes.append(key)
-            scores.append(value)
-
-        phantom_text = ['phantom']
-        phantom_score = 0
-        parrot_text = ['parrot']
-        parrot_score = 0
-        no_drone_text = ['no drone']
-        no_drone_score = 0
-
-        payload_text = ['camera', 'package']
-        payload_score = 0
-        no_payload_text = ['no payload']
-        no_payload_score = 0
-
-        camera_text = ['camera']
-        camera_score = 0
-        unknown_package_text = ['package']
-        unknown_package_score = 0
-
-        for index, _class in enumerate(_classes):
-            if any(text in _class for text in phantom_text):
-                phantom_score += scores[index]
-            if any(text in _class for text in parrot_text):
-                parrot_score += scores[index]
-            if any(text in _class for text in no_drone_text):
-                no_drone_score += scores[index]
-
-            if any(text in _class for text in payload_text):
-                payload_score += scores[index]
-            if any(text in _class for text in no_payload_text):
-                no_payload_score += scores[index]
-
-            if any(text in _class for text in camera_text):
-                camera_score += scores[index]
-            if any(text in _class for text in unknown_package_text):
-                unknown_package_score += scores[index]
-
-        # Pick drone/no drone
-        drone_class = False
-        drone_score = no_drone_score
-        if (phantom_score > DRONE_THRESHOLD):
-            drone_class = 'phantom'
-            drone_score = phantom_score
-        if (parrot_score > DRONE_THRESHOLD):
-            drone_class = 'parrot'
-            drone_score = parrot_score
-
-        if drone_class:
-            if drone_score < UNSURE_THRESHOLD:
-                drone_class = 'unsure, best guess is {}'.format(drone_class)
-
-        # Pick payload/no payload. if no_payload, set score.
-        payload = False
-        if (payload_score > PAYLOAD_THRESHOLD):
-            payload = True
-        if no_payload_score > payload_score:
-            payload = False
-            payload_score = no_payload_score
-
-        # If payload, pick payload type and set score.
-        payload_type = False
-        if payload:
-            if camera_score > unknown_package_score:
-                payload_type = 'camera'
-                payload_score = camera_score
-            else:
-                payload_type = 'unknown package'
-                payload_score = unknown_package_score
-
-        if payload:
-            if payload_score < UNSURE_THRESHOLD:
-                payload_type = 'unsure, best guess is {}'.format(payload_type)
+        average_classes = []
+        average_scores = []
+        for key, value in average_scores_dict.iteritems():
+            average_classes.append(key)
+            average_scores.append(value)
 
         # Create response dict:
-        parsed_response = {'drone_class': drone_class,
-                           'drone_score': drone_score,
-                           'payload': payload,
-                           'payload_score': payload_score,
-                           'payload_type': payload_type}
+        parsed_response = {'top_k_classes': top_k_classes,
+                           'top_k_scores': top_k_scores,
+                           'average_classes': average_classes,
+                           'average_scores': average_scores}
 
         return parsed_response
 
@@ -518,7 +459,7 @@ class webcam_manager():
         self.run()
         self.startButton.configure(state="disabled")
 
-    def stop(self):
+    def quit(self):
         self.root.quit()
 
     def pause(self):
@@ -528,6 +469,21 @@ class webcam_manager():
     def close_camera(self):
         self.cap.release()
         cv2.destroyAllWindows()
+
+
+def get_num_classes(server_url, server_num_classes_endpoint):
+    """
+    Get number of classes that model uses.  Useful for initializing gui elements such as the K slider.
+    :return: num classes
+    """
+    print("Sending request for num_classes: {}".format(id))
+    start = time.time()
+    response = requests.get(server_url + server_num_classes_endpoint)
+    print('request returned {} in {} seconds.'.format(response.status_code, time.time() - start))
+    print('response:\n{}'.format(response.json()))
+
+    num_classes = response.json()['num_classes']
+    return num_classes
 
 
 if __name__ == "__main__":
@@ -541,8 +497,15 @@ if __name__ == "__main__":
     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
     stream_url = config["stream_url"]
     server_url = config["server_url"]
+    server_eval_endpoint = config["server_eval_endpoint"]
+    server_num_classes_endpoint = config["server_num_classes_endpoint"]
     dst_dir = config["destination_directory"]
 
-    cam_manager = webcam_manager(stream_url=stream_url, server_url=server_url)
+    num_classes = get_num_classes(server_url=server_url, server_num_classes_endpoint=server_num_classes_endpoint)
+    cam_manager = webcam_manager(stream_url=stream_url,
+                                 server_url=server_url,
+                                 server_eval_endpoint=server_eval_endpoint,
+                                 server_num_classes_endpoint=server_num_classes_endpoint,
+                                 num_classes=num_classes)
     cam_manager.root.mainloop()
     cam_manager.close_camera()

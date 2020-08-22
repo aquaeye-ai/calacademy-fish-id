@@ -74,6 +74,19 @@ class QuoteResource:
         resp.body = json.dumps(quote)
 
 
+# Resource to provide the number of classes for input scales/sliders on FE gui.
+class NumClassesResource:
+    def init(self, num_classes=None):
+        self.num_classes = num_classes
+
+    def on_get(self, req, resp):
+        """Handles GET requests"""
+        response = {}
+        response['num_classes'] = self.num_classes
+
+        resp.body = json.dumps(response)
+
+
 # Manage evaluation requests.
 class EvalResource(object):
 
@@ -130,18 +143,18 @@ class EvalResource(object):
         class_scores = output_dict[0]
 
         # sort the class_scores
-        top_k_class_scores_idx = np.argsort(class_scores)[-K:]
-        top_k_class_scores_idx = list(reversed(top_k_class_scores_idx))
-        top_k_class_scores = class_scores[top_k_class_scores_idx]
+        top_k_scores_idx = np.argsort(class_scores)[-K:]
+        top_k_scores_idx = list(reversed(top_k_scores_idx))
+        top_k_scores = class_scores[top_k_scores_idx]
 
         ## return the top-k classes and scores to text file
-        class_names = [category_index[i] for i in top_k_class_scores_idx]
+        class_labels = [category_index[i] for i in top_k_scores_idx]
 
         # Create the response message
         response = {}
         response['id'] = id
-        response['top_k_class_names'] = class_names
-        response['top_k_class_scores'] = [str(i) for i in top_k_class_scores]
+        response['top_k_classes'] = class_labels
+        response['top_k_scores'] = [str(i) for i in top_k_scores]
 
         # Return the response message
         resp.body = json.dumps(response)
@@ -154,7 +167,9 @@ app = falcon.API(middleware=[
         JSONTranslator(),
     ])
 eval_resource = EvalResource()
+num_classes_resource = NumClassesResource()
 app.add_route('/eval', eval_resource)
+app.add_route('/num_classes', num_classes_resource)
 app.add_route('/quote', QuoteResource())
 
 
@@ -185,6 +200,8 @@ if __name__ == 'model_server_keras_h5':
         for line in sorted(labels_f):
             category_index[idx] = line.strip()
             idx += 1
+
+    num_classes_resource.init(num_classes=len(category_index.keys()))
 
     print("Loading model server.")
     model = keras.models.load_model(path_to_model_h5)
