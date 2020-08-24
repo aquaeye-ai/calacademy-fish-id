@@ -1,81 +1,24 @@
-import numpy as np
 import os
 import cv2
+import json
 import yaml
-import Tkinter as tk
+import time
+import base64
+import requests
+import datetime
 import Image, ImageTk
 
-
-# if __name__ == "__main__":
-#     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-#     config_dir = os.path.join(os.pardir, 'configs', 'image_classification')
-#     yaml_path = os.path.join(config_dir, 'inference_keras_model_on_livestream.yml')
-#     with open(yaml_path, "r") as stream:
-#         config = yaml.load(stream)
-#
-#     ## collect hyper parameters/args from config
-#     # NOTE: float() is required to parse any exponentials since YAML sends exponentials as strings
-#     stream_url = config["stream_url"]
-#     dst_dir = config["destination_directory"]
-#
-#     ## set up GUI
-#
-#     # window
-#     window = tk.Tk()  #Makes main window
-#     window.title("Reef Lagoon")
-#     window.config(background="#FFFFFF")
-#     window.bind('<Escape>', lambda e: window.quit())
-#
-#     # graphics frame
-#     gf = tk.Frame(window, width=600, height=500)
-#     gf.grid(row=0, column=0, padx=10, pady=2)
-#
-#     # controls frame
-#     cf = tk.Frame(window, width=600, height=100)
-#     cf.grid(row=100, column=0, padx=10, pady=2)
-#
-#     # capture video frames
-#     lmain = tk.Label(gf)
-#     lmain.grid(row=0, column=0)
-#     # cap = cv2.VideoCapture(0)
-#     cap =  cv2.VideoCapture(stream_url)
-#     def show_frame():
-#         _, frame = cap.read()
-#         frame = cv2.flip(frame, 1)
-#         cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-#         cv2image = cv2.resize(cv2image, dsize=(600,500))
-#         img = Image.fromarray(cv2image)
-#         imgtk = ImageTk.PhotoImage(image=img)
-#         lmain.imgtk = imgtk
-#         lmain.configure(image=imgtk)
-#         lmain.after(10, show_frame)
-#
-#     show_frame()  #Display 2
-#     window.mainloop()  #Starts GUI
-
-import numpy as np
-import cv2
-import os
-
-import json, simplejson
-import requests
-import time
-
-import base64
-
 import Tkinter as tk
+
 from PIL import Image, ImageTk
-import datetime
-
 from collections import Counter
-
-# SERVER_URL = 'http://172.17.0.2:8000/eval'
 
 
 class webcam_manager():
     def __init__(self, stream_url=None, server_url=None, server_eval_endpoint=None, server_num_classes_endpoint=None,
                  num_classes=None):
         # init state
+        self.rect = None
         self.shouldPause = False
         self.shouldHideModelControls = False
         self.frame_count = 0
@@ -84,26 +27,54 @@ class webcam_manager():
         self.server_url = server_url
         self.server_eval_endpoint = server_eval_endpoint
         self.server_num_classes_endpoint = server_num_classes_endpoint
-        self.font = font = cv2.FONT_HERSHEY_SIMPLEX
-        self.width, self.height = 800, 600
+        self.font = cv2.FONT_HERSHEY_SIMPLEX
+        self.frame_width, self.frame_height = 1920, 1080 # size of image gathered by camera
+        self.img_reduction_factor = 2 # factor by which to reduce image gathered by camera
+        self.display_width, self.display_height =  float(self.frame_width) / self.img_reduction_factor, float(self.frame_height) / self.img_reduction_factor # reduce 1920x1080 by factor of 2
         self.classification_buffer = []
         self.classification_buffer_index = 0
         self.classification_buffer_ready = False
         self.unsure_threshold = 0.5
         self.K = 1
         self.num_classes = num_classes
-        self.drone_db = {'phantom': {'freqs': ['5.725 GHz - 5.825 GHz', '922.7 MHz - 927.7 MHz'],
-                                     'maxTransmit': '1000m',
-                                     'maxSpeed': '16m/s',
-                                     'maxFlightTime': '25min',
-                                     'maxPayloadWeight': '300g',
-                                     'vulnerabilities': 'GPS Spoofing'},
-                         'parrot': {'freqs': ['2.4 GHz'],
-                                    'maxTransmit': '100m',
-                                    'maxSpeed': '11.1m/s',
-                                    'maxFlightTime': '12min',
-                                    'maxPayloadWeight': '100g',
-                                    'vulnerabilities': 'Open Wifi Communication'}}
+        self.common_names_db = {
+            'stingrays': {
+                'species': ['Rhinoptera javanica', 'Taeniura lymma', 'Himantura uarnak', 'Neotrygon kuhlii'],
+                'status': "Data deficient - Threatened",
+                'diet': "Mollusks, worms, shrimp, clams, crabs, bivalves, gastropods, jellyfish, bony fishes",
+                'reproduction': "Viviparous - Ovoviviparous"
+            },
+            'moonyfishes': {
+                'species': ['Monodactylus argenteus'],
+                'status': "not yet assessed",
+                'diet': "Plankton and detritus",
+                'reproduction': "Broadcast spawners; males and females shed gametes into the water, where fertilization occurs"
+            },
+            'surgeonfishes': {
+                'species': ['Acanthurus triostegus'],
+                'status': "Least Concern",
+                'diet': "Benthic algae",
+                'reproduction': "Oviparous broadcast spawners; found in large groups (up to several hundred) that exhibit mass spawning behavior"
+            },
+            'butterflyfishes': {
+                'species': ['Chelmon rostratus'],
+                'status': "Least concern",
+                'diet': "Benthic invertebrates, which it finds in rock cervices with its elongated snout",
+                'reproduction': "Oviparous"
+            },
+            'pompanos': {
+                'species': ['Trachinotus mookalee'],
+                'status': "Not yet assessed",
+                'diet': "Small fishes and crustaceans",
+                'reproduction': "Broadcast spawners"
+            },
+            'other': {
+                'species': ['NA'],
+                'status': "NA",
+                'diet': "NA",
+                'reproduction': "NA"
+            }
+        }
 
         # init UI elements
         self.init_cap()
@@ -112,17 +83,27 @@ class webcam_manager():
         self.init_tk_labels()
         self.init_tk_buttons()
         self.init_tk_scales()
+        self.init_draw_canvas()
 
     def init_cap(self):
         self.cap = cv2.VideoCapture(self.stream_url)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.display_width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.display_height)
 
     def init_tk_root(self):
         self.root = tk.Tk()
         self.root.title("Reef Lagoon")
         self.root.configure(background='gray')
         self.root.bind('<Escape>', lambda e: self.root.quit())
+
+    def init_draw_canvas(self):
+        self.canvas = tk.Canvas(self.lFrame, cursor="cross")
+        self.canvas.grid(row=0, column=0)
+        self.canvas.config(scrollregion=(0, 0, self.display_width, self.display_height), width=self.display_width, height=self.display_height)
+        self.canvas.bind("<ButtonPress-1>", self.on_mouse_left_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_move_left_button_press)
+        self.canvas.bind("<ButtonRelease-1>", self.on_mouse_left_button_release)
+        self.canvas.grid_remove()
 
     def init_tk_frames(self):
         self.init_tk_lFrame()
@@ -145,6 +126,7 @@ class webcam_manager():
         self.init_tk_quitButton()
         self.init_tk_pauseButton()
         self.init_tk_evalButton()
+        self.init_tk_undoButton()
         self.init_tk_hideShowMCButton()
 
     def init_tk_scales(self):
@@ -165,7 +147,7 @@ class webcam_manager():
         self.inputsFrame.grid(row=0, column=1, padx=10, pady=10)
 
     def init_tk_cmFrame(self):
-        self.cmFrame = tk.LabelFrame(self.root, text="Recommmended Counter Measure", font="bold", labelanchor="n")
+        self.cmFrame = tk.LabelFrame(self.root, text="Recommended Counter Measure", font="bold", labelanchor="n")
         self.cmFrame.grid(row=1, column=1, padx=10, pady=10)
 
     def init_tk_pcFrame(self):
@@ -220,6 +202,11 @@ class webcam_manager():
                                     command=self.eval)
         self.evalButton.grid(row=2, column=0, padx=10, pady=10)
 
+    def init_tk_undoButton(self):
+        self.undoButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Undo",
+                                    command=self.undo)
+        self.undoButton.grid(row=2, column=1, padx=10, pady=10)
+
     def init_tk_hideShowMCButton(self):
         self.hideMCButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2,
                                       text="Hide/Show Model Controls", wraplength=90,
@@ -262,7 +249,7 @@ class webcam_manager():
         if not self.shouldPause:
             frame = cv2.flip(frame, 1)
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-            cv2image = cv2.resize(cv2image, dsize=(self.width, self.height))
+            cv2image = cv2.resize(cv2image, dsize=(int(self.display_width), int(self.display_height)))
 
             img = Image.fromarray(cv2image)
             imgtk = ImageTk.PhotoImage(image=img)
@@ -303,77 +290,61 @@ class webcam_manager():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-    def species_specs(self, drone=""):
-        """
-        Return species specs for species in text block with each line corresponding to key spec
-        :param drone: species db key
-        :return: None
-        """
-        specs = self.drone_db[drone]
-        ret = ""
-        ret += "Communication Frequencies: {}\n".format(specs['freqs'])
-        ret += "Max Controller Distance: {}\n".format(specs['maxTransmit'])
-        ret += "Max Speed: {}\n".format(specs['maxSpeed'])
-        ret += "Max Flight Time: {}\n".format(specs['maxFlightTime'])
-        ret += "Max Payload Weight: {}\n".format(specs['maxPayloadWeight'])
-        ret += "Known Vulnerabilities: {}\n".format(specs['vulnerabilities'])
-        return ret
-
     def eval_cap(self):
         """
         Run and evaluate a stream of frames from the camera.
         :return: None
         """
         if self.shouldEval:
-            frame = self.frame
+            # frame = self.frame
+            frame = cv2.flip(self.frame, 1)
             print("image shape: {}".format(frame.shape))
             print("image dtype: {}".format(frame.dtype))
 
-            retval, buffer = cv2.imencode('.jpg', frame)
+            # scale coordinates of selection to match original 1920x1080 frame instead of downsized frame
+            rect_coords = self.canvas.coords(self.rect)
+            rect_coords_adjusted = tuple([coord * self.img_reduction_factor for coord in rect_coords])
 
-            response = self.eval_image(id=self.frame_count, shape=frame.shape, data=buffer)
+            # cut selection from frame for inferencing on
+            x1 = int(rect_coords_adjusted[0])
+            y1 = int(rect_coords_adjusted[1])
+            x2 = int(rect_coords_adjusted[2])
+            y2 = int(rect_coords_adjusted[3])
+            selection_frame = frame[y1:y2, x1:x2]
+
+            # cv2.imshow('Selection', selection_frame)
+            # cv2.imshow('Frame', frame)
+            # cv2.waitKey(0)
+
+            retval, buffer = cv2.imencode('.jpg', selection_frame)
+
+            response = self.eval_image(id=self.frame_count, shape=selection_frame.shape, data=buffer)
 
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-            frame = cv2.flip(frame, 1)
-            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-            cv2image = cv2.resize(cv2image, dsize=(self.width, self.height))
-
-            img = Image.fromarray(cv2image)
-            imgtk = ImageTk.PhotoImage(image=img)
-
-            self.imageLabel.imgtk = imgtk
-            self.imageLabel.configure(image=imgtk)
 
             inputsLabelText = "Timestamp: {}\n".format(st)
 
             # write top K classes and scores
             inputsLabelText += "\nTop {} Classes:\n".format(self.K)
             for idx, _class in enumerate(response['top_k_classes']):
-                inputsLabelText += "{}: {}\n".format(_class, response['top_k_scores'][idx])
+                inputsLabelText += "{}: {} -> {:.2f}%\n".format(_class, response['top_k_scores'][idx], response['top_k_scores'][idx] * 100)
 
             # write all classes and their average scores
             inputsLabelText += "\nAverage Scores for All Classes:\n"
             for idx, average_class in enumerate(response['average_classes']):
                 inputsLabelText += "{}: {}\n".format(average_class, response['average_scores'][idx])
 
+            # display common grouing info for top prediction
+            top_class = response["top_k_classes"][0]
+            inputsLabelText += "\nFun Facts for species under {}\n".format(top_class)
+            inputsLabelText += "Species: {}\n".format(", ".join(self.common_names_db[top_class]['species']))
+            inputsLabelText += "Status: {}\n".format(self.common_names_db[top_class]['status'])
+            inputsLabelText += "Diet: {}\n".format(self.common_names_db[top_class]['diet'])
+            inputsLabelText += "Reproduction: {}".format(self.common_names_db[top_class]['reproduction'])
+
             self.inputsLabel.text = inputsLabelText
             self.inputsLabel.configure(text=inputsLabelText)
-
-            # if response.json()['evaluation'] == "phantom no payload":
-            # if response['payload'] == False:
-            #     cmLabelText = "No payload -> Risk level low -> wait and observe"
-            # elif response['payload_type'] == 'camera':
-            #     # elif response.json()['evaluation'] == "phantom with camera":
-            #     cmLabelText = "Camera -> Risk level medium -> Jamming, Hacking"
-            # # else:
-            # elif response['payload_type'] == 'unknown package':
-            #     cmLabelText = "Unidentified payload -> Risk level high -> Jamming, EMP, Hacking"
-            # else:
-            #     cmLabelText = "User input needed: {}".format(response['payload_type'])
-            # self.cmLabel.text = cmLabelText
-            # self.cmLabel.configure(text=cmLabelText)
-            # self.cmLabel.after(1, self.eval_cap)
 
     def eval_image(self, id=None, shape=None, data=None):
         """
@@ -467,11 +438,21 @@ class webcam_manager():
         self.display_cap()
 
     def start(self):
+        # show the video feed and hide the canvas
+        self.imageLabel.grid()
+        self.canvas.grid_remove()
+
+        # remove any drawn rects
+        self.canvas.delete(self.rect)
+        self.rect = None
+
         self.shouldPause = False
-        self.run()
         self.startButton.configure(state="disabled")
         self.evalButton.configure(state="disabled")
+        self.undoButton.configure(state="disabled")
         self.pauseButton.configure(state="normal")
+
+        self.run()
 
     def quit(self):
         self.root.quit()
@@ -480,18 +461,60 @@ class webcam_manager():
         self.shouldPause = True
         self.pauseButton.configure(state="disabled")
         self.startButton.configure(state="normal")
-        self.evalButton.configure(state="normal")
+
+        # hide the video feed and show the canvas
+        self.imageLabel.grid_remove()
+        self.canvas.grid()
+
+        # collect the frame for the canvas
         ret, frame = self.cap.read()
         self.frame = frame
+        frame = cv2.flip(self.frame, 1)
+        cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        cv2image = cv2.resize(cv2image, dsize=(int(self.display_width), int(self.display_height)))
+        img = Image.fromarray(cv2image)
+
+        # prevents the newly created image object from being garbage collected...this would otherise lead the canvas to be empty
+        self.img_tk = ImageTk.PhotoImage(image=img)
+        self.canvas.create_image(0, 0, anchor="nw", image=self.img_tk)
+
+        # initialize drawing
+        self.x = self.y = 0
+        self.start_x = self.start_y = None
 
     def eval(self):
         self.shouldEval = True
         self.pauseButton.configure(state="disabled")
         self.eval_cap()
 
+    def undo(self):
+        self.canvas.delete(self.rect)
+        self.rect = None
+
     def close_camera(self):
         self.cap.release()
         cv2.destroyAllWindows()
+
+    def on_mouse_left_button_press(self, event):
+        # only allow to draw/inference one rect at a time
+
+        if self.rect == None:
+            # save mouse drag start position
+            self.start_x = event.x
+            self.start_y = event.y
+
+            # create rectangle if not yet exist
+            self.rect = self.canvas.create_rectangle(self.x, self.y, 1, 1, fill="", outline="#F00", dash=(4, 2))
+
+    def on_mouse_left_button_release(self, event):
+        self.evalButton.configure(state="normal")
+        self.undoButton.configure(state="normal")
+
+    def on_mouse_move_left_button_press(self, event):
+        curX, curY = (event.x, event.y)
+
+        # expand rectangle as you drag the mouse
+        self.canvas.coords(self.rect, self.start_x, self.start_y, curX, curY)
 
 
 def get_num_classes(server_url, server_num_classes_endpoint):
