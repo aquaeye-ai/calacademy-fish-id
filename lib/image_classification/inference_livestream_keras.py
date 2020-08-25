@@ -9,6 +9,7 @@ import datetime
 import Image, ImageTk
 
 import Tkinter as tk
+import lib.file_utils as fu
 
 from PIL import Image, ImageTk
 from collections import Counter
@@ -16,8 +17,9 @@ from collections import Counter
 
 class webcam_manager():
     def __init__(self, stream_url=None, server_url=None, server_eval_endpoint=None, server_num_classes_endpoint=None,
-                 num_classes=None):
+                 num_classes=None, thumbnails_dir=None):
         # init state
+        self.thumbnails_dir = thumbnails_dir
         self.rect = None
         self.hasRect = False
         self.shouldPause = False
@@ -29,6 +31,7 @@ class webcam_manager():
         self.server_eval_endpoint = server_eval_endpoint
         self.server_num_classes_endpoint = server_num_classes_endpoint
         self.font = cv2.FONT_HERSHEY_SIMPLEX
+        self.thumbnail_width, self.thumbnail_height = 100, 100
         self.frame_width, self.frame_height = 1920, 1080 # size of image gathered by camera
         self.img_reduction_factor = 2 # factor by which to reduce image gathered by camera
         self.display_width, self.display_height =  float(self.frame_width) / self.img_reduction_factor, float(self.frame_height) / self.img_reduction_factor # reduce 1920x1080 by factor of 2
@@ -38,7 +41,7 @@ class webcam_manager():
         self.unsure_threshold = 0.5
         self.K = 1
         self.num_classes = num_classes
-        self.common_names_db = {
+        self.common_group_names = {
             'stingrays': {
                 'species': ['Rhinoptera javanica', 'Taeniura lymma', 'Himantura uarnak', 'Neotrygon kuhlii'],
                 'status': "Data deficient - Threatened",
@@ -109,20 +112,17 @@ class webcam_manager():
     def init_tk_frames(self):
         self.init_tk_lFrame()
         self.init_tk_rFrame()
-        self.init_tk_inputsFrame()
-        self.init_tk_cmFrame()
+        self.init_tk_predictionsFrame()
+        self.init_tk_exhibitFrame()
         self.init_tk_pcFrame()
         self.init_tk_mcFrame()
 
     def init_tk_labels(self):
         self.init_tk_imageLabel()
-        self.init_tk_inputsLabel()
-        self.init_tk_cmLabel()
+        self.init_tk_predictionsLabel()
+        self.init_tk_exhibitLabels(db_name="common_group_names")
 
     def init_tk_buttons(self):
-        self.init_tk_jammingButton()
-        self.init_tk_empButton()
-        self.init_tk_hackButton()
         self.init_tk_startButton()
         self.init_tk_quitButton()
         self.init_tk_pauseButton()
@@ -143,13 +143,13 @@ class webcam_manager():
         self.rFrame = tk.Frame(self.root)
         self.rFrame.grid(row=0, column=1, padx=10, pady=10)
 
-    def init_tk_inputsFrame(self):
-        self.inputsFrame = tk.LabelFrame(self.root, text="Prediction", font="bold", labelanchor="n")
-        self.inputsFrame.grid(row=0, column=1, padx=10, pady=10)
+    def init_tk_predictionsFrame(self):
+        self.predictionsFrame = tk.LabelFrame(self.root, text="Predictions", font="bold", labelanchor="n")
+        self.predictionsFrame.grid(row=0, column=1, padx=10, pady=10)
 
-    def init_tk_cmFrame(self):
-        self.cmFrame = tk.LabelFrame(self.root, text="Recommended Counter Measure", font="bold", labelanchor="n")
-        self.cmFrame.grid(row=1, column=1, padx=10, pady=10)
+    def init_tk_exhibitFrame(self):
+        self.exhibitFrame = tk.LabelFrame(self.root, text="In This Exhibit", font="bold", labelanchor="n")
+        self.exhibitFrame.grid(row=1, column=1, padx=10, pady=10)
 
     def init_tk_pcFrame(self):
         self.pcFrame = tk.LabelFrame(self.root, text="Program Controls", font="bold", labelanchor="n")
@@ -163,25 +163,39 @@ class webcam_manager():
         self.imageLabel = tk.Label(self.lFrame, relief="sunken")
         self.imageLabel.grid(row=0, column=0, padx=2, pady=2)
 
-    def init_tk_inputsLabel(self):
-        self.inputsLabel = tk.Label(self.inputsFrame, anchor="w", width=75, justify="left", relief="ridge", borderwidth=2)
-        self.inputsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
+    def init_tk_predictionsLabel(self):
+        self.predictionsLabel = tk.Label(self.predictionsFrame, anchor="w", width=75, justify="left", relief="ridge", borderwidth=2)
+        self.predictionsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
 
-    def init_tk_cmLabel(self):
-        self.cmLabel = tk.Label(self.cmFrame, anchor="w", width=75, justify="left", relief="ridge", borderwidth=2)
-        self.cmLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
+    def init_tk_exhibitLabels(self, db_name=None):
+        thumbnails = fu.find_files(self.thumbnails_dir, extension='.jpg')
+        [thumbnails.append(img) for img in fu.find_files(self.thumbnails_dir, extension='.png')]
+        db = getattr(self, db_name)
+        for idx, name in enumerate(db.keys()):
+            # create frame to hold label so that we can have more visible text
+            setattr(self, "{}Frame".format(name), tk.LabelFrame(self.exhibitFrame, relief="ridge", borderwidth=4,
+                                                                background="gray", text="{}".format(name), font="bold",
+                                                                labelanchor="n"))
+            getattr(self, "{}Frame".format(name)).grid(row=0, column=idx, padx=10, pady=10)
 
-    def init_tk_jammingButton(self):
-        self.jammingButton = tk.Button(self.cmFrame, width=20, relief="raised", borderwidth=2, text="Jam")
-        self.jammingButton.grid(row=1, column=0, padx=10, pady=10)
+            # create label to hold image
+            setattr(self, "{}Label".format(name), tk.Label(getattr(self, "{}Frame".format(name)),
+                                                           anchor="center",
+                                                           width=self.thumbnail_width,
+                                                           justify="left",
+                                                           relief="ridge",
+                                                           borderwidth=10,
+                                                           compound=tk.CENTER,
+                                                           bg="gray") # color of the perimeter
+                    )
+            getattr(self, "{}Label".format(name)).grid(row=0, column=0, padx=2, pady=2)
 
-    def init_tk_empButton(self):
-        self.empButton = tk.Button(self.cmFrame, width=20, relief="raised", borderwidth=2, text="EMP")
-        self.empButton.grid(row=1, column=1, padx=5, pady=10)
-
-    def init_tk_hackButton(self):
-        self.hackButton = tk.Button(self.cmFrame, width=20, relief="raised", borderwidth=2, text="Hack")
-        self.hackButton.grid(row=1, column=2, padx=10, pady=10)
+            # set the appropriate thumbnail for the label
+            for tn in thumbnails:
+                tn_basename = os.path.basename(tn)
+                if name == tn_basename[:-4]:
+                    setattr(self, "{}Label_tn".format(name), ImageTk.PhotoImage(Image.open(tn).resize((self.thumbnail_height, self.thumbnail_width))))
+                    getattr(self, "{}Label".format(name)).configure(image=getattr(self, "{}Label_tn".format(name)))
 
     def init_tk_startButton(self):
         self.startButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Start",
@@ -224,7 +238,7 @@ class webcam_manager():
         self.utScale.set(self.unsure_threshold)
 
     def init_k_scale(self):
-        self.kScale = tk.Scale(self.mcFrame, from_=1, to=self.num_classes, resolution=1, label="K: How Predictions to Return?", command=self.kScaleChanged)
+        self.kScale = tk.Scale(self.mcFrame, from_=1, to=self.num_classes, resolution=1, label="K: How Many Predictions to Return?", command=self.kScaleChanged)
         self.kScale.grid(row=0, column=1, padx=10, pady=10)
         self.kScale.set(self.K)
 
@@ -327,28 +341,35 @@ class webcam_manager():
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-            inputsLabelText = "Timestamp: {}\n".format(st)
+            predictionsLabelText = "Timestamp: {}\n".format(st)
 
             # write top K classes and scores
-            inputsLabelText += "\nTop {} Classes:\n".format(self.K)
+            predictionsLabelText += "\nTop {} Classes:\n".format(self.K)
+            predictionsLabelText += "-----------------------\n"
             for idx, _class in enumerate(response['top_k_classes']):
-                inputsLabelText += "{}: {} -> {:.2f}%\n".format(_class, response['top_k_scores'][idx], response['top_k_scores'][idx] * 100)
+                predictionsLabelText += "{}: {} -> {:.2f}%\n".format(_class, response['top_k_scores'][idx], response['top_k_scores'][idx] * 100)
 
             # write all classes and their average scores
-            inputsLabelText += "\nAverage Scores for All Classes:\n"
+            predictionsLabelText += "\nAverage Scores for All Classes:\n"
+            predictionsLabelText += "-----------------------\n"
             for idx, average_class in enumerate(response['average_classes']):
-                inputsLabelText += "{}: {}\n".format(average_class, response['average_scores'][idx])
+                predictionsLabelText += "{}: {}\n".format(average_class, response['average_scores'][idx])
 
-            # display common grouing info for top prediction
             top_class = response["top_k_classes"][0]
-            inputsLabelText += "\nFun Facts for species under {}\n".format(top_class)
-            inputsLabelText += "Species: {}\n".format(", ".join(self.common_names_db[top_class]['species']))
-            inputsLabelText += "Status: {}\n".format(self.common_names_db[top_class]['status'])
-            inputsLabelText += "Diet: {}\n".format(self.common_names_db[top_class]['diet'])
-            inputsLabelText += "Reproduction: {}".format(self.common_names_db[top_class]['reproduction'])
 
-            self.inputsLabel.text = inputsLabelText
-            self.inputsLabel.configure(text=inputsLabelText)
+            # display common grouping info for top prediction
+            predictionsLabelText += "\nFun Facts for species under {}\n".format(top_class)
+            predictionsLabelText += "-----------------------\n"
+            predictionsLabelText += "Species: {}\n".format(", ".join(self.common_group_names[top_class]['species']))
+            predictionsLabelText += "Status: {}\n".format(self.common_group_names[top_class]['status'])
+            predictionsLabelText += "Diet: {}\n".format(self.common_group_names[top_class]['diet'])
+            predictionsLabelText += "Reproduction: {}".format(self.common_group_names[top_class]['reproduction'])
+
+            # highlight the top prediction's thumbnail
+            getattr(self, "{}Label".format(top_class)).config(bg="green")
+
+            self.predictionsLabel.text = predictionsLabelText
+            self.predictionsLabel.configure(text=predictionsLabelText)
 
     def eval_image(self, id=None, shape=None, data=None):
         """
@@ -442,6 +463,10 @@ class webcam_manager():
         self.display_cap()
 
     def start(self):
+        # unhighlight any previous prediction results
+        for _class in self.common_group_names.keys():
+            getattr(self, "{}Label".format(_class)).config(bg="gray")
+
         # show the video feed and hide the canvas
         self.imageLabel.grid()
         self.canvas.grid_remove()
@@ -493,6 +518,10 @@ class webcam_manager():
         self.eval_cap()
 
     def undo(self):
+        # unhighlight any previous prediction results
+        for _class in self.common_group_names.keys():
+            getattr(self, "{}Label".format(_class)).config(bg="gray")
+
         self.canvas.delete(self.rect)
         self.rect = None
         self.hasRect = False
@@ -553,13 +582,16 @@ if __name__ == "__main__":
     server_url = config["server_url"]
     server_eval_endpoint = config["server_eval_endpoint"]
     server_num_classes_endpoint = config["server_num_classes_endpoint"]
+    thumbnails_dir = config["thumbnails_directory"]
     dst_dir = config["destination_directory"]
 
-    num_classes = get_num_classes(server_url=server_url, server_num_classes_endpoint=server_num_classes_endpoint)
+    num_classes = get_num_classes(server_url=server_url,
+                                  server_num_classes_endpoint=server_num_classes_endpoint)
     cam_manager = webcam_manager(stream_url=stream_url,
                                  server_url=server_url,
                                  server_eval_endpoint=server_eval_endpoint,
                                  server_num_classes_endpoint=server_num_classes_endpoint,
-                                 num_classes=num_classes)
+                                 num_classes=num_classes,
+                                 thumbnails_dir=thumbnails_dir)
     cam_manager.root.mainloop()
     cam_manager.close_camera()
