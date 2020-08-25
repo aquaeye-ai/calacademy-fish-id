@@ -20,6 +20,7 @@ server_eval_endpoint: /eval
 server_num_classes_endpoint: /num_classes
 
 # directory containing thumbnails for exhibit's specimen icons
+# the images should have names matching the classes used in the model
 thumbnails_directory: /home/nightrider/calacademy-fish-id/lib/image_classification/thumbnails/reef_lagoon/common_group_names
 
 # where to store output
