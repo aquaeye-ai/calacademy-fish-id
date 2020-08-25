@@ -19,6 +19,7 @@ class webcam_manager():
                  num_classes=None):
         # init state
         self.rect = None
+        self.hasRect = False
         self.shouldPause = False
         self.shouldHideModelControls = False
         self.frame_count = 0
@@ -143,7 +144,7 @@ class webcam_manager():
         self.rFrame.grid(row=0, column=1, padx=10, pady=10)
 
     def init_tk_inputsFrame(self):
-        self.inputsFrame = tk.LabelFrame(self.root, text="Input", font="bold", labelanchor="n")
+        self.inputsFrame = tk.LabelFrame(self.root, text="Prediction", font="bold", labelanchor="n")
         self.inputsFrame.grid(row=0, column=1, padx=10, pady=10)
 
     def init_tk_cmFrame(self):
@@ -196,16 +197,19 @@ class webcam_manager():
         self.pauseButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Pause",
                                      command=self.pause)
         self.pauseButton.grid(row=1, column=2, padx=10, pady=10)
+        self.pauseButton.configure(state="disabled")
 
     def init_tk_evalButton(self):
-        self.evalButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Predict!",
+        self.evalButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Predict",
                                     command=self.eval)
         self.evalButton.grid(row=2, column=0, padx=10, pady=10)
+        self.evalButton.configure(state="disabled")
 
     def init_tk_undoButton(self):
         self.undoButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2, text="Undo",
                                     command=self.undo)
         self.undoButton.grid(row=2, column=1, padx=10, pady=10)
+        self.undoButton.configure(state="disabled")
 
     def init_tk_hideShowMCButton(self):
         self.hideMCButton = tk.Button(self.pcFrame, width=13, relief="raised", borderwidth=2,
@@ -445,6 +449,7 @@ class webcam_manager():
         # remove any drawn rects
         self.canvas.delete(self.rect)
         self.rect = None
+        self.hasRect = False
 
         self.shouldPause = False
         self.startButton.configure(state="disabled")
@@ -490,6 +495,7 @@ class webcam_manager():
     def undo(self):
         self.canvas.delete(self.rect)
         self.rect = None
+        self.hasRect = False
 
     def close_camera(self):
         self.cap.release()
@@ -497,8 +503,7 @@ class webcam_manager():
 
     def on_mouse_left_button_press(self, event):
         # only allow to draw/inference one rect at a time
-
-        if self.rect == None:
+        if self.hasRect == False:
             # save mouse drag start position
             self.start_x = event.x
             self.start_y = event.y
@@ -509,12 +514,15 @@ class webcam_manager():
     def on_mouse_left_button_release(self, event):
         self.evalButton.configure(state="normal")
         self.undoButton.configure(state="normal")
+        self.hasRect = True
 
     def on_mouse_move_left_button_press(self, event):
-        curX, curY = (event.x, event.y)
+        # only allow to draw/inference one rect at a time
+        if self.hasRect == False:
+            curX, curY = (event.x, event.y)
 
-        # expand rectangle as you drag the mouse
-        self.canvas.coords(self.rect, self.start_x, self.start_y, curX, curY)
+            # expand rectangle as you drag the mouse
+            self.canvas.coords(self.rect, self.start_x, self.start_y, curX, curY)
 
 
 def get_num_classes(server_url, server_num_classes_endpoint):
