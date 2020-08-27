@@ -20,7 +20,7 @@ import shutil
 import numpy as np
 import file_utils as fu
 
-BASE_DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_obj_det/master/stingray"
+BASE_DIRECTORY = "/home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/stills/full/temp/scraped/stingray"
 SOURCE_DIRECTORY = os.path.join(BASE_DIRECTORY, "images")
 POTENTIAL_DUPLICATES_DIRECTORY = os.path.join(BASE_DIRECTORY, "potential_duplicates")
 AUTO_REMOVE = 0
