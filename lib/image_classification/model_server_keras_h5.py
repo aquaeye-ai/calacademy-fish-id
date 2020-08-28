@@ -1,3 +1,9 @@
+"""
+Script that runs server that serves requests for inference_livestream_keras.py
+Should be ran within same directory as script with following command from a terminal: gunicorn model_server_keras_h5:app
+"""
+
+
 import os
 import cv2
 import yaml
