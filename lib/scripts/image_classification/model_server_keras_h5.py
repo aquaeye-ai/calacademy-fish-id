@@ -181,7 +181,7 @@ app.add_route('/quote', QuoteResource())
 
 if __name__ == 'model_server_keras_h5':
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.curdir, '..', 'configs', 'image_classification')
+    config_dir = os.path.join('..', '..', 'configs', 'image_classification')
     yaml_path = os.path.join(config_dir, 'model_server_keras_h5.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
