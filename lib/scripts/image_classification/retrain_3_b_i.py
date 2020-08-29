@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-import lib.file_utils as fu
+import lib.scripts.file_utils as fu
 
 
 MOBILENET_V1 = 'mobilenet_v1'
@@ -22,7 +22,7 @@ MOBILENET_V2 = 'mobilenet_v2'
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.curdir, '..', 'configs', 'image_classification')
+    config_dir = os.path.join('..', '..', 'configs', 'image_classification')
     yaml_path = os.path.join(config_dir, 'retrain_3_b_i.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
