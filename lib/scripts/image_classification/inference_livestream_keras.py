@@ -9,7 +9,7 @@ import datetime
 import Image, ImageTk
 
 import Tkinter as tk
-import lib.file_utils as fu
+import lib.scripts.file_utils as fu
 
 from PIL import Image, ImageTk
 from collections import Counter
@@ -571,7 +571,7 @@ def get_num_classes(server_url, server_num_classes_endpoint):
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.pardir, 'configs', 'image_classification')
+    config_dir = os.path.join('..', '..', '', 'configs', 'image_classification')
     yaml_path = os.path.join(config_dir, 'inference_livestream_keras.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)

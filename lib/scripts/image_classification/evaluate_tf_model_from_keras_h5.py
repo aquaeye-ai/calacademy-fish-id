@@ -26,9 +26,9 @@ import tarfile
 import cv2 as cv2
 import numpy as np
 import tensorflow as tf
-import lib.file_utils as fu
+import lib.scripts.file_utils as fu
 import six.moves.urllib as urllib
-import lib.log_utils as log_utils
+import lib.scripts.log_utils as log_utils
 
 from tensorflow import keras
 print("TensorFlow version is ", tf.__version__)
@@ -102,7 +102,7 @@ def predict_images_whole(test_image_paths=None, category_index=None, K=None, mod
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.curdir, '..', 'configs', 'image_classification')
+    config_dir = os.path.join('..', '..', 'configs', 'image_classification')
     yaml_path = os.path.join(config_dir, 'evaluate_tf_model_from_keras_h5.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
