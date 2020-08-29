@@ -285,7 +285,7 @@ def generate_training_split_stats(directory=None, split=None):
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.pardir, 'configs', 'image_classification')
+    config_dir = os.path.join('..', '..', 'configs',  'image_classification')
     yaml_path = os.path.join(config_dir, 'data_stats.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)

@@ -16,8 +16,8 @@ import numpy as np
 import pandas as pd
 
 # personal libs
-import lib.globals as globals
-import lib.log_utils as log_utils
+import lib.scripts.globals as globals
+import lib.scripts.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
@@ -251,7 +251,7 @@ def zip_prediction_patches_and_train_masks(prediction_tuples=None, hdf5_db=None)
     :return:                    new list of prediction tuples: (file-name, prediction-2D-array, original-image,
                                 training-mask-2D-array)
     """
-    from lib.data_utils import hdf5_db_sequential_generator # to avoid circular imports
+    from lib.scripts.data_utils import hdf5_db_sequential_generator # to avoid circular imports
 
     logger.info('zipping prediction tuples and training masks...')
     new_prediction_tuples = []
@@ -524,7 +524,7 @@ def init_directory(directory=None, use_logger=False):
 
 
 def prune_outputs_directories():
-    import lib.globals as globals
+    import lib.scripts.globals as globals
     import shutil
 
     keep_directories = []
