@@ -1,0 +1,40 @@
+#######################
+# CONFIG for image_classification/build_pcr_data_splits.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to directory containing profile images
+directory_profiles: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/profiles
+
+# path to directory containing backgrounds which profiles will be pasted onto
+directory_backgrounds: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
+
+# path to directory to hold synthetically created data
+directory_output: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/9_2_2020/1
+
+# number of images to produce per class
+num_images: 10
+
+# preprocessing to use on profiles before pasting them onto the background images
+profile_preprocessing:
+  horizontal_flip: 1
+  vertical_flip: 0
+  rotation_range:
+    - 0
+    - 90
+  brightness_range:
+    - 0.7
+    - 1.3
+
+# preprocessing to use on backgrounds before pasting profiles onto them
+background_preprocessing:
+  horizontal_flip: 1
+  rotation_range:
+    - 0
+    - 30
+  brightness_range:
+    - 0.7
+    - 1.3
