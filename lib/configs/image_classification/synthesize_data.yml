@@ -24,7 +24,7 @@ profile_preprocessing:
   vertical_flip: 0
   rotation_range:
     - 0
-    - 90
+    - 45
   brightness_range:
     - 0.7
     - 1.3

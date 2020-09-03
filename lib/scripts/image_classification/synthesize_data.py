@@ -3,6 +3,7 @@ import cv2
 import yaml
 import random
 
+import numpy as np
 import lib.scripts.file_utils as fu
 
 from tensorflow import keras
@@ -59,12 +60,36 @@ if __name__ == "__main__":
                 print('here')
                 img_profile = cv2.flip(img_profile, 0)
 
-            # cv2.imshow('vertically flipped profile', img_profile)
-            # cv2.waitKey(0)
+            cv2.imshow('vertically flipped profile', img_profile)
+            cv2.waitKey(0)
 
             # rotation
-            rot_angle = random.uniform(profile_preprocessing['rotation_range'][0], profile_preprocessing['rotation_range'][1])
-            img_profile = cv2.rotate(img_profile, int(rot_angle))
 
-            cv2.imshow('preprocessed profile', img_profile)
+            # grab image center
+            h, w = img_profile.shape[:2]
+            cX, cY = (w // 2, h // 2)
+
+            # generate random angle
+            rot_angle = random.uniform(profile_preprocessing['rotation_range'][0],
+                                       profile_preprocessing['rotation_range'][1])
+
+            # grab the rotation matrix (applying the negative of the
+            # angle to rotate clockwise), then grab the sine and cosine
+            # (i.e., the rotation components of the matrix)
+            M = cv2.getRotationMatrix2D((cX, cY), -rot_angle, 1.0)
+            cos = np.abs(M[0, 0])
+            sin = np.abs(M[0, 1])
+
+            # compute the new bounding dimensions of the image
+            nW = int((h * sin) + (w * cos))
+            nH = int((h * cos) + (w * sin))
+
+            # adjust the rotation matrix to take into account translation
+            M[0, 2] += (nW / 2) - cX
+            M[1, 2] += (nH / 2) - cY
+
+            # perform rotation
+            img_profile = cv2.cv2.warpAffine(img_profile, M, (nW, nH))
+
+            cv2.imshow('rotated profile', img_profile)
             cv2.waitKey(0)
