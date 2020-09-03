@@ -6,8 +6,6 @@ import random
 import numpy as np
 import lib.scripts.file_utils as fu
 
-from tensorflow import keras
-
 
 def preprocess_image(image_np=None, preprocessing_dict=None):
     """
@@ -76,6 +74,16 @@ def rotate_image(image_np=None, angle=None):
     return image_np
 
 def combine_profile_and_mask(img_profile=None, img_background=None):
+    """
+    Randomly selects a crop of a background image.  Then selects a random margin to give the crop so that the crop will
+    fit a profile image with some margin.  Then combines the profile and background crop together using alpha channel
+    that should be present within the profile image.  Works best if profile image is a png.
+
+    :param img_profile: np array, image of profile to paste onto background crop, should have a fourth channel corresponding
+    to alpha
+    :param img_background: np array, image of background from which to randomly select crop
+    :return: np array, final image of profile pasted onto a crop of background (does not contain an alpha channel)
+    """
     # generate random margin to give profile as percentage of its height/width
     h_profile, w_profile = img_profile.shape[:2]
     rand_margin_percent = random.uniform(margin_range[0], margin_range[1])
