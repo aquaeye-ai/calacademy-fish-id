@@ -18,10 +18,18 @@ directory_output: /home/nightrider/calacademy-fish-id/datasets/image_classificat
 # number of images to produce per class
 num_images: 10
 
+# range of margin (measured in percentage of height/width of profile) from which to randomly choose margin to give
+# height/width of each profile when pasting onto background (so that the profile doesn't take up the entire final image)
+margin_range:
+  - 0
+  - 20
+
+## NOTE: profile_preprocessing and background_processing dicts should contain the same set of keys
+
 # preprocessing to use on profiles before pasting them onto the background images
 profile_preprocessing:
-  horizontal_flip: 1
-  vertical_flip: 0
+  horizontal_flip: 1 # whether to randomly flip horizontally
+  vertical_flip: 0 # whether to randomly flip vertically
   rotation_range:
     - 0
     - 45
@@ -32,9 +40,10 @@ profile_preprocessing:
 # preprocessing to use on backgrounds before pasting profiles onto them
 background_preprocessing:
   horizontal_flip: 1
+  vertical_flip: 0
   rotation_range:
     - 0
-    - 30
+    - 0
   brightness_range:
     - 0.7
     - 1.3
