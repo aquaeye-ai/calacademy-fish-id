@@ -186,7 +186,7 @@ def combine_profile_and_mask(img_profile=None, img_background=None):
     # cv2.waitKey(0)
 
     # multiply the profile with alpha matte
-    img_profile = cv2.multiply(alpha, img_profile_resized)
+    img_profile_resized = cv2.multiply(alpha, img_profile_resized)
 
     # multiply the background with (1 - alpha)
     crop = cv2.multiply(np.subtract(1, alpha), crop)
@@ -195,7 +195,7 @@ def combine_profile_and_mask(img_profile=None, img_background=None):
 
     # we must first make the profile the same dimensions as the crop (crop is larger than the profile)
     res = cv2.add(img_profile_resized, crop)
-    res = res / 255
+    res = res.astype(np.uint8)
 
     return res
 
@@ -255,5 +255,9 @@ if __name__ == "__main__":
 
             # paste profile onto background
             res = combine_profile_and_mask(img_profile=img_profile, img_background=img_background)
-            cv2.imshow('res', res)
-            cv2.waitKey(0)
+            # cv2.imshow('res', res)
+            # cv2.waitKey(0)
+
+            # save image to class directory
+            out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(i))
+            cv2.imwrite(out_path, res)
