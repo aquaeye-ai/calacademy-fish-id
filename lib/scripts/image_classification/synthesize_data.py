@@ -86,11 +86,19 @@ def combine_profile_and_mask(img_profile=None, img_background=None):
     """
     # generate random margin to give profile as percentage of its height/width
     h_profile, w_profile = img_profile.shape[:2]
+    h_background, w_background = img_background.shape[0:2]
     rand_margin_percent = random.uniform(margin_range[0], margin_range[1])
 
     # convert the margin from percentage to pixel value for height/width dimensions
-    rand_margin_pixel_h = int((rand_margin_percent / 100) * h_profile)
-    rand_margin_pixel_w = int((rand_margin_percent / 100) * w_profile)
+
+    # find the maximum margin we can use
+    max_allowable_margin_pixel_h = h_background - h_profile
+    max_allowable_margin_pixel_w = w_background - w_profile
+
+    # we need to take a min of our chosen margin and max margin so that the margin doesn't make the new profile larger
+    # than the dimensions of the background
+    rand_margin_pixel_h = min([int((rand_margin_percent / 100) * h_profile), max_allowable_margin_pixel_h])
+    rand_margin_pixel_w = min([int((rand_margin_percent / 100) * w_profile), max_allowable_margin_pixel_w])
 
     # gather new height/width based on margin to give profile
     h_profile_new = h_profile + rand_margin_pixel_h
@@ -98,7 +106,6 @@ def combine_profile_and_mask(img_profile=None, img_background=None):
 
     # determine allowable range in height/width, relative to center of background image, to randomly
     # choose crop from the background image
-    h_background, w_background = img_background.shape[0:2]
     h_diff = h_background - h_profile_new
     w_diff = w_background - w_profile_new
     cX_range_offset, cY_range_offset = (w_diff // 2, h_diff // 2)

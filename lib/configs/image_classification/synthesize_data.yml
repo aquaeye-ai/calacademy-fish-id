@@ -16,7 +16,7 @@ directory_backgrounds: /home/nightrider/calacademy-fish-id/datasets/image_classi
 directory_output: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/9_3_2020/1
 
 # number of images to produce per class
-num_images: 200
+num_images: 100
 
 # range of margin (measured in percentage of height/width of profile) from which to randomly choose margin to give
 # height/width of each profile when pasting onto background (so that the profile doesn't take up the entire final image)
