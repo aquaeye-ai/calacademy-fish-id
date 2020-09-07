@@ -37,6 +37,25 @@ def preprocess_image(image_np=None, preprocessing_dict=None):
                            preprocessing_dict['rotation_range'][1])
     image_np = rotate_image(image_np=image_np, angle=angle)
 
+    # cv2.imshow('rotated', image_np)
+    # cv2.waitKey(0)
+
+    # brightness and contrast
+
+    brightness = random.uniform(preprocessing_dict['brightness_range'][0],
+                                preprocessing_dict['brightness_range'][1])
+    contrast = random.uniform(preprocessing_dict['contrast_range'][0],
+                              preprocessing_dict['contrast_range'][1])
+
+    # apply brightness and contrast according to: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
+    for y in range(image_np.shape[0]):
+        for x in range(image_np.shape[1]):
+            for c in range(image_np.shape[2]):
+                image_np[y, x, c] = np.clip(contrast * image_np[y, x, c] + brightness, 0, 255)
+
+    # cv2.imshow('brightness + contrast', image_np)
+    # cv2.waitKey(0)
+
     return image_np
 
 def rotate_image(image_np=None, angle=None):
