@@ -48,6 +48,7 @@ def preprocess_image(image_np=None, preprocessing_dict=None):
                               preprocessing_dict['contrast_range'][1])
 
     # apply brightness and contrast according to: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
+    # NOTE: this is slow
     for y in range(image_np.shape[0]):
         for x in range(image_np.shape[1]):
             for c in range(image_np.shape[2]):
@@ -92,7 +93,7 @@ def rotate_image(image_np=None, angle=None):
 
     return image_np
 
-def combine_profile_and_mask(img_profile=None, img_background=None):
+def combine_profile_and_mask(img_profile=None, img_background=None, background_preprocessing_dict=None):
     """
     Randomly selects a crop of a background image.  Then selects a random margin to give the crop so that the crop will
     fit a profile image with some margin.  Then combines the profile and background crop together using alpha channel
@@ -161,6 +162,10 @@ def combine_profile_and_mask(img_profile=None, img_background=None):
     crop = img_background[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
     # cv2.imshow('random_background_crop', crop)
     # cv2.waitKey(0)
+
+    # preprocess background crop
+    # we preprocess only the crop and not the entire background because otherwise the preprocessing is too slow
+    crop = preprocess_image(image_np=crop, preprocessing_dict=background_preprocessing_dict)
 
     ## paste profile onto background crop using alpha blending as described here: https://www.learnopencv.com/alpha-blending-using-opencv-cpp-python/
 
@@ -274,13 +279,14 @@ if __name__ == "__main__":
 
             # apply preprocessing to profile and background images
             img_profile = preprocess_image(image_np=img_profile, preprocessing_dict=profile_preprocessing)
-            img_background = preprocess_image(image_np=img_background, preprocessing_dict=background_preprocessing)
 
             # cv2.imshow('preprocessed background', img_background)
             # cv2.waitKey(0)
 
             # paste profile onto background
-            res = combine_profile_and_mask(img_profile=img_profile, img_background=img_background)
+            res = combine_profile_and_mask(img_profile=img_profile,
+                                           img_background=img_background,
+                                           background_preprocessing_dict=background_preprocessing)
             # cv2.imshow('res', res)
             # cv2.waitKey(0)
 

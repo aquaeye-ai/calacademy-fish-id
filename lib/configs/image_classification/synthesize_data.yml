@@ -13,7 +13,7 @@ directory_profiles: /home/nightrider/calacademy-fish-id/datasets/image_classific
 directory_backgrounds: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
 
 # path to directory to hold synthetically created data
-directory_output: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/9_3_2020/1
+directory_output: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/9_7_2020/1
 
 # number of images to produce per class
 num_images: 100
@@ -33,12 +33,12 @@ profile_preprocessing:
   rotation_range:
     - 0
     - 45
-  brightness_range: # beta parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, constant value to add to each pixel
-    - -50
-    - 50
+  brightness_range: # beta parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, constant value to add to each pixel (pixel in range 0-255)
+    - -100
+    - 100
   contrast_range: # alpha parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, factor to multiply against each pixel
-    - 0.5
-    - 1.5
+    - 0.25
+    - 1.75
 
 # preprocessing to use on backgrounds before pasting profiles onto them
 background_preprocessing:
@@ -48,8 +48,8 @@ background_preprocessing:
     - 0
     - 0
   brightness_range:
-    - -50
-    - 50
+    - -100
+    - 100
   contrast_range:
-    - 0.5
-    - 1.5
+    - 0.25
+    - 1.75
