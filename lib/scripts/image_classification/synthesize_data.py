@@ -92,6 +92,8 @@ def preprocess_image(image_np=None, preprocessing_dict=None):
     ## rotation
 
     # rotate after shear since we noticed that otherwise, many of the fish profiles seem slanted in the same direction
+    # NOTE: it may be possible to combine rotation with shear matrix as described here: https://stackoverflow.com/questions/44425701/shear-an-image-without-cropping
+    # however, we don't combine here to maintain clarity of code
     if preprocessing_dict['rotation']['apply'] > 0:
         # generate random angle
         angle = random.uniform(preprocessing_dict['rotation']['rotation_range'][0],
