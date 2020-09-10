@@ -30,26 +30,48 @@ margin_range:
 profile_preprocessing:
   horizontal_flip: 1 # whether to randomly flip horizontally
   vertical_flip: 0 # whether to randomly flip vertically
-  rotation_range:
-    - 0
-    - 45
-  brightness_range: # beta parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, constant value to add to each pixel (pixel in range 0-255)
-    - -100
-    - 100
-  contrast_range: # alpha parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, factor to multiply against each pixel
-    - 0.25
-    - 1.75
+  rotation:
+    apply: 1
+    rotation_range:
+      - 0
+      - 45
+  brightness:
+    apply: 1
+    brightness_range: # beta parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, constant value to add to each pixel (pixel in range 0-255)
+      - -20
+      - 20
+  contrast:
+    apply: 1
+    contrast_range: # alpha parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, factor to multiply against each pixel
+      - 0.9
+      - 1.1
+  shear:
+    apply: 1
+    shear_range:
+      - 0.1
+      - 0.5
 
 # preprocessing to use on backgrounds before pasting profiles onto them
 background_preprocessing:
   horizontal_flip: 1
   vertical_flip: 0
-  rotation_range:
-    - 0
-    - 0
-  brightness_range:
-    - -100
-    - 100
-  contrast_range:
-    - 0.25
-    - 1.75
+  rotation:
+    apply: 1
+    rotation_range:
+      - 0
+      - 0
+  brightness:
+    apply: 1
+    brightness_range:
+      - -20
+      - 20
+  contrast:
+    apply: 1
+    contrast_range:
+      - 0.9
+      - 1.1
+  shear:
+    apply: 0
+    shear_range:
+      - 0
+      - 0

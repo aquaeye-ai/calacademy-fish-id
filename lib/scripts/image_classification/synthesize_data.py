@@ -6,6 +6,8 @@ import random
 import numpy as np
 import lib.scripts.file_utils as fu
 
+from skimage import transform as sk_tf
+
 
 def preprocess_image(image_np=None, preprocessing_dict=None):
     """
@@ -15,7 +17,7 @@ def preprocess_image(image_np=None, preprocessing_dict=None):
     :param preprocessing_dict: dictionary, preprocessing to apply
     :return: np arrary, preprocessed image
     """
-    # horizontal and vertical flip
+    ## horizontal and vertical flip
     if preprocessing_dict['horizontal_flip'] > 0:
         if random.random() > 0.5:
             image_np = cv2.flip(image_np, 1)
@@ -30,31 +32,73 @@ def preprocess_image(image_np=None, preprocessing_dict=None):
     # cv2.imshow('vertically flipped', image_np)
     # cv2.waitKey(0)
 
-    ## rotation
+    ## brightness and contrast
 
-    # generate random angle
-    angle = random.uniform(preprocessing_dict['rotation_range'][0],
-                           preprocessing_dict['rotation_range'][1])
-    image_np = rotate_image(image_np=image_np, angle=angle)
-
-    # cv2.imshow('rotated', image_np)
-    # cv2.waitKey(0)
-
-    # brightness and contrast
-
-    brightness = random.uniform(preprocessing_dict['brightness_range'][0],
-                                preprocessing_dict['brightness_range'][1])
-    contrast = random.uniform(preprocessing_dict['contrast_range'][0],
-                              preprocessing_dict['contrast_range'][1])
+    brightness = 0
+    if preprocessing_dict['brightness']['apply'] > 0:
+        brightness = random.uniform(preprocessing_dict['brightness']['brightness_range'][0],
+                                    preprocessing_dict['brightness']['brightness_range'][1])
+    contrast = 1
+    if preprocessing_dict['contrast']['apply'] > 0:
+        contrast = random.uniform(preprocessing_dict['contrast']['contrast_range'][0],
+                                  preprocessing_dict['contrast']['contrast_range'][1])
 
     # apply brightness and contrast according to: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
     # NOTE: this is slow
-    for y in range(image_np.shape[0]):
-        for x in range(image_np.shape[1]):
-            for c in range(image_np.shape[2]):
-                image_np[y, x, c] = np.clip(contrast * image_np[y, x, c] + brightness, 0, 255)
+    if preprocessing_dict['brightness']['apply'] > 0 or preprocessing_dict['contrast']['apply'] > 0:
+        for y in range(image_np.shape[0]):
+            for x in range(image_np.shape[1]):
+                for c in range(image_np.shape[2] - 1): # don't overwrite the alpha channel, so only modify RGB channels
+                    image_np[y, x, c] = np.clip(contrast * image_np[y, x, c] + brightness, 0, 255)
 
     # cv2.imshow('brightness + contrast', image_np)
+    # cv2.waitKey(0)
+
+    ## shear
+
+    if preprocessing_dict['shear']['apply'] > 0:
+        h, w = image_np.shape[:2]
+
+        # choose random shear for x and y
+        shear_x = random.uniform(preprocessing_dict['shear']['shear_range'][0],
+                                 preprocessing_dict['shear']['shear_range'][1])
+        shear_y = random.uniform(preprocessing_dict['shear']['shear_range'][0],
+                                 preprocessing_dict['shear']['shear_range'][1])
+
+        new_cols = shear_x * w
+        new_rows = shear_y * h
+
+        up_down = abs(int((new_rows - h)/2))
+        left_right = abs(int((new_cols - w)/2))
+
+        image_np = cv2.copyMakeBorder(image_np, up_down, up_down, left_right, left_right, cv2.BORDER_CONSTANT, value=(255, 255, 255, 0))
+        rows, cols, ch = image_np.shape
+
+        # only x shear
+        # translat_center_x = -(shear * cols) / 2
+        # translat_center_y = 0 #-(shear * rows) / 2
+        # M = np.float64([[1, shear, translation + translat_center_x], [0, 1, translation + translat_center_y]])
+
+        # both x and y shear
+        translat_center_x = -(shear_x * cols) / 8 # it's not understood why 8 is needed here...seems like it has something to do with shear factor
+        translat_center_y = -(shear_y * rows) / 8
+
+        M = np.float64([[1, shear_y, translat_center_x], [shear_x, 1, translat_center_y]])
+        image_np = cv2.warpAffine(image_np, M, (cols, rows), borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255, 0))
+
+        # cv2.imshow('shear', image_np)
+        # cv2.waitKey(0)
+
+    ## rotation
+
+    # rotate after shear since we noticed that otherwise, many of the fish profiles seem slanted in the same direction
+    if preprocessing_dict['rotation']['apply'] > 0:
+        # generate random angle
+        angle = random.uniform(preprocessing_dict['rotation']['rotation_range'][0],
+                               preprocessing_dict['rotation']['rotation_range'][1])
+        image_np = rotate_image(image_np=image_np, angle=angle)
+
+    # cv2.imshow('rotated', image_np)
     # cv2.waitKey(0)
 
     return image_np
@@ -102,131 +146,136 @@ def combine_profile_and_mask(img_profile=None, img_background=None, background_p
     :param img_profile: np array, image of profile to paste onto background crop, should have a fourth channel corresponding
     to alpha
     :param img_background: np array, image of background from which to randomly select crop
-    :return: np array, final image of profile pasted onto a crop of background (does not contain an alpha channel)
+    :return: np array, final image of profile pasted onto a crop of background (does not contain an alpha channel) or
+    None if profile/background combination were incompatible due to size differences
     """
     # generate random margin to give profile as percentage of its height/width
     h_profile, w_profile = img_profile.shape[:2]
     h_background, w_background = img_background.shape[0:2]
-    rand_margin_percent = random.uniform(margin_range[0], margin_range[1])
 
-    # convert the margin from percentage to pixel value for height/width dimensions
+    # check to make sure profile will fit into background
+    # if it does then continue, otherwise skip
+    res = None
+    if h_profile <= h_background and w_profile <= w_background:
+        rand_margin_percent = random.uniform(margin_range[0], margin_range[1])
 
-    # find the maximum margin we can use
-    max_allowable_margin_pixel_h = h_background - h_profile
-    max_allowable_margin_pixel_w = w_background - w_profile
+        # convert the margin from percentage to pixel value for height/width dimensions
 
-    # we need to take a min of our chosen margin and max margin so that the margin doesn't make the new profile larger
-    # than the dimensions of the background
-    rand_margin_pixel_h = min([int((rand_margin_percent / 100) * h_profile), max_allowable_margin_pixel_h])
-    rand_margin_pixel_w = min([int((rand_margin_percent / 100) * w_profile), max_allowable_margin_pixel_w])
+        # find the maximum margin we can use
+        max_allowable_margin_pixel_h = h_background - h_profile
+        max_allowable_margin_pixel_w = w_background - w_profile
 
-    # gather new height/width based on margin to give profile
-    h_profile_new = h_profile + rand_margin_pixel_h
-    w_profile_new = w_profile + rand_margin_pixel_w
+        # we need to take a min of our chosen margin and max margin so that the margin doesn't make the new profile larger
+        # than the dimensions of the background
+        rand_margin_pixel_h = min([int((rand_margin_percent / 100) * h_profile), max_allowable_margin_pixel_h])
+        rand_margin_pixel_w = min([int((rand_margin_percent / 100) * w_profile), max_allowable_margin_pixel_w])
 
-    # determine allowable range in height/width, relative to center of background image, to randomly
-    # choose crop from the background image
-    h_diff = h_background - h_profile_new
-    w_diff = w_background - w_profile_new
-    cX_range_offset, cY_range_offset = (w_diff // 2, h_diff // 2)
+        # gather new height/width based on margin to give profile
+        h_profile_new = h_profile + rand_margin_pixel_h
+        w_profile_new = w_profile + rand_margin_pixel_w
 
-    # choose random center for crop
-    cX_rand_relative, cY_rand_relative = (
-    int(random.uniform(-cX_range_offset, cX_range_offset)), int(random.uniform(-cY_range_offset, cY_range_offset)))
+        # determine allowable range in height/width, relative to center of background image, to randomly
+        # choose crop from the background image
+        h_diff = h_background - h_profile_new
+        w_diff = w_background - w_profile_new
+        cX_range_offset, cY_range_offset = (w_diff // 2, h_diff // 2)
 
-    # convert the chosen center to pixel values relative to the height/width of the background image
-    cX_background, cY_background = (w_background // 2, h_background // 2)
-    cX_rand_absolute, cY_rand_absolute = (cX_background + cX_rand_relative, cY_background + cY_rand_relative)
+        # choose random center for crop
+        cX_rand_relative, cY_rand_relative = (
+        int(random.uniform(-cX_range_offset, cX_range_offset)), int(random.uniform(-cY_range_offset, cY_range_offset)))
 
-    h_crop_start = cY_rand_absolute - (h_profile_new // 2)
-    h_crop_end = cY_rand_absolute + (h_profile_new // 2)
-    w_crop_start = cX_rand_absolute - (w_profile_new // 2)
-    w_crop_end = cX_rand_absolute + (w_profile_new // 2)
+        # convert the chosen center to pixel values relative to the height/width of the background image
+        cX_background, cY_background = (w_background // 2, h_background // 2)
+        cX_rand_absolute, cY_rand_absolute = (cX_background + cX_rand_relative, cY_background + cY_rand_relative)
 
-    # adjust the start and end indices in case the integer rounding made their range too small to fit profile plus its margin
-    if h_crop_end - h_crop_start < h_profile_new:
-        # check if this resides out of bounds for the background
-        if h_crop_end + 1 > h_background:
-            h_crop_start -= 1
-        else:
-            h_crop_end += 1
+        h_crop_start = cY_rand_absolute - (h_profile_new // 2)
+        h_crop_end = cY_rand_absolute + (h_profile_new // 2)
+        w_crop_start = cX_rand_absolute - (w_profile_new // 2)
+        w_crop_end = cX_rand_absolute + (w_profile_new // 2)
 
-    if w_crop_end - w_crop_start < w_profile_new:
-        # check if this resides out of bounds for the background
-        if w_crop_end + 1 > w_background:
-            w_crop_start -= 1
-        else:
-            w_crop_end += 1
+        # adjust the start and end indices in case the integer rounding made their range too small to fit profile plus its margin
+        if h_crop_end - h_crop_start < h_profile_new:
+            # check if this resides out of bounds for the background
+            if h_crop_end + 1 > h_background:
+                h_crop_start -= 1
+            else:
+                h_crop_end += 1
 
-    # extract the crop
-    crop = img_background[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
-    # cv2.imshow('random_background_crop', crop)
-    # cv2.waitKey(0)
+        if w_crop_end - w_crop_start < w_profile_new:
+            # check if this resides out of bounds for the background
+            if w_crop_end + 1 > w_background:
+                w_crop_start -= 1
+            else:
+                w_crop_end += 1
 
-    # preprocess background crop
-    # we preprocess only the crop and not the entire background because otherwise the preprocessing is too slow
-    crop = preprocess_image(image_np=crop, preprocessing_dict=background_preprocessing_dict)
+        # extract the crop
+        crop = img_background[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
+        # cv2.imshow('random_background_crop', crop)
+        # cv2.waitKey(0)
 
-    ## paste profile onto background crop using alpha blending as described here: https://www.learnopencv.com/alpha-blending-using-opencv-cpp-python/
+        # preprocess background crop
+        # we preprocess only the crop and not the entire background because otherwise the preprocessing is too slow
+        crop = preprocess_image(image_np=crop,
+                                preprocessing_dict=background_preprocessing_dict)
 
-    # resize profile to be same dimensions as the crop
-    img_profile_resized = np.zeros(
-        (crop.shape[0], crop.shape[1], img_profile.shape[2]))  # make sure to grab alpha channel
+        ## paste profile onto background crop using alpha blending as described here: https://www.learnopencv.com/alpha-blending-using-opencv-cpp-python/
 
-    # center profile into new profile
-    h_profile_resized, w_profile_resized = img_profile_resized.shape[:2]
-    cX_profile_resized, cY_profile_resized = (w_profile_resized // 2, h_profile_resized // 2)
-    h_profile_resized_start = cY_profile_resized - (h_profile // 2)
-    h_profile_resized_end = cY_profile_resized + (h_profile // 2)
-    w_profile_resized_start = cX_profile_resized - (w_profile // 2)
-    w_profile_resized_end = cX_profile_resized + (w_profile // 2)
+        # resize profile to be same dimensions as the crop
+        img_profile_resized = np.zeros(
+            (crop.shape[0], crop.shape[1], img_profile.shape[2]))  # make sure to grab alpha channel
 
-    # adjust the start and end indices in case the integer rounding made their range too small to fit alpha
-    if h_profile_resized_end - h_profile_resized_start < h_profile:
-        # check if this resides out of bounds for the crop
-        if h_profile_resized_end + 1 > h_profile_resized:
-            h_profile_resized_start -= 1
-        else:
-            h_profile_resized_end += 1
+        # center profile into new profile
+        h_profile_resized, w_profile_resized = img_profile_resized.shape[:2]
+        cX_profile_resized, cY_profile_resized = (w_profile_resized // 2, h_profile_resized // 2)
+        h_profile_resized_start = cY_profile_resized - (h_profile // 2)
+        h_profile_resized_end = cY_profile_resized + (h_profile // 2)
+        w_profile_resized_start = cX_profile_resized - (w_profile // 2)
+        w_profile_resized_end = cX_profile_resized + (w_profile // 2)
 
-    if w_profile_resized_end - w_profile_resized_start < w_profile:
-        # check if this resides out of bounds for the crop
-        if w_profile_resized_end + 1 > w_profile_resized:
-            w_profile_resized_start -= 1
-        else:
-            w_profile_resized_end += 1
+        # adjust the start and end indices in case the integer rounding made their range too small to fit alpha
+        if h_profile_resized_end - h_profile_resized_start < h_profile:
+            # check if this resides out of bounds for the crop
+            if h_profile_resized_end + 1 > h_profile_resized:
+                h_profile_resized_start -= 1
+            else:
+                h_profile_resized_end += 1
 
-    img_profile_resized[
-    h_profile_resized_start:h_profile_resized_end,
-    w_profile_resized_start:w_profile_resized_end
-    ] = img_profile
+        if w_profile_resized_end - w_profile_resized_start < w_profile:
+            # check if this resides out of bounds for the crop
+            if w_profile_resized_end + 1 > w_profile_resized:
+                w_profile_resized_start -= 1
+            else:
+                w_profile_resized_end += 1
 
-    # grab alpha mask
-    alpha = img_profile_resized[:, :, 3]
-    alpha = np.repeat(alpha[:, :, np.newaxis], 3,
-                      axis=2)  # we need to keep alpha, img_profile and crop of the same dimenions
+        img_profile_resized[
+        h_profile_resized_start:h_profile_resized_end,
+        w_profile_resized_start:w_profile_resized_end
+        ] = img_profile
 
-    # convert uint8 to float
-    crop = crop.astype(float)
-    img_profile_resized = img_profile_resized.astype(float)[:, :, :3]  # we don't need the alpha channel any longer
+        # grab alpha mask
+        alpha = img_profile_resized[:, :, 3]
+        alpha = np.repeat(alpha[:, :, np.newaxis], 3,
+                          axis=2)  # we need to keep alpha, img_profile and crop of the same dimensions
 
-    # normalize the alpha mask to keep intensity between 0 and 1
-    alpha = alpha.astype(float) / 255
+        # convert uint8 to float
+        crop = crop.astype(float)
+        img_profile_resized = img_profile_resized.astype(float)[:, :, :3]  # we don't need the alpha channel any longer
 
-    # cv2.imshow('alpha_crop', alpha)
-    # cv2.waitKey(0)
+        # normalize the alpha mask to keep intensity between 0 and 1
+        alpha = alpha.astype(float) / 255
 
-    # multiply the profile with alpha matte
-    img_profile_resized = cv2.multiply(alpha, img_profile_resized)
+        # cv2.imshow('alpha_crop', alpha)
+        # cv2.waitKey(0)
 
-    # multiply the background with (1 - alpha)
-    crop = cv2.multiply(np.subtract(1, alpha), crop)
+        # multiply the profile with alpha matte
+        img_profile_resized = cv2.multiply(alpha, img_profile_resized)
 
-    # add the masked profile and background
+        # multiply the background with (1 - alpha)
+        crop = cv2.multiply(np.subtract(1, alpha), crop)
 
-    # we must first make the profile the same dimensions as the crop (crop is larger than the profile)
-    res = cv2.add(img_profile_resized, crop)
-    res = res.astype(np.uint8)
+        # add the masked profile and background
+        res = cv2.add(img_profile_resized, crop)
+        res = res.astype(np.uint8)
 
     return res
 
@@ -278,7 +327,8 @@ if __name__ == "__main__":
             # cv2.waitKey(0)
 
             # apply preprocessing to profile and background images
-            img_profile = preprocess_image(image_np=img_profile, preprocessing_dict=profile_preprocessing)
+            img_profile = preprocess_image(image_np=img_profile,
+                                           preprocessing_dict=profile_preprocessing)
 
             # cv2.imshow('preprocessed background', img_background)
             # cv2.waitKey(0)
@@ -291,5 +341,6 @@ if __name__ == "__main__":
             # cv2.waitKey(0)
 
             # save image to class directory
-            out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(i))
-            cv2.imwrite(out_path, res)
+            if res is not None: # only write if we have a valid result
+                out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(i))
+                cv2.imwrite(out_path, res)
