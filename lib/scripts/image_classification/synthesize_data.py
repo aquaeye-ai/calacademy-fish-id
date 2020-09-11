@@ -1,12 +1,19 @@
+"""
+Script that inserts a profile (png) into a crop taken from a background (jpg).
+Applies augmentation to both profile and background.
+Gives profile some random padding before inserting into a background crop.
+The alpha channel of the profile is necessary and is used to blend the profile and background (link for further reading
+in relevant code below).
+"""
+
 import os
 import cv2
 import yaml
+import shutil
 import random
 
 import numpy as np
 import lib.scripts.file_utils as fu
-
-from skimage import transform as sk_tf
 
 
 def preprocess_image(image_np=None, preprocessing_dict=None):
@@ -295,15 +302,20 @@ if __name__ == "__main__":
     directory_backgrounds = config["directory_backgrounds"]
     directory_output = config["directory_output"]
     num_images = config["num_images"]
+    random_seed = config["random_seed"]
     profile_preprocessing = config["profile_preprocessing"]
     background_preprocessing = config["background_preprocessing"]
     margin_range = config["margin_range"]
+
+    random.seed(random_seed)
 
     background_images = fu.find_images(directory=directory_backgrounds, extension='.jpg')
 
     # synthetically create data for each class
     class_dirs = [d for d in os.listdir(directory_profiles)]
     for class_dir in class_dirs:
+        print("synthesizing class: {}".format(class_dir))
+
         class_dir_path = os.path.join(directory_profiles, class_dir)
         profile_images = fu.find_images(directory=class_dir_path, extension='.png')
 
@@ -312,6 +324,8 @@ if __name__ == "__main__":
 
         # loop until we have created num_images images
         for i in range(num_images):
+            print("{} / {}".format(i+1, num_images))
+
             # randomly choose profile and background
             rand_img_profile = random.choice(profile_images)
             rand_img_background = random.choice(background_images)
@@ -346,3 +360,6 @@ if __name__ == "__main__":
             if res is not None: # only write if we have a valid result
                 out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(i))
                 cv2.imwrite(out_path, res)
+
+    # copy config so we can recall what parameters were used to construct the dataset splits
+    shutil.copy(yaml_path, os.path.join(directory_output, 'config.yml'))
