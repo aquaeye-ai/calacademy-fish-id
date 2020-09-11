@@ -210,6 +210,7 @@ def generate_training_split_stats(directory=None, split=None):
     # collect Google/Bing/Combined subdirectory stats
     num_web_totals = []
     num_od_totals = []
+    num_syn_totals = []
     num_combined_totals = []
     for class_dir in class_dirs:
         class_dir_path = os.path.join(directory, class_dir)
@@ -220,34 +221,43 @@ def generate_training_split_stats(directory=None, split=None):
         num_od = len([f for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))
                        and '_od.' in os.path.join(class_dir_path, f)])
 
+        num_syn = len([f for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))
+                      and '_syn.' in os.path.join(class_dir_path, f)])
+
         num_combined = len(
             [f for f in os.listdir(class_dir_path) if os.path.isfile(os.path.join(class_dir_path, f))])
 
         num_web_totals.append(num_web)
         num_od_totals.append(num_od)
+        num_syn_totals.append(num_syn)
         num_combined_totals.append(num_combined)
 
-        print("[INFO] In directory {} -> num_web: {}, num_od: {}, num_combined: {}".format(class_dir, num_web, num_od,
-                                                                                           num_combined))
+        print("[INFO] In directory {} -> num_web: {}, num_od: {}, num_syn: {}, num_combined: {}".format(class_dir,
+                                                                                                        num_web,
+                                                                                                        num_od,
+                                                                                                        num_syn,
+                                                                                                        num_combined))
 
     # sort the data for better viewing
-    zipped = zip(num_combined_totals, num_web_totals, num_od_totals, class_dirs)
+    zipped = zip(num_combined_totals, num_web_totals, num_od_totals, num_syn_totals, class_dirs)
     zipped.sort(reverse=True)
 
     ## perform bar plotting
 
     # set width of bar
-    barWidth = 0.25
+    barWidth = 0.20
 
     # Set position of bar on X axis
     r1 = np.arange(len(num_web_totals))
     r2 = [x + barWidth for x in r1]
     r3 = [x + barWidth for x in r2]
+    r4 = [x + barWidth for x in r3]
 
     # Make the plot
     plt.bar(r1, [x[0] for x in zipped], color='#7f6d5f', width=barWidth, edgecolor='white', label='Combined')
     plt.bar(r2, [x[1] for x in zipped], color='#557f2d', width=barWidth, edgecolor='white', label='Web')
     plt.bar(r3, [x[2] for x in zipped], color='#2d7f5e', width=barWidth, edgecolor='white', label='Object Detection')
+    plt.bar(r4, [x[3] for x in zipped], color='#2d647f', width=barWidth, edgecolor='white', label='Synthetic')
 
     # set yticks
     plt.ylabel('Frequency', fontweight='bold')
@@ -255,7 +265,7 @@ def generate_training_split_stats(directory=None, split=None):
 
     # Add xticks on the middle of the group bars
     plt.xlabel('Class', fontweight='bold')
-    plt.xticks([r + barWidth for r in range(len(num_web_totals))], [x[3] for x in zipped])
+    plt.xticks([r + barWidth for r in range(len(num_web_totals))], [x[4] for x in zipped])
     plt.xticks(rotation=90)
     ax = plt.gca()
     ax.tick_params(axis='x', labelsize=8)
@@ -273,13 +283,15 @@ def generate_training_split_stats(directory=None, split=None):
 
     ## perform pi charting
 
-    labels = ['Web', 'Object Detection']
-    sizes = [np.float(sum(num_web_totals)) / np.float(sum(num_combined_totals)), np.float(sum(num_od_totals)) / np.float(sum(num_combined_totals))]
-    explode = (0, 0)
+    labels = ['Web', 'Object Detection', 'Synthetic']
+    sizes = [np.float(sum(num_web_totals)) / np.float(sum(num_combined_totals)),
+             np.float(sum(num_od_totals)) / np.float(sum(num_combined_totals)),
+             np.float(sum(num_syn_totals)) / np.float(sum(num_combined_totals))]
+    explode = (0, 0, 0)
     fig2, ax2 = plt.subplots()
     ax2.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', shadow=False, startangle=180)
     ax2.axis('equal')
-    plt.title("{}: Web Vs Object Detection\n Total Images: {}".format(split, sum(num_combined_totals)))
+    plt.title("{}: Web Vs Object Detection Vs Synthetic\n Total Images: {}".format(split, sum(num_combined_totals)))
     plt.show()
 
 
