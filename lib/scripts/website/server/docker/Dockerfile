@@ -1,4 +1,4 @@
-FROM gcr.io/tensorflow/tensorflow
+FROM tensorflow/tensorflow
 LABEL maintainer="https://github.com/jdcast/calacademy-fish-id"
 
 #pip install requirements
