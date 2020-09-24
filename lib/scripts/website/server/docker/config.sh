@@ -1,0 +1,2 @@
+IMAGE_NAME="aquaeye_ai"
+PUBLIC_PORT=8000
