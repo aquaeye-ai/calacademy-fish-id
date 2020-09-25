@@ -7,10 +7,10 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to model .hdf file
-model: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/9_10_2020/1/retrained_model_starting_at_layer_100.h5
+model: ./model/retrained_model_starting_at_layer_100.h5
 
 # path to labels file
-labels: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/9_10_2020/1/train_labels.txt
+labels: ./model/train_labels.txt
 
 # model input height
 model_input_height: 224

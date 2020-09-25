@@ -8,16 +8,13 @@ import os
 import cv2
 import yaml
 import json
-import uuid
 import falcon
 import base64
 import logging
-import requests
 
 import numpy as np
 
 from tensorflow import keras
-from wsgiref import simple_server
 
 
 class RequireJSON(object):
@@ -181,7 +178,7 @@ app.add_route('/quote', QuoteResource())
 
 if __name__ == 'model_server_keras_h5':
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join('..', '..', '..', 'configs', 'website', 'server')
+    config_dir = os.path.join('.')
     yaml_path = os.path.join(config_dir, 'model_server_keras_h5.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
@@ -192,6 +189,7 @@ if __name__ == 'model_server_keras_h5':
     # download_base = config["download_base"]
     path_to_model_h5 = config["model"]
     path_to_labels = config["labels"]
+    print(os.listdir('.'))
     model_input_height = config["model_input_height"]
     model_input_width = config["model_input_width"]
     scale = config["scale"]
