@@ -5,11 +5,11 @@ import xml
 import cv2
 import yaml
 
-import lib.file_utils as fu
+import lib.scripts.file_utils as fu
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.pardir, 'configs', 'image_scraping')
+    config_dir = os.path.join(os.pardir, '..', 'configs', 'image_scraping')
     yaml_path = os.path.join(config_dir, 'obj_det_dataset_scraper.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
