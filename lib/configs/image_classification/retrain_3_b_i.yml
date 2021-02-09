@@ -1,5 +1,5 @@
 #######################
-# CONFIG for retrain_3_a_i.py #
+# CONFIG for retrain_3_b_i.py #
 #######################
 
 #NOTE:
@@ -7,16 +7,16 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to directory holding training data
-train_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web_plus_scraped_obj_det_plus_synthetic_obj_det/groupings/training_splits/9_10_2020/1/train
+train_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web_plus_scraped_obj_det_plus_synthetic_obj_det/groupings/training_splits/1_05_2021/1/train
 
 # path to directory holding validation data
-val_dir: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web_plus_scraped_obj_det_plus_synthetic_obj_det/groupings/training_splits/9_10_2020/1/test
+val_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web_plus_scraped_obj_det_plus_synthetic_obj_det/groupings/training_splits/1_05_2021/1/test
 
 # path to directory to store training summary files, e.g tensorboard
-training_summaries: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/9_10_2020/1/training_summaries
+training_summaries: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/1_05_2021/1/training_summaries
 
 # path to directory to store trained model
-model_dir: /home/nightrider/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/9_10_2020/1
+model_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/1_05_2021/1
 
 # input dimensions of model, taken as height and width
 model_input_size: 224
