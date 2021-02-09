@@ -42,7 +42,7 @@ from object_detection.utils import visualization_utils as vis_util
 
 
 # configure logging
-OUTPUT_DIR = "/home/nightrider/calacademy-fish-id/outputs/image_classification"
+OUTPUT_DIR = "/home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/image_classification"
 log_utils.LOG_DIR = OUTPUT_DIR
 log_utils.init_logging(file_name="inference_trained_tf_model_from_keras_log.txt")
 
