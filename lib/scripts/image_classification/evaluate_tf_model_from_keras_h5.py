@@ -160,92 +160,94 @@ if __name__ == "__main__":
                     logger.info("{}/{} Class: {}".format(cls_idx, len(class_dirs), class_dir))
                     class_image_paths = fu.find_images(directory=os.path.join(path_to_test_images_dir, class_dir),
                                                        extension=".jpg")
-                    total_num_images += len(class_image_paths)
+                    if len(class_image_paths) > 0: # if we don't have examples for class then guard against division by zero and don't report stats for class
+                        total_num_images += len(class_image_paths)
 
-                    results = predict_images_whole(test_image_paths=class_image_paths,
-                                                   category_index=category_index,
-                                                   K=K,
-                                                   model=model)
+                        results = predict_images_whole(test_image_paths=class_image_paths,
+                                                       category_index=category_index,
+                                                       K=K,
+                                                       model=model)
 
-                    # gather Top-1 stats
-                    num_incorrect_top_1 = 0
-                    image_paths_incorrect_top_1 = []
-                    incorrect_class_votes_dict = {}
-                    for result in results:
-                        if result[1][0] != class_dir:
-                            if result[1][0] in incorrect_class_votes_dict:
-                                incorrect_class_votes_dict[result[1][0]] += 1
+                        # gather Top-1 stats
+                        num_incorrect_top_1 = 0
+                        image_paths_incorrect_top_1 = []
+                        incorrect_class_votes_dict = {}
+                        for result in results:
+                            if result[1][0] != class_dir:
+                                if result[1][0] in incorrect_class_votes_dict:
+                                    incorrect_class_votes_dict[result[1][0]] += 1
+                                else:
+                                    incorrect_class_votes_dict[result[1][0]] = 1
+                                num_incorrect_top_1 += 1
+
+                                # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
+                                image_paths_incorrect_top_1.append((result[0], result[1][:K], result[2][:K]))
                             else:
-                                incorrect_class_votes_dict[result[1][0]] = 1
-                            num_incorrect_top_1 += 1
+                                total_num_correct_top_1 += 1
 
-                            # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
-                            image_paths_incorrect_top_1.append((result[0], result[1][:K], result[2][:K]))
+
+                        percent_incorrect_top_1 = (np.float(num_incorrect_top_1) / np.float(len(results))) * 100.0
+                        total_accuracy_top_1 += (100.0 - percent_incorrect_top_1)
+
+                        max_num_votes = 0
+                        incorrect_class_votes_list = [(key, value) for key, value in incorrect_class_votes_dict.items()]
+                        incorrect_class_votes_list_sorted = sorted(incorrect_class_votes_list, key=lambda tup: tup[1], reverse=True)
+
+                        # gather Top-K stats
+                        num_incorrect_top_k = 0
+                        image_paths_incorrect_top_k = []
+                        for result in results:
+                            if class_dir not in result[1]:
+                                num_incorrect_top_k += 1
+
+                                # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
+                                image_paths_incorrect_top_k.append((result[0], result[1][:K], result[2][:K]))
+                            else:
+                                total_num_correct_top_k += 1
+
+                        percent_incorrect_top_k = (np.float(num_incorrect_top_k) / np.float(len(results))) * 100.0
+                        total_accuracy_top_k += (100.0 - percent_incorrect_top_k)
+
+                        ## write stats to file
+
+                        # gather Top-K most common, incorrect labels for class
+                        incorrect_labels_and_probs_class_top_k = None
+                        if len(incorrect_class_votes_list_sorted) >= K:  # we may have fewer than K incorrect labels if this class performed well
+                            incorrect_labels_and_probs_class_top_k = str([': '.join(map(str, tup)) for tup in incorrect_class_votes_list_sorted[:K]])
                         else:
-                            total_num_correct_top_1 += 1
+                            incorrect_labels_and_probs_class_top_k = str([': '.join(map(str, tup)) for tup in incorrect_class_votes_list_sorted[:]])
 
-                    percent_incorrect_top_1 = (np.float(num_incorrect_top_1) / np.float(len(results))) * 100.0
-                    total_accuracy_top_1 += (100.0 - percent_incorrect_top_1)
+                        # write general stats
+                        stats_f.write("{}:\n \tTop-1 Accuracy = {:.2f}%, Top-{} Accuracy: {:.2f}%, "
+                                      "Top-{} Incorrect Labels: {}, "
+                                      "Total Images: {}\n".format(class_dir,
+                                                                  100.0 - percent_incorrect_top_1, K,
+                                                                  100.0 - percent_incorrect_top_k, K,
+                                                                  incorrect_labels_and_probs_class_top_k,
+                                                                  len(class_image_paths)))
+                        stats_f.flush()
 
-                    max_num_votes = 0
-                    incorrect_class_votes_list = [(key, value) for key, value in incorrect_class_votes_dict.items()]
-                    incorrect_class_votes_list_sorted = sorted(incorrect_class_votes_list, key=lambda tup: tup[1], reverse=True)
+                        # write predictions stats for images whose true class didn't match their Top-1 prediction
+                        misclassifications_top_1_f.write("{}:\n".format(class_dir))
+                        for mis in image_paths_incorrect_top_1:
+                            # write filename
+                            misclassifications_top_1_f.write("\t{}\n".format(os.path.basename(mis[0])))
 
-                    # gather Top-K stats
-                    num_incorrect_top_k = 0
-                    image_paths_incorrect_top_k = []
-                    for result in results:
-                        if class_dir not in result[1]:
-                            num_incorrect_top_k += 1
+                            # write top-K most common labels/probabilities
+                            misclassifications_top_1_f.write("\t\t{}\n".format(
+                                [': '.join(map(str, tup)) for tup in zip(mis[1][:], mis[2][:])]))
+                            misclassifications_top_1_f.flush()
 
-                            # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
-                            image_paths_incorrect_top_k.append((result[0], result[1][:K], result[2][:K]))
-                        else:
-                            total_num_correct_top_k += 1
+                        # write predictions stats for images whose true class didn't match their Top-K predictions
+                        misclassifications_top_k_f.write("{}:\n".format(class_dir))
+                        for mis in image_paths_incorrect_top_k:
+                            # write filename
+                            misclassifications_top_k_f.write("\t{}\n".format(os.path.basename(mis[0])))
 
-                    percent_incorrect_top_k = (np.float(num_incorrect_top_k) / np.float(len(results))) * 100.0
-                    total_accuracy_top_k += (100.0 - percent_incorrect_top_k)
-
-                    ## write stats to file
-
-                    # gather Top-K most common, incorrect labels for class
-                    incorrect_labels_and_probs_class_top_k = None
-                    if len(incorrect_class_votes_list_sorted) >= K:  # we may have fewer than K incorrect labels if this class performed well
-                        incorrect_labels_and_probs_class_top_k = str([': '.join(map(str, tup)) for tup in incorrect_class_votes_list_sorted[:K]])
-                    else:
-                        incorrect_labels_and_probs_class_top_k = str([': '.join(map(str, tup)) for tup in incorrect_class_votes_list_sorted[:]])
-
-                    # write general stats
-                    stats_f.write("{}:\n \tTop-1 Accuracy = {:.2f}%, Top-{} Accuracy: {:.2f}%, "
-                                  "Top-{} Incorrect Labels: {}, "
-                                  "Total Images: {}\n".format(class_dir,
-                                                              100.0 - percent_incorrect_top_1, K,
-                                                              100.0 - percent_incorrect_top_k, K,
-                                                              incorrect_labels_and_probs_class_top_k,
-                                                              len(class_image_paths)))
-                    stats_f.flush()
-
-                    # write predictions stats for images whose true class didn't match their Top-1 prediction
-                    misclassifications_top_1_f.write("{}:\n".format(class_dir))
-                    for mis in image_paths_incorrect_top_1:
-                        # write filename
-                        misclassifications_top_1_f.write("\t{}\n".format(os.path.basename(mis[0])))
-
-                        # write top-K most common labels/probabilities
-                        misclassifications_top_1_f.write("\t\t{}\n".format(
-                            [': '.join(map(str, tup)) for tup in zip(mis[1][:], mis[2][:])]))
-                        misclassifications_top_1_f.flush()
-
-                    # write predictions stats for images whose true class didn't match their Top-K predictions
-                    misclassifications_top_k_f.write("{}:\n".format(class_dir))
-                    for mis in image_paths_incorrect_top_k:
-                        # write filename
-                        misclassifications_top_k_f.write("\t{}\n".format(os.path.basename(mis[0])))
-
-                        # write top-K most common labels/probabilities
-                        misclassifications_top_k_f.write("\t\t{}\n".format(
-                            [': '.join(map(str, tup)) for tup in zip(mis[1][:], mis[2][:])]))
-                        misclassifications_top_k_f.flush()
+                            # write top-K most common labels/probabilities
+                            misclassifications_top_k_f.write("\t\t{}\n".format(
+                                [': '.join(map(str, tup)) for tup in zip(mis[1][:], mis[2][:])]))
+                            misclassifications_top_k_f.flush()
 
                 # write average Top-1 and Top-K accuracies across classes
                 stats_f.write("\nAverage Top-1 Accuracy: {:.2f}%\n".format(
