@@ -4,6 +4,7 @@ import time
 import shutil
 
 import tensorflow as tf
+from collections import Counter
 
 from tensorflow import keras
 print("TensorFlow version is ", tf.__version__)
@@ -70,6 +71,12 @@ if __name__ == "__main__":
         batch_size=batch_size,
         # Since we use categorical_crossentropy loss, we need categorical labels
         class_mode='categorical')
+
+    # balance classes since they may be imbalanced
+    print("class_indices: {}".format(train_generator.class_indices))
+    counter = Counter(train_generator.classes)
+    max_val = float(max(counter.values()))
+    class_weights = {class_id: max_val / num_images for class_id, num_images in counter.items()}
 
     # write training labels to file for later use
     with open(os.path.join(model_dir, 'train_labels.txt'), "w+") as f:
@@ -139,12 +146,13 @@ if __name__ == "__main__":
 
     t1 = time.time()
     history = model_k.fit_generator(train_generator,
-                                  steps_per_epoch=steps_per_epoch,
-                                  epochs=epochs,
-                                  workers=4,
-                                  validation_data=validation_generator,
-                                  validation_steps=validation_steps,
-                                  callbacks=callbacks)
+                                    steps_per_epoch=steps_per_epoch,
+                                    epochs=epochs,
+                                    workers=4,
+                                    validation_data=validation_generator,
+                                    validation_steps=validation_steps,
+                                    class_weight=class_weights,
+                                    callbacks=callbacks)
     t2 = time.time()
     print("Fine-tuning starting at last layer took: {}s".format(t2 - t1))
 

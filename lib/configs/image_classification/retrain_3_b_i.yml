@@ -13,10 +13,10 @@ train_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classif
 val_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_obj_det/partials/video_2020_08_14_08_09_57_length_300/training_splits/2_08_2021/1/test
 
 # path to directory to store training summary files, e.g tensorboard
-training_summaries: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_08_2021/1/training_summaries
+training_summaries: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_10_2021/1/training_summaries
 
 # path to directory to store trained model
-model_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_08_2021/1
+model_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_10_2021/1
 
 # input dimensions of model, taken as height and width
 model_input_size: 224

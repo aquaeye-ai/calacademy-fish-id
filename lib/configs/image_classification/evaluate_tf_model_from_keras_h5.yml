@@ -7,17 +7,17 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to keras-trained h5 model
-path_to_model_h5: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_08_2021/1/retrained_model_starting_at_layer_100.h5
+path_to_model_h5: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_10_2021/1/retrained_model_starting_at_layer_100.h5
 
 # path to labels file
-path_to_labels: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_08_2021/1/train_labels.txt
+path_to_labels: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_10_2021/1/train_labels.txt
 
 # path to directory holding test images
 # This directory must contain sub-folders as class-names that each contain images for that class
 path_to_test_images_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_obj_det/partials/video_2020_08_14_08_09_57_length_300/training_splits/2_08_2021/1/test
 
 # path to directory to hold output files
-output_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/image_classification/fine_tuned_inference/mobilenet_v2_100_224_keras/2_08_2021/1
+output_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/image_classification/fine_tuned_inference/mobilenet_v2_100_224_keras/2_10_2021/1
 
 # Sizes, in pixels, of input image for the model (before any resizing for preprocessing happens)
 # Each number is both height and width as we assume the input image to be square
