@@ -77,6 +77,7 @@ if __name__ == "__main__":
     counter = Counter(train_generator.classes)
     max_val = float(max(counter.values()))
     class_weights = {class_id: max_val / num_images for class_id, num_images in counter.items()}
+    print("class weights: {}".format(class_weights))
 
     # write training labels to file for later use
     with open(os.path.join(model_dir, 'train_labels.txt'), "w+") as f:
