@@ -20,6 +20,7 @@ Stats produced by script:
 import os
 import yaml
 import time
+import shutil
 import logging
 import tarfile
 
@@ -158,6 +159,11 @@ if __name__ == "__main__":
                 total_accuracy_top_k = 0.0
                 for cls_idx, class_dir in enumerate(class_dirs):
                     logger.info("{}/{} Class: {}".format(cls_idx, len(class_dirs), class_dir))
+
+                    # init directories to contain Top-1 misclassified images for class
+                    top_1_incorrect_img_dir = os.path.join(output_dir, 'images', 'top_1_incorrect_images', class_dir)
+                    fu.init_directory(directory=top_1_incorrect_img_dir)
+
                     class_image_paths = fu.find_images(directory=os.path.join(path_to_test_images_dir, class_dir),
                                                        extension=".jpg")
                     if len(class_image_paths) > 0: # if we don't have examples for class then guard against division by zero and don't report stats for class
@@ -172,7 +178,7 @@ if __name__ == "__main__":
                         num_incorrect_top_1 = 0
                         image_paths_incorrect_top_1 = []
                         incorrect_class_votes_dict = {}
-                        for result in results:
+                        for r_idx, result in enumerate(results):
                             if result[1][0] != class_dir:
                                 if result[1][0] in incorrect_class_votes_dict:
                                     incorrect_class_votes_dict[result[1][0]] += 1
@@ -182,6 +188,11 @@ if __name__ == "__main__":
 
                                 # provide the tuples of (image path, Top-K most common incorrect labels, probabilities of top-K most common incorrect labels)
                                 image_paths_incorrect_top_1.append((result[0], result[1][:K], result[2][:K]))
+
+                                # copy image to misclassified directory for later viewing
+                                dst_mis_img_name = "{}_{}_{}.jpg".format(result[1][0], result[2][0], r_idx)
+                                dst_mis_img_path = os.path.join(top_1_incorrect_img_dir, dst_mis_img_name)
+                                shutil.copy(result[0], dst_mis_img_path)
                             else:
                                 total_num_correct_top_1 += 1
 
