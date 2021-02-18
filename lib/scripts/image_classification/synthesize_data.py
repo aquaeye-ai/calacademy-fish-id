@@ -323,9 +323,8 @@ if __name__ == "__main__":
         fu.init_directory(directory=os.path.join(directory_output, class_dir))
 
         # loop until we have created num_images images
-        for i in range(num_images):
-            print("{} / {}".format(i+1, num_images))
-
+        img_idx = 0
+        while img_idx < num_images:
             # randomly choose profile and background
             rand_img_profile = random.choice(profile_images)
             rand_img_background = random.choice(background_images)
@@ -358,8 +357,12 @@ if __name__ == "__main__":
 
             # save image to class directory
             if res is not None: # only write if we have a valid result
-                out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(i))
+                print("{} / {}".format(img_idx + 1, num_images))
+                out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(img_idx))
                 cv2.imwrite(out_path, res)
+                img_idx += 1
+            else:
+                print("skipping incompatible img+bgrd combo")
 
     # copy config so we can recall what parameters were used to construct the dataset splits
     shutil.copy(yaml_path, os.path.join(directory_output, 'config.yml'))

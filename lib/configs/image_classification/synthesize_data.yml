@@ -7,16 +7,16 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to directory containing profile images
-directory_profiles: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/profiles
+directory_profiles: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/profiles
 
 # path to directory containing backgrounds which profiles will be pasted onto
-directory_backgrounds: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
+directory_backgrounds: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
 
 # path to directory to hold synthetically created data
-directory_output: /home/nightrider/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/9_10_2020/1
+directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/2_17_2021/1
 
 # number of images to produce per class
-num_images: 2000
+num_images: 4000
 
 # seed for random number generator (for reproducibility)
 random_seed: 0
