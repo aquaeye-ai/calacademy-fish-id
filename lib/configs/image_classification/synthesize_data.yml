@@ -7,16 +7,16 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to directory containing profile images
-directory_profiles: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/profiles
+directory_profiles: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/temp
 
 # path to directory containing backgrounds which profiles will be pasted onto
 directory_backgrounds: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
 
 # path to directory to hold synthetically created data
-directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/2_17_2021/1
+directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/temp_out
 
 # number of images to produce per class
-num_images: 4000
+num_images: 5500
 
 # seed for random number generator (for reproducibility)
 random_seed: 0
@@ -25,7 +25,7 @@ random_seed: 0
 # height/width of each profile when pasting onto background (so that the profile doesn't take up the entire final image)
 margin_range:
   - 0
-  - 20
+  - 0
 
 ## NOTE: profile_preprocessing and background_processing dicts should contain the same set of keys
 
@@ -37,7 +37,7 @@ profile_preprocessing:
     apply: 1 # whether to apply rotation
     rotation_range: # in degrees, counterclockwise (we horizontally flip, so no need for negative angles)
       - 0
-      - 45
+      - 15
   brightness:
     apply: 1
     brightness_range: # beta parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, constant value to add to each pixel (pixel in range 0-255)
@@ -50,8 +50,8 @@ profile_preprocessing:
       - 1.2
   shear:
     apply: 1
-    shear_range:
-      - 0.1
+    shear_range: #  [0-1]
+      - 0.0
       - 0.5
 
 # preprocessing to use on backgrounds before pasting profiles onto them

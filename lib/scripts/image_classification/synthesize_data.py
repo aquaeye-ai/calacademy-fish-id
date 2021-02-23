@@ -9,6 +9,7 @@ in relevant code below).
 import os
 import cv2
 import yaml
+import math
 import shutil
 import random
 
@@ -75,22 +76,21 @@ def preprocess_image(image_np=None, preprocessing_dict=None):
         new_cols = shear_x * w
         new_rows = shear_y * h
 
-        up_down = abs(int((new_rows - h)/2))
-        left_right = abs(int((new_cols - w)/2))
+        # TODO: remove; shouldn't need these according to this: https://stackoverflow.com/questions/44425701/shear-an-image-without-cropping and https://stackoverflow.com/questions/57881430/how-could-i-implement-a-centered-shear-an-image-with-opencv
+        h_pad = int(math.ceil(shear_y*w/2))
+        w_pad = int(math.ceil(shear_x*h/2))
+
+        up_down = int(math.ceil(new_rows / 2)) + h_pad
+        left_right = int(math.ceil(new_cols / 2)) + w_pad
 
         image_np = cv2.copyMakeBorder(image_np, up_down, up_down, left_right, left_right, cv2.BORDER_CONSTANT, value=(255, 255, 255, 0))
         rows, cols, ch = image_np.shape
 
-        # only x shear
-        # translat_center_x = -(shear * cols) / 2
-        # translat_center_y = 0 #-(shear * rows) / 2
-        # M = np.float64([[1, shear, translation + translat_center_x], [0, 1, translation + translat_center_y]])
-
         # both x and y shear
-        translat_center_x = -(shear_x * cols) / 8 # it's not understood why 8 is needed here...seems like it has something to do with shear factor
-        translat_center_y = -(shear_y * rows) / 8
+        translat_center_x = -new_cols / 2 - (shear_x*h/2)
+        translat_center_y = -new_rows / 2 - (shear_y*w/2)
 
-        M = np.float64([[1, shear_y, translat_center_x], [shear_x, 1, translat_center_y]])
+        M = np.float64([[1, shear_x, translat_center_x], [shear_y, 1, translat_center_y]])
         image_np = cv2.warpAffine(image_np, M, (cols, rows), borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255, 0))
 
         # cv2.imshow('shear', image_np)
