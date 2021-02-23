@@ -261,7 +261,7 @@ def generate_training_split_stats(directory=None, split=None):
 
     # set yticks
     plt.ylabel('Frequency', fontweight='bold')
-    plt.yticks([x + 100 for x in range(0, zipped[0][0], 100)])
+    plt.yticks([x + 250 for x in range(0, zipped[0][0], 250)])
 
     # Add xticks on the middle of the group bars
     plt.xlabel('Class', fontweight='bold')
