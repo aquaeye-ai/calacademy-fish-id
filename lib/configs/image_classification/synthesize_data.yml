@@ -16,10 +16,13 @@ directory_backgrounds: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/i
 directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/temp_out
 
 # number of images to produce per class
-num_images: 5500
+num_images: 6900
 
 # seed for random number generator (for reproducibility)
 random_seed: 0
+
+# where to begin numbering images
+start_idx: 0
 
 # range of margin (measured in percentage of height/width of profile) from which to randomly choose margin to give
 # height/width of each profile when pasting onto background (so that the profile doesn't take up the entire final image)
@@ -37,7 +40,7 @@ profile_preprocessing:
     apply: 1 # whether to apply rotation
     rotation_range: # in degrees, counterclockwise (we horizontally flip, so no need for negative angles)
       - 0
-      - 15
+      - 45
   brightness:
     apply: 1
     brightness_range: # beta parameter from: https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html, constant value to add to each pixel (pixel in range 0-255)

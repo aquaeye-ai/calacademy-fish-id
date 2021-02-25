@@ -306,6 +306,7 @@ if __name__ == "__main__":
     profile_preprocessing = config["profile_preprocessing"]
     background_preprocessing = config["background_preprocessing"]
     margin_range = config["margin_range"]
+    start_idx = config["start_idx"]
 
     random.seed(random_seed)
 
@@ -358,7 +359,7 @@ if __name__ == "__main__":
             # save image to class directory
             if res is not None: # only write if we have a valid result
                 print("{} / {}".format(img_idx + 1, num_images))
-                out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(img_idx))
+                out_path = os.path.join(directory_output, class_dir, "{}_syn.jpg".format(img_idx+start_idx))
                 cv2.imwrite(out_path, res)
                 img_idx += 1
             else:
