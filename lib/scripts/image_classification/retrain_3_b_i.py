@@ -19,6 +19,8 @@ import lib.scripts.file_utils as fu
 
 MOBILENET_V1 = 'mobilenet_v1'
 MOBILENET_V2 = 'mobilenet_v2'
+MOBILENET_V3 = 'mobilenet_v3'
+INCEPTION_V3 = 'inception_v3'
 
 
 if __name__ == "__main__":
@@ -41,6 +43,7 @@ if __name__ == "__main__":
     model_input_size = config["model_input_size"]
     alpha = config["alpha"]
     architecture = config["architecture"]
+    fine_tune_at = config["fine_tune_at"]
 
     # create training_summaries dir if it doesn't exist
     fu.init_directory(directory=train_sums_dir)
@@ -97,16 +100,26 @@ if __name__ == "__main__":
 
     # MobileNet V2
     base_model = None
-    if architecture == MOBILENET_V2:
-        base_model = tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE,
-                                                       include_top=False,
-                                                       weights='imagenet',
-                                                       alpha=alpha)
-    elif architecture == MOBILENET_V1:
+
+    if architecture == MOBILENET_V1:
         base_model = tf.keras.applications.MobileNet(input_shape=IMG_SHAPE,
                                                      include_top=False,
                                                      weights='imagenet',
                                                      alpha=alpha)
+    elif architecture == MOBILENET_V2:
+        base_model = tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE,
+                                                       include_top=False,
+                                                       weights='imagenet',
+                                                       alpha=alpha)
+    elif architecture == MOBILENET_V3:
+        base_model = tf.keras.applications.MobileNetV3Large(input_shape=IMG_SHAPE,
+                                                            include_top=False,
+                                                            weights='imagenet',
+                                                            alpha=alpha)
+    elif architecture == INCEPTION_V3:
+        base_model = tf.keras.applications.InceptionV3(input_shape=IMG_SHAPE,
+                                                       include_top=False,
+                                                       weights='imagenet')
 
     # setup tensorboard logging callback
     tensorboard_cb = keras.callbacks.TensorBoard(
@@ -119,6 +132,13 @@ if __name__ == "__main__":
     ]
 
     ## Fine-tune last layer
+
+    # let's take a look to see how many layers are in the base model
+    print("Number of layers in the base model: ", len(base_model.layers))
+
+    # let's visualize layer names and layer indices
+    for i, layer in enumerate(base_model.layers):
+        print(i, layer.name)
 
     # freeze model's base layers
     base_model.trainable = False
@@ -193,9 +213,6 @@ if __name__ == "__main__":
 
     # let's take a look to see how many layers are in the base model
     print("Number of layers in the base model: ", len(base_model.layers))
-
-    # fine tune from this layer onwards
-    fine_tune_at = 100
 
     # freeze all the layers before the `fine_tune_at` layer
     for layer in base_model.layers[:fine_tune_at]:

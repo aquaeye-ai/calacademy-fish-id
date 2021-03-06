@@ -13,13 +13,13 @@ train_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classif
 val_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/scraped_web_plus_scraped_obj_det_plus_synthetic_obj_det/groupings/training_splits/2_25_2021/1/test
 
 # path to directory to store training summary files, e.g tensorboard
-training_summaries: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_25_2021/1/training_summaries
+training_summaries: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/inception_v3_keras/fine_tuned/3_4_2021/1/training_summaries
 
 # path to directory to store trained model
-model_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/mobilenet_v2_100_224_keras/fine_tuned/2_25_2021/1
+model_dir: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/image_classification/models/inception_v3_keras/fine_tuned/3_4_2021/1
 
 # input dimensions of model, taken as height and width
-model_input_size: 224
+model_input_size: 299 #224
 
 # batch size
 batch_size: 32
@@ -31,4 +31,7 @@ epochs: 20
 alpha: 1.0
 
 # model to use
-architecture: mobilenet_v2
+architecture: inception_v3
+
+# fine tune from this layer onwards
+fine_tune_at: 249 #100
