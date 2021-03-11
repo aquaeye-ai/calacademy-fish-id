@@ -13,7 +13,7 @@ directory_profiles: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/imag
 directory_backgrounds: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
 
 # path to directory to hold synthetically created data
-directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/temp_out
+directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/3_10_2021
 
 # number of images to produce per class
 num_images: 6900
@@ -38,8 +38,8 @@ profile_preprocessing:
   vertical_flip: 0 # whether to randomly flip vertically
   rotation:
     apply: 1 # whether to apply rotation
-    rotation_range: # in degrees, counterclockwise (we horizontally flip, so no need for negative angles)
-      - 0
+    rotation_range: # in degrees, counterclockwise
+      - -45
       - 45
   brightness:
     apply: 1
