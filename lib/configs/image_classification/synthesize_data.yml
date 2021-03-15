@@ -13,10 +13,10 @@ directory_profiles: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/imag
 directory_backgrounds: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/backgrounds
 
 # path to directory to hold synthetically created data
-directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/3_10_2021
+directory_output: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/image_classification/reef_lagoon/synthetic_obj_det/3_15_2021/1
 
 # number of images to produce per class
-num_images: 6900
+num_images: 4800
 
 # seed for random number generator (for reproducibility)
 random_seed: 0
@@ -55,7 +55,7 @@ profile_preprocessing:
     apply: 1
     shear_range: #  [0-1]
       - 0.0
-      - 0.5
+      - 0.25
 
 # preprocessing to use on backgrounds before pasting profiles onto them
 background_preprocessing:
