@@ -126,9 +126,21 @@ if __name__ == "__main__":
         log_dir=train_sums_dir
     )
 
+    # setup early stopping and model checkpoint callback to save model with lowest loss
+    early_stop_min_loss_cb = tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss",
+        min_delta=0,
+        patience=3,
+        verbose=0,
+        mode="auto",
+        baseline=None,
+        restore_best_weights=True
+    )
+
     # define training callbacks
     callbacks = [
-        tensorboard_cb
+        tensorboard_cb,
+        early_stop_min_loss_cb
     ]
 
     ## Fine-tune last layer
