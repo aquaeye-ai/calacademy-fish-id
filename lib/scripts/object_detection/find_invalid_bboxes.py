@@ -1,5 +1,5 @@
 # Script used to find empty and near-empty bounding boxes annotated for object detection data.
-# Saves the found image/bounding-boxe pairs to a given directory for later inspection.
+# Saves the found image/bounding-box pairs to a given directory for later inspection.
 
 import os
 import xml
@@ -7,11 +7,11 @@ import cv2
 import yaml
 import shutil
 
-import lib.file_utils as fu
+import lib.scripts.file_utils as fu
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.pardir, 'configs', 'object_detection')
+    config_dir = os.path.join('..', '..', 'configs', 'object_detection')
     yaml_path = os.path.join(config_dir, 'find_invalid_bboxes.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
