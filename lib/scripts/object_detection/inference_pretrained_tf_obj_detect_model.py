@@ -1,3 +1,10 @@
+"""
+Script to inference pretrained TF object detectio models from a frozen graph as well as inference finetuned TF object
+detection models from a frozen graph.  NOTE: currently code must be commented/uncommented under __main__ below to switch
+between either scenario.
+"""
+
+
 import os
 import yaml
 import time
