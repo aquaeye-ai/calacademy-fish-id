@@ -6,17 +6,17 @@ import tarfile
 
 import cv2 as cv2
 import numpy as np
-import lib.file_utils as fu
+import lib.scripts.file_utils as fu
 import tensorflow as tf
 import six.moves.urllib as urllib
-import lib.log_utils as log_utils
+import lib.scripts.log_utils as log_utils
 
 from object_detection.utils import label_map_util
 from object_detection.utils import ops as utils_ops
 from object_detection.utils import visualization_utils as vis_util
 
 # configure logging
-OUTPUT_DIR = "/home/nightrider/calacademy-fish-id/outputs"
+OUTPUT_DIR = "/home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection"
 log_utils.LOG_DIR = OUTPUT_DIR
 log_utils.init_logging(file_name="inference_pretrained_tf_obj_detect_model_log.txt")
 
@@ -448,7 +448,7 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.curdir, 'configs', 'object_detection')
+    config_dir = os.path.join('..', '..', 'configs', 'object_detection')
     yaml_path = os.path.join(config_dir, 'inference_pretrained_tf_obj_detect_model.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
@@ -472,11 +472,11 @@ if __name__ == "__main__":
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
     # path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    path_to_frozen_graph = '/home/nightrider/calacademy-fish-id/classifiers/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned/5_23_2020/frozen_inference_graph.pb'
+    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/ssd_mobilenet_v2_coco_2018_03_29/fine_tuned/5_23_2020/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
     # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
-    path_to_labels = '/home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/combined_300_600/multi_class/label_map.pbtxt'
+    path_to_labels = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/combined_300_600/multi_class/label_map.pbtxt'
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
     # # download model files
