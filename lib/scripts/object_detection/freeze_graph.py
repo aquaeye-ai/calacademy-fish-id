@@ -10,7 +10,7 @@ import subprocess
 
 if __name__ == "__main__":
     # we expect, as a hand-shake agreement, that there is a .yml config file in top level of lib/configs directory
-    config_dir = os.path.join(os.curdir, '..', 'configs', 'object_detection')
+    config_dir = os.path.join(os.curdir, '..', '..', 'configs', 'object_detection')
     yaml_path = os.path.join(config_dir, 'freeze_graph.yml')
     with open(yaml_path, "r") as stream:
         config = yaml.load(stream)
