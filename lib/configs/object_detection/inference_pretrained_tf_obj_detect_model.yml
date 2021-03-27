@@ -22,7 +22,7 @@ path_to_test_images_dir: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacadem
 # Sizes, in pixels, of input image for the model.
 # Each number is both height and width as we assume the input image to be square
 # These will vary based on the model architecture.
-model_input_image_sizes: [300]
+model_input_image_sizes: [300, 600]
 
 # minimum scoring threshold
 min_score_threshold: 0.7
