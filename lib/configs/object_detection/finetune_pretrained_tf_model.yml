@@ -1,0 +1,13 @@
+#######################
+# CONFIG for image_classification/finetune_pretrained_tf_model.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# path to pipeline config used for training
+pipeline_config_path: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/ssd_mobilenet_v2_coco_2018_03_29/pretrained/pipeline.config
+
+# path to directory that will hold output files
+model_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/ssd_mobilenet_v2_coco_2018_03_29/3_27_2021
