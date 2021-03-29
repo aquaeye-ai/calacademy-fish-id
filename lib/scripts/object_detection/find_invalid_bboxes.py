@@ -34,14 +34,17 @@ if __name__ == "__main__":
 
         img_filename = None
         img_path = None
-        img = None
         idx = 0
+        h_img, w_img = None, None
         for elem in root.getiterator():
             if elem.tag == 'filename':
-                # open image
+                # gather image path and name
                 img_filename = elem.text + '.jpg'
                 img_path = os.path.join(src_img_directory, img_filename)
-                img = cv2.imread(img_path)
+            elif elem.tag == 'size':
+                # gather image dimensions
+                w_img = int(elem._children[0].text)
+                h_img = int(elem._children[1].text)
             elif elem.tag == 'object':
                 label =  elem._children[0].text
                 if label not in classes:
@@ -54,12 +57,12 @@ if __name__ == "__main__":
                 xmax = int(elem._children[4]._children[2].text)
                 ymax = int(elem._children[4]._children[3].text)
 
-                # gather image crop
-                crop = img[ymin:ymax+1, xmin:xmax+1]
-                h, w = crop.shape[0:2]
+                # crop could be at edge of image in which case the height or width would be off by one
+                h_crop = ymax - ymin + 1 if ymax < h_img else ymax - ymin
+                w_crop = xmax - xmin + 1 if xmax < w_img else xmax - xmin
 
-                if (h > 0 and w > 0) and (h < 10 or w < 10):
-                    print("Warning::Small Crop Detected: ({}, {}); shape={}x{}, xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, h, w, xmin, ymin, xmax, ymax))
+                if (h_crop > 0 and w_crop > 0) and (h_crop < 10 or w_crop < 10):
+                    print("Warning::Small Crop Detected: ({}, {}); shape={}x{}, xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, h_crop, w_crop, xmin, ymin, xmax, ymax))
 
                     # copy annotation/image to dst_directory for manual inspection, e.g. using LabelImg
                     shutil.copyfile(img_path, os.path.join(dst_directory, img_filename))
