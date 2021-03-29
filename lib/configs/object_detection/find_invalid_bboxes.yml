@@ -17,3 +17,7 @@ dst_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets
 
 # annotation file extension
 annotation_extension: xml
+
+# 0 or 1; 0 = remove the found invalid boxes from annotation files and save to dst_directory.  1 = keep the found
+# invalid annotations in annotation files and save to dst_directory
+keep_invalid_boxes: 0

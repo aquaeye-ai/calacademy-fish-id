@@ -22,6 +22,7 @@ if __name__ == "__main__":
     src_img_directory = config["src_img_directory"]
     dst_directory = config["dst_directory"]
     annotation_extension = config["annotation_extension"]
+    keep_invalid_boxes = config["keep_invalid_boxes"]
 
     fu.init_directory(directory=dst_directory)
 
@@ -64,9 +65,16 @@ if __name__ == "__main__":
                 if (h_crop > 0 and w_crop > 0) and (h_crop < 10 or w_crop < 10):
                     print("Warning::Small Crop Detected: ({}, {}); shape={}x{}, xmin={}, ymin={}, xmax={}, ymax={}".format(img_filename, ann_path, h_crop, w_crop, xmin, ymin, xmax, ymax))
 
-                    # copy annotation/image to dst_directory for manual inspection, e.g. using LabelImg
+                    # copy image to dst_directory for manual inspection, e.g. using LabelImg
                     shutil.copyfile(img_path, os.path.join(dst_directory, img_filename))
-                    shutil.copyfile(ann_path, os.path.join(dst_directory, img_filename[:-3]+annotation_extension))
+
+                    if keep_invalid_boxes:
+                        # copy annotation to dst_directory for manual inspection, e.g. using LabelImg
+                        shutil.copyfile(ann_path, os.path.join(dst_directory, img_filename[:-3]+annotation_extension))
+                    else:
+                        # remove invalid boxes from annotation and save to dst_directory
+                        root.remove(elem)
+                        et.write(os.path.join(dst_directory, img_filename[:-3]+annotation_extension))
 
                 idx+=1
 
