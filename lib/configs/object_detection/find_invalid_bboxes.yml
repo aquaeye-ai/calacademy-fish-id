@@ -7,13 +7,13 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # path to directory containing source annotation files
-src_ann_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/output_annotations_300
+src_ann_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/output_annotations_600
 
 # path to directory containing source image files
-src_img_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/output_images_300
+src_img_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/output_images_600
 
 # path to directory where found annotations/images will be stored
-dst_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/temp_300
+dst_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/temp_600
 
 # annotation file extension
 annotation_extension: xml
