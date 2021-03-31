@@ -6,10 +6,13 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-source_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/wip_annotation/combined_300_filtered
+# directing holding both images/annotations
+source_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/all_600
 
-destination_directory: /home/nightrider/calacademy-fish-id/datasets/pcr/stills/full/wip_annotation/combined_300_renumbered
+destination_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/combined_300_600
 
-start_number: 1675
+# where to begin numbering from
+start_number: 17055
 
+# extension used by images (annotations are assumed to use .xml)
 image_extension: '.jpg'
