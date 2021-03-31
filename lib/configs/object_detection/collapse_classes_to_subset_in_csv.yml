@@ -6,8 +6,8 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-csv_path: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/combined_300_600/test_labels.csv
+csv_path: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp/train_labels.csv
 
-keep_classes: [other, caesio teres]
+keep_classes: [other]
 
 default_class: other
