@@ -6,11 +6,11 @@
 # 1) bool is treated as int, > 0 for true or <= 0 for false,
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
-# specific pretrained model
-model_name: ssd_mobilenet_v2_coco_2018_03_29
+# specific pretrained model, only necessary if inferencing a pretrained model and not a finetuned, pretrained model
+model_name: ssd_mobilenet_v2_oid_v4_2018_12_12
 
 # label map
-label_map: mscoco_complete_label_map.pbtxt
+label_map: oid_v4_label_map.pbtxt
 
 # where to find downloadable files for pretrained model mentioned above
 download_base: http://download.tensorflow.org/models/object_detection/
