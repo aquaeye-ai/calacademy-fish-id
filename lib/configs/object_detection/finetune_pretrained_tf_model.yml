@@ -10,4 +10,4 @@
 pipeline_config_path: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/ssd_mobilenet_v2_oid_v4_2018_12_12/pretrained/pipeline.config
 
 # path to directory that will hold output files
-model_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/ssd_mobilenet_v2_oid_v4_2018_12_12/3_30_2021
+model_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/ssd_mobilenet_v2_oid_v4_2018_12_12/3_31_2021
