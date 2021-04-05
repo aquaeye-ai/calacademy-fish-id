@@ -7,12 +7,15 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # specific pretrained model, only necessary if inferencing a pretrained model and not a finetuned, pretrained model
+# NOTE: only necessary if downloading model as part of inference
 model_name: ssd_mobilenet_v2_oid_v4_2018_12_12
 
 # label map
+# NOTE: only necessary if downloading model as part of inference
 label_map: oid_v4_label_map.pbtxt
 
 # where to find downloadable files for pretrained model mentioned above
+# NOTE: only necessary if downloading model as part of inference
 download_base: http://download.tensorflow.org/models/object_detection/
 
 # path to directory holding test images

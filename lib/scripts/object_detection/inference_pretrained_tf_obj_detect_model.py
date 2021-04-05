@@ -479,7 +479,7 @@ if __name__ == "__main__":
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
     # path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/ssd_mobilenet_v2_oid_v4_2018_12_12/fine_tuned/3_30_2021/957/frozen_inference_graph.pb'
+    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_1_2021/525/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
     # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
