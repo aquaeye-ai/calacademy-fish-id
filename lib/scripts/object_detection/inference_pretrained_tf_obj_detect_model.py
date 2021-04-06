@@ -479,11 +479,11 @@ if __name__ == "__main__":
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
     # path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_1_2021/525/frozen_inference_graph.pb'
+    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_05_2021/3013/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
     # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
-    path_to_labels = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/combined_300_600/multi_class/label_map.pbtxt'
+    path_to_labels = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/train/combined_300_600/multi_class/label_map.pbtxt'
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
     # # download model files
@@ -508,10 +508,10 @@ if __name__ == "__main__":
                 #                                 model_input_image_sizes=model_input_image_sizes,
                 #                                 category_index=category_index,
                 #                                 min_score_threshold=min_score_threshold)
-                predict_images_tiled_batched(test_image_paths=test_image_paths,
-                                             model_input_image_sizes=model_input_image_sizes,
-                                             category_index=category_index,
-                                             min_score_threshold=min_score_threshold)
-                # predict_images_whole(test_image_paths=test_image_paths,
-                #                      category_index=category_index,
-                #                      min_score_threshold=min_score_threshold)
+                # predict_images_tiled_batched(test_image_paths=test_image_paths,
+                #                              model_input_image_sizes=model_input_image_sizes,
+                #                              category_index=category_index,
+                #                              min_score_threshold=min_score_threshold)
+                predict_images_whole(test_image_paths=test_image_paths,
+                                     category_index=category_index,
+                                     min_score_threshold=min_score_threshold)
