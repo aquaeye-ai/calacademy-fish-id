@@ -10,4 +10,4 @@
 pipeline_config_path: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/pretrained/pipeline.config
 
 # path to directory that will hold output files
-model_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/faster_rcnn_resnet101_coco_2018_01_28/4_01_2021/1
+model_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/faster_rcnn_resnet101_coco_2018_01_28/4_05_2021/1
