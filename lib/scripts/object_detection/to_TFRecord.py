@@ -13,7 +13,7 @@ import tensorflow as tf
 
 
 # change this to the base directory where your data/ is
-DATA_BASE_URL = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/train/full_resolution'
+DATA_BASE_URL = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/train/full_resolution'
 
 # location of images
 IMAGE_DIR = os.path.join(DATA_BASE_URL, 'images/')
@@ -33,13 +33,37 @@ IMAGE_DIR = os.path.join(DATA_BASE_URL, 'images/')
 #     else:
 #         None
 
+# def class_text_to_int(row_label):
+#     if row_label == 'other':
+#         return 1
+#     elif row_label == 'caesio teres':
+#         return 2
+#     else:
+#         None
+
 def class_text_to_int(row_label):
-    if row_label == 'other':
+    if row_label == 'rhinoptera javanica':
         return 1
-    elif row_label == 'caesio teres':
+    elif row_label == 'chelmon rostratus':
         return 2
+    elif row_label == 'monodactylus argenteus':
+        return 3
+    elif row_label == 'trachinotus mookalee':
+        return 4
+    elif row_label == 'himantura uarnak':
+        return 5
+    if row_label == 'acanthurus triostegus':
+        return 6
+    elif row_label == 'other':
+        return 7
+    elif row_label == 'neotrygon kuhlii':
+        return 8
+    elif row_label == 'stingray':
+        return 9
+    elif row_label == 'taeniura lymma':
+        return 10
     else:
-        None
+        return None
 
 def split(df, group):
     data = namedtuple('data', ['filename', 'object'])

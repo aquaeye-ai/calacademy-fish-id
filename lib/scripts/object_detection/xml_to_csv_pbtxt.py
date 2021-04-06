@@ -41,17 +41,23 @@ def xml_to_csv(path):
     return xml_df, classes_names
 
 if __name__ == "__main__":
-    data_dir_path = "/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/train/full_resolution"
+    data_dir_path = "/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/train/full_resolution"
 
+    classes = []
     for label_path in ['train_labels', 'test_labels']:
         image_path = os.path.join(data_dir_path, label_path)
-        xml_df, classes = xml_to_csv(image_path)
+        xml_df, classes_new = xml_to_csv(image_path)
+
+        # we don't want repetition of classes
+        classes = list(set(classes) | set(classes_new))
+
         xml_df.to_csv("{}.csv".format(image_path), index=None)
         print("Successfully converted {} xml to csv.".format(image_path))
 
     label_map_path = os.path.join(data_dir_path, "label_map.pbtxt")
     pbtxt_content = ""
 
+    print("classes: {}".format(classes))
     for i, class_name in enumerate(classes):
         pbtxt_content += "item {{\n    id: {0}\n    name: '{1}'\n}}\n\n".format(i + 1, class_name)
     pbtxt_content = pbtxt_content.strip()
