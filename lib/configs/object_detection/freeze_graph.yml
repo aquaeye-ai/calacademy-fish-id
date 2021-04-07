@@ -10,10 +10,10 @@
 input_type: image_tensor
 
 # path to trained checkpoint prefix
-trained_checkpoint_prefix: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/faster_rcnn_resnet101_coco_2018_01_28/4_05_2021/1/model.ckpt-3013
+trained_checkpoint_prefix: /home/nightrider/aquaeye-ai/calacademy-fish-id/outputs/object_detection/fine_tuned_model_training/faster_rcnn_resnet101_coco_2018_01_28/4_05_2021/2/model.ckpt-8857
 
 # path to pipeline config used for training
 pipeline_config_path: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/pretrained/pipeline.config
 
 # path to directory that will hold frozen graph and its associated outputs
-output_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_05_2021/3013
+output_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_05_2021/8857
