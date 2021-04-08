@@ -30,7 +30,17 @@ model_input_image_sizes: [300, 600]
 min_score_threshold: 0.7
 
 # directory to hold output annotation/image pairs from model prediction (if write_annotations flag is on)
-annotation_dst_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/temp_output
+annotation_dst_directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/prediction_output
 
 # whether to save annotation/image results from predictions of model to annotation_dst_directory
 save_annotations: 1
+
+# whether to use the 'name' or 'display_name' field in the label.pbtxt file when creating the category_index (relevant
+# for which names are displayed next to bounding boxes in output images)
+# 0 - use 'name'
+# 1 - use 'display_name'
+use_display_name: 0
+
+# if saving annotations, we only save labels with boxes that aren't blacklists
+# important if we are using existing annotation files and don't want to overwrite their contents for specific labels
+label_blacklist: ["trachinotus mookalee", "chelmon rostratus", "acanthurus triostegus"]

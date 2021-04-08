@@ -10,7 +10,7 @@ import ntpath
 import shutil
 import logging
 
-import xml.etree.ElementTree
+import xml.etree.ElementTree as et
 
 import numpy as np
 import pandas as pd
@@ -739,7 +739,7 @@ def clean_image_extensions(source_directory=None, destination_directory=None):
             shutil.copyfile(full_image_path, dst_img_path)
 
 def bboxes_to_xml(image_path=None, image_np=None, detection_boxes=None, detection_classes=None, detection_scores=None,
-                        category_index=None, min_score_threshold=0.7, dst_directory=None):
+                        category_index=None, min_score_threshold=0.7, dst_directory=None, label_blacklist=None):
     """
     Write bounding boxes and detection classes from output of object detection model for an image to annotation file
     readable by labelImg.
@@ -753,6 +753,7 @@ def bboxes_to_xml(image_path=None, image_np=None, detection_boxes=None, detectio
     :param category_index: dict, dictionary mapping integer values in detection_classes to readable strings
     :param min_score_threshold: float, threshold for bounding box to be written to annotation
     :param dst_directory: str, where to store image/annotation output
+    :param label_blacklist: list, list of labels for which we ignore bounding boxes
     :return: None
     """
     import math
@@ -760,66 +761,71 @@ def bboxes_to_xml(image_path=None, image_np=None, detection_boxes=None, detectio
     h, w, d = image_np.shape
     image_name = ntpath.basename(image_path)
     ann_dst_path = os.path.join(dst_directory, image_name[:-len('.jpg')] + ".xml")
-    gfg = xml.etree.ElementTree
 
-    # root
-    root = gfg.Element("annotation")
+    # check to see if an existing annotation file exists
+    # if one exists, use it otherwise create a new one
+    root = None
+    if os.path.isfile(image_path[:-len('.jpg')]+".xml"):
+        tree = et.parse(image_path[:-len('.jpg')]+".xml")
+        root = tree.getroot()
+    else:
+        # root
+        root = et.Element("annotation")
 
-    # boilerplate
-    m1 = gfg.SubElement(root, "folder")
-    m1.text = "temp"
+        # boilerplate
+        m1 = et.SubElement(root, "folder")
+        m1.text = "temp"
 
-    m2 = gfg.SubElement(root, "filename")
-    m2.text = image_name
+        m2 = et.SubElement(root, "filename")
+        m2.text = image_name
 
-    m3 = gfg.SubElement(root, "path")
-    m3.text = image_path
+        m3 = et.SubElement(root, "path")
+        m3.text = image_path
 
-    m4 = gfg.SubElement(root, "source")
-    m5 = gfg.SubElement(m4, "database")
-    m5.text = "Unknown"
+        m4 = et.SubElement(root, "source")
+        m5 = et.SubElement(m4, "database")
+        m5.text = "Unknown"
 
-    m6 = gfg.SubElement(root, "size")
-    m7 = gfg.SubElement(m6, "width")
-    m7.text = "{}".format(w)
-    m8 = gfg.SubElement(m6, "height")
-    m8.text = "{}".format(h)
-    m9 = gfg.SubElement(m6, "depth")
-    m9.text = "{}".format(d)
+        m6 = et.SubElement(root, "size")
+        m7 = et.SubElement(m6, "width")
+        m7.text = "{}".format(w)
+        m8 = et.SubElement(m6, "height")
+        m8.text = "{}".format(h)
+        m9 = et.SubElement(m6, "depth")
+        m9.text = "{}".format(d)
 
-    m10 = gfg.SubElement(root, "segmented")
-    m10.text = "0"
+        m10 = et.SubElement(root, "segmented")
+        m10.text = "0"
 
     # bboxes
     for idx, bbox in enumerate(detection_boxes):
-        if detection_scores[idx] >= min_score_threshold:
-            bb_class = category_index[detection_classes[idx]]["name"]
+        bb_class = category_index[detection_classes[idx]]["name"]
+        if detection_scores[idx] >= min_score_threshold and bb_class not in label_blacklist:
+            bb_node = et.SubElement(root, "object")
 
-            bb_node = gfg.SubElement(root, "object")
-
-            name = gfg.SubElement(bb_node, "name")
+            name = et.SubElement(bb_node, "name")
             name.text = bb_class
 
-            pose = gfg.SubElement(bb_node, "pose")
+            pose = et.SubElement(bb_node, "pose")
             pose.text = "Unspecified"
 
-            truncated = gfg.SubElement(bb_node, "truncated")
+            truncated = et.SubElement(bb_node, "truncated")
             truncated.text = "0"
 
-            difficult = gfg.SubElement(bb_node, "difficult")
+            difficult = et.SubElement(bb_node, "difficult")
             difficult.text = "0"
 
-            bndbox = gfg.SubElement(bb_node, "bndbox")
-            xmin = gfg.SubElement(bndbox, "xmin")
+            bndbox = et.SubElement(bb_node, "bndbox")
+            xmin = et.SubElement(bndbox, "xmin")
             xmin.text = "{}".format(int(math.floor(bbox[1]*w)))
-            ymin = gfg.SubElement(bndbox, "ymin")
+            ymin = et.SubElement(bndbox, "ymin")
             ymin.text = "{}".format(int(math.floor(bbox[0]*h)))
-            xmax = gfg.SubElement(bndbox, "xmax")
+            xmax = et.SubElement(bndbox, "xmax")
             xmax.text = "{}".format(int(math.floor(bbox[3]*w)))
-            ymax = gfg.SubElement(bndbox, "ymax")
+            ymax = et.SubElement(bndbox, "ymax")
             ymax.text = "{}".format(int(math.floor(bbox[2]*h)))
 
-    tree = gfg.ElementTree(root)
+    tree = et.ElementTree(root)
     init_directory(directory=dst_directory)
 
     with open(ann_dst_path, "wb") as f:

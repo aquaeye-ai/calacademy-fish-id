@@ -392,7 +392,7 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
         out_image_np_text.close()
 
 def predict_images_whole(test_image_paths=None, category_index=None, min_score_threshold=None, output_dir=None,
-                         annotation_dst_directory=None, save_annotations=None):
+                         annotation_dst_directory=None, save_annotations=None, label_blacklist=None):
     for im_idx, image_path in enumerate(test_image_paths):
         logger.info("image: {}".format(image_path))
 
@@ -440,7 +440,8 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
                              detection_scores=detection_scores,
                              category_index=category_index,
                              min_score_threshold=min_score_threshold,
-                             dst_directory=annotation_dst_directory)
+                             dst_directory=annotation_dst_directory,
+                             label_blacklist=label_blacklist)
 
         # save the original image with boxes
         basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
@@ -481,6 +482,8 @@ if __name__ == "__main__":
     min_score_threshold = config["min_score_threshold"]
     annotation_dst_directory = config["annotation_dst_directory"]
     save_annotations = config["save_annotations"]
+    use_display_name = config["use_display_name"]
+    label_blacklist = config["label_blacklist"]
 
     # For the sake of simplicity we will use only 1 image:
     # image1.jpg
@@ -497,7 +500,7 @@ if __name__ == "__main__":
     # List of the strings that is used to add correct label for each box.
     # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
     path_to_labels = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/train/full_resolution/multi_class/all_classes/label_map.pbtxt'
-    category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
+    category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=use_display_name)
 
     # # download model files
     # opener = urllib.request.URLopener()
@@ -529,4 +532,5 @@ if __name__ == "__main__":
                                      category_index=category_index,
                                      min_score_threshold=min_score_threshold,
                                      annotation_dst_directory=annotation_dst_directory,
-                                     save_annotations=save_annotations)
+                                     save_annotations=save_annotations,
+                                     label_blacklist=label_blacklist)
