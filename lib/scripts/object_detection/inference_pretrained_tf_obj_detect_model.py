@@ -391,7 +391,8 @@ def predict_images_tiled_batched(test_image_paths=None, model_input_image_sizes=
             out_image_np_text.write("{} {} {}\n".format(pr_class, pr_tuple[1], " ".join(map(str, pr_tuple[2]))))
         out_image_np_text.close()
 
-def predict_images_whole(test_image_paths=None, category_index=None, min_score_threshold=None, output_dir=None):
+def predict_images_whole(test_image_paths=None, category_index=None, min_score_threshold=None, output_dir=None,
+                         annotation_dst_directory=None, save_annotations=None):
     for im_idx, image_path in enumerate(test_image_paths):
         logger.info("image: {}".format(image_path))
 
@@ -431,6 +432,16 @@ def predict_images_whole(test_image_paths=None, category_index=None, min_score_t
             min_score_thresh=min_score_threshold,
             max_boxes_to_draw=None) # None will force the function to look at all boxes in list which is what we want since our list of boxes isn't ordered in any way
 
+        if save_annotations > 0:
+            fu.bboxes_to_xml(image_path=image_path,
+                             image_np=image_np,
+                             detection_boxes=detection_boxes,
+                             detection_classes=detection_classes,
+                             detection_scores=detection_scores,
+                             category_index=category_index,
+                             min_score_threshold=min_score_threshold,
+                             dst_directory=annotation_dst_directory)
+
         # save the original image with boxes
         basename = os.path.basename(image_path)[:-4] # get basename and remove extension of .png or .jpg
         out_image_np_path = os.path.join(OUTPUT_DIR, basename)
@@ -468,6 +479,8 @@ if __name__ == "__main__":
     model_input_image_sizes = config["model_input_image_sizes"]
     label_map = config["label_map"]
     min_score_threshold = config["min_score_threshold"]
+    annotation_dst_directory = config["annotation_dst_directory"]
+    save_annotations = config["save_annotations"]
 
     # For the sake of simplicity we will use only 1 image:
     # image1.jpg
@@ -479,11 +492,11 @@ if __name__ == "__main__":
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     model_file = model_name + '.tar.gz'
     # path_to_frozen_graph = os.path.join(model_name, 'frozen_inference_graph.pb')
-    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_06_2021/5851/frozen_inference_graph.pb'
+    path_to_frozen_graph = '/home/nightrider/aquaeye-ai/calacademy-fish-id/classifiers/object_detection/models/faster_rcnn_resnet101_coco_2018_01_28/fine_tuned/4_05_2021/8857/frozen_inference_graph.pb'
 
     # List of the strings that is used to add correct label for each box.
     # path_to_labels = os.path.join('/home/nightrider/tensorflow/models/research/object_detection', 'data', label_map)
-    path_to_labels = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/train/full_resolution/single_class/label_map.pbtxt'
+    path_to_labels = '/media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/reef_lagoon/stills/full/train/full_resolution/multi_class/all_classes/label_map.pbtxt'
     category_index = label_map_util.create_category_index_from_labelmap(path_to_labels, use_display_name=True)
 
     # # download model files
@@ -514,4 +527,6 @@ if __name__ == "__main__":
                 #                              min_score_threshold=min_score_threshold)
                 predict_images_whole(test_image_paths=test_image_paths,
                                      category_index=category_index,
-                                     min_score_threshold=min_score_threshold)
+                                     min_score_threshold=min_score_threshold,
+                                     annotation_dst_directory=annotation_dst_directory,
+                                     save_annotations=save_annotations)
