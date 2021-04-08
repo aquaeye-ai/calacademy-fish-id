@@ -482,7 +482,7 @@ if __name__ == "__main__":
     min_score_threshold = config["min_score_threshold"]
     annotation_dst_directory = config["annotation_dst_directory"]
     save_annotations = config["save_annotations"]
-    use_display_name = config["use_display_name"]
+    use_display_name = True if config["use_display_name"] > 0 else False
     label_blacklist = config["label_blacklist"]
 
     # For the sake of simplicity we will use only 1 image:
