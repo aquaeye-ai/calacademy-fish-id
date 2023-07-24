@@ -7,7 +7,7 @@
 # 2) paths are relative to top level directory: calacademy-fish-id/
 
 # data directory
-directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/train/full_resolution/single_class
+directory: /media/nightrider/Linux_2TB_HDD_A/my_datasets/calacademy/datasets/object_detection/pcr/stills/full/train/combined_300_600/multi_class
 
 # dataset type so the script knows how to parse/label the data
-db_type: test
+db_type: train
