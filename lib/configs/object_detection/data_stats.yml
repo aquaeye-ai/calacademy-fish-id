@@ -1,0 +1,13 @@
+#######################
+# CONFIG for data_stats.py #
+#######################
+
+#NOTE:
+# 1) bool is treated as int, > 0 for true or <= 0 for false,
+# 2) paths are relative to top level directory: calacademy-fish-id/
+
+# data directory
+directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/object_detection/reef_lagoon/stills/full/train/full_resolution/multi_class/all_classes
+
+# dataset type so the script knows how to parse/label the data
+db_type: test
