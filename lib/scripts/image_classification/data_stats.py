@@ -9,6 +9,7 @@ import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 MASTER_DB = "master"
 SCIENTIFIC_SPECIES_NAMES_DB = "scientific_species_names"
 COMMON_GROUP_NAMES_DB = "common_group_names"
@@ -201,6 +202,10 @@ def generate_training_splits_stats(directory=None, splits=None):
     for split in splits:
         generate_training_split_stats(directory=os.path.join(directory, split), split=split)
 
+def add_labels(x, y):
+    for i in range(len(x)):
+        plt.text(x[i], y[i], y[i], ha='center', fontsize=8, rotation='vertical', verticalalignment='bottom')
+
 def generate_training_split_stats(directory=None, split=None):
     ## collect the data for each class
 
@@ -255,9 +260,13 @@ def generate_training_split_stats(directory=None, split=None):
 
     # Make the plot
     plt.bar(r1, [x[0] for x in zipped], color='#7f6d5f', width=barWidth, edgecolor='white', label='Combined')
+    add_labels(r1, [x[0] for x in zipped])
     plt.bar(r2, [x[1] for x in zipped], color='#557f2d', width=barWidth, edgecolor='white', label='Web')
+    add_labels(r2, [x[1] for x in zipped])
     plt.bar(r3, [x[2] for x in zipped], color='#2d7f5e', width=barWidth, edgecolor='white', label='Object Detection')
+    add_labels(r3, [x[2] for x in zipped])
     plt.bar(r4, [x[3] for x in zipped], color='#2d647f', width=barWidth, edgecolor='white', label='Synthetic')
+    add_labels(r4, [x[3] for x in zipped])
 
     # set yticks
     plt.ylabel('Frequency', fontweight='bold')
