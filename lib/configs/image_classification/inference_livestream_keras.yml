@@ -8,7 +8,7 @@
 
 # HLS m3u8 url as described here: https://stackoverflow.com/questions/35608686/how-can-i-get-the-actual-video-url-of-a-youtube-live-stream
 # Has been found to expire after one day
-stream_url: https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1599859928/ei/eJhbX-WTLNinkwaTw7og/ip/98.207.8.218/id/bq2ZR-KMr_A.2/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/goi/160/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/hls_chunk_host/r5---sn-n4v7snee.googlevideo.com/playlist_duration/30/manifest_duration/30/vprv/1/playlist_type/DVR/initcwndbps/16720/mh/K6/mm/44/mn/sn-n4v7snee/ms/lva/mv/m/mvi/5/pl/21/dover/11/keepalive/yes/mt/1599838227/disable_polymer/true/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,goi,sgoap,sgovp,playlist_duration,manifest_duration,vprv,playlist_type/sig/AOq0QJ8wRAIgLjmLIJ3L45I6_19ZlCpDLUgrEy76kdrQ9WPwe1G3dAACIAtRiW5jYmIF-p68riE0GMt9bYlnlBxO2R2BhjX01Pxq/lsparams/hls_chunk_host,initcwndbps,mh,mm,mn,ms,mv,mvi,pl/lsig/AG3C_xAwRQIgKIODbHRHZk6ql4x2ZX7TtxwXmPIQLxNxqR_7MItGN58CIQD2motK4JMB0EXiWNO9qSzAQ4TQjCZlVXw9eHgsqRomXg%3D%3D/playlist/index.m3u8
+stream_url:  https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1602715078/ei/ZimHX91alO2KBL7wvOAJ/ip/98.207.8.218/id/1nWGig6pQ7Q.1/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/goi/160/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/hls_chunk_host/r2---sn-n4v7sney.googlevideo.com/playlist_duration/30/manifest_duration/30/vprv/1/playlist_type/DVR/initcwndbps/16310/mh/18/mm/44/mn/sn-n4v7sney/ms/lva/mv/m/mvi/2/pl/21/dover/11/keepalive/yes/fexp/23915654/mt/1602693392/disable_polymer/true/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,goi,sgoap,sgovp,playlist_duration,manifest_duration,vprv,playlist_type/sig/AOq0QJ8wRgIhAKw4vE3fDS_Qhrzz5OQjUrZSk_nyIlKcwOXmhUH4hIKnAiEAoDrO8AvYJPtNnBDlADTNs8m_q-lG5TbdWYn2nx2oVj4%3D/lsparams/hls_chunk_host,initcwndbps,mh,mm,mn,ms,mv,mvi,pl/lsig/AG3C_xAwRQIgKYwQicdH2BYlFmd7zXRDgm8ItRQxpCkkfhgWYOP1FaECIQDKG5YUoH3xx-GjQxthaKWqMwAaKzQOTCvMDhgZ923Ogg%3D%3D/playlist/index.m3u8
 
 # server url
 server_url: http://localhost:8000
@@ -21,7 +21,7 @@ server_num_classes_endpoint: /num_classes
 
 # directory containing thumbnails for exhibit's specimen icons
 # the images should have names matching the classes used in the model
-thumbnails_directory: /home/nightrider/calacademy-fish-id/lib/scripts/image_classification/thumbnails/reef_lagoon/common_group_names
+thumbnails_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/lib/scripts/image_classification/thumbnails/reef_lagoon/common_group_names
 
 # where to store output
-destination_directory: /home/nightrider/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/raw
+destination_directory: /home/nightrider/aquaeye-ai/calacademy-fish-id/datasets/object_detection/reef_lagoon/video/livestream/raw

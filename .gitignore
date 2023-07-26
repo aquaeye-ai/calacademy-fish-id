@@ -13,4 +13,5 @@
 .idea*
 /outputs/
 /datasets/
+/classifiers/
 datasets
