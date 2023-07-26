@@ -13,7 +13,7 @@ Automated identification of fish species at CalAcademy
 
 # Models
 [download zip]()
-- The downloaded `models` folder should replace the `calacademy-fish-id/classifiers` directory
+- The downloaded `classifiers` folder should replace the `calacademy-fish-id/classifiers` directory
 
 ## Usage
 *Example command for initiating training of object detection model*
