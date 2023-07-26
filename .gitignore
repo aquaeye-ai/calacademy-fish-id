@@ -11,6 +11,7 @@
 .spyproject
 *.pyc
 .idea*
+*.zip
 /outputs/
 /datasets/
 /classifiers/
