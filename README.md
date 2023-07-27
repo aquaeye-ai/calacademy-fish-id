@@ -5,6 +5,7 @@ Automated identification of fish species at CalAcademy
 [download zip](https://drive.google.com/file/d/1RwhbTESgcAExOoumiftDsnhtuoUcfhv2/view?usp=drive_link))
 - create a symlink directory to point to the downloaded folder
   - i.e. `calacademy-fish-id/datasets` symlinks to whereever the downloaded `datasets` folder resides
+  - ![Datasets Map](https://github.com/aquaeye-ai/calacademy-fish-id/assets/2231240/c42ac703-5c37-4859-91ec-1cfab8d62181)
  
 # Outputs (Prediction and training outputs from Models)
 [download zip](https://drive.google.com/file/d/1mvirCikZ8V9TkLaWs7didPFdtMQ26OIw/view?usp=sharing)
