@@ -1,18 +1,18 @@
 # calacademy-fish-id
 Automated identification of fish species at CalAcademy
 
-# Datasets
-[download zip](https://drive.google.com/file/d/1RwhbTESgcAExOoumiftDsnhtuoUcfhv2/view?usp=drive_link)
+# Datasets (Curated datasets used for Models)
+[download zip](https://drive.google.com/file/d/1RwhbTESgcAExOoumiftDsnhtuoUcfhv2/view?usp=drive_link))
 - create a symlink directory to point to the downloaded folder
   - i.e. `calacademy-fish-id/datasets` symlinks to whereever the downloaded `datasets` folder resides
  
-# Outputs
-[download zip]()
+# Outputs (Prediction and training outputs from Models)
+[download zip](https://drive.google.com/file/d/1mvirCikZ8V9TkLaWs7didPFdtMQ26OIw/view?usp=sharing)
 - create a symlink directory to point to the downloaded folder
   - i.e. `calacademy-fish-id/outputs` symlinks to whereever the downloaded `outputs` folder resides  
 
 # Models
-[download zip]()
+[download zip](https://drive.google.com/file/d/1ntAvgQb4NOfwz3nx-OB21P3Zg9L0WPoE/view?usp=sharing)
 - The downloaded `classifiers` folder should replace the `calacademy-fish-id/classifiers` directory
 
 ## Usage
